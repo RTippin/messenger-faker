@@ -18,7 +18,7 @@
     "require": {
         "php": "^7.4||^8.0",
         "fakerphp/faker": "^1.13",
-        "rtippin/messenger": "^0.15"
+        "rtippin/messenger": "dev-dev"
     },
     "require-dev": {
         "phpunit/phpunit": "~9.0",
@@ -38,10 +38,7 @@
         "laravel": {
             "providers": [
                 "RTippin\\MessengerFaker\\MessengerFakerServiceProvider"
-            ],
-            "aliases": {
-                "Messenger": "RTippin\\MessengerFaker\\Facades\\MessengerFaker"
-            }
+            ]
         }
     },
     "scripts": {

@@ -4,6 +4,7 @@ namespace RTippin\MessengerFaker;
 
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
+use RTippin\MessengerFaker\Commands\KnockCommand;
 
 class MessengerFakerServiceProvider extends ServiceProvider implements DeferrableProvider
 {
@@ -14,10 +15,7 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
      */
     public function register(): void
     {
-        $this->app->singleton(
-            MessengerFaker::class,
-            MessengerFaker::class
-        );
+        //
     }
 
     /**
@@ -28,8 +26,9 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
     public function boot(): void
     {
         if ($this->app->runningInConsole()) {
-
-            $this->commands([]);
+            $this->commands([
+                KnockCommand::class,
+            ]);
         }
     }
 
@@ -41,7 +40,7 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
     public function provides(): array
     {
         return [
-            MessengerFaker::class,
+            KnockCommand::class,
         ];
     }
 }
