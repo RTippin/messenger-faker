@@ -2,16 +2,14 @@
 
 namespace RTippin\MessengerFaker\Faker;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Psr\SimpleCache\InvalidArgumentException;
 use RTippin\Messenger\Actions\Threads\SendKnock;
 use RTippin\Messenger\Exceptions\FeatureDisabledException;
 use RTippin\Messenger\Exceptions\InvalidProviderException;
 use RTippin\Messenger\Exceptions\KnockException;
 use RTippin\Messenger\Messenger;
-use RTippin\Messenger\Models\Thread;
 
-class Knock
+class Knock extends MessengerFaker
 {
     /**
      * @var Messenger
@@ -24,11 +22,6 @@ class Knock
     private SendKnock $sendKnock;
 
     /**
-     * @var Thread
-     */
-    private Thread $thread;
-
-    /**
      * Knock constructor.
      *
      * @param Messenger $messenger
@@ -38,30 +31,8 @@ class Knock
     {
         $this->messenger = $messenger;
         $this->sendKnock = $sendKnock;
-    }
-
-    /**
-     * @param string $threadId
-     * @return void
-     * @throws ModelNotFoundException
-     */
-    public function setup(string $threadId): void
-    {
-        $this->thread = Thread::findOrFail($threadId)->load('participants.owner');
-
         $this->messenger->setKnockKnock(true);
-
         $this->messenger->setKnockTimeout(0);
-    }
-
-    /**
-     * @return Thread
-     */
-    public function getThreadName(): string
-    {
-        return $this->thread->isGroup()
-            ? $this->thread->name()
-            : "{$this->thread->participants->first()->owner->name()} and {$this->thread->participants->last()->owner->name()}";
     }
 
     /**

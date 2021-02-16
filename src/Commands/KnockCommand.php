@@ -18,8 +18,8 @@ class KnockCommand extends Command
      * @var string
      */
     protected $signature = 'messenger:faker:knock
-                                            {thread : ID of the thread you wish to mock action} 
-                                            {--delay=1 : delay between loop}
+                                            {thread : ID of the thread you wish to knock at} 
+                                            {--delay=1 : delay between rounds}
                                             {--rounds=1 : Number of loops to run the knock}';
 
     /**
@@ -39,7 +39,7 @@ class KnockCommand extends Command
     public function handle(Knock $knock): void
     {
         try {
-            $knock->setup($this->argument('thread'));
+            $knock->setThread($this->argument('thread'));
         } catch (ModelNotFoundException $e) {
             $this->error('Thread not found.');
 

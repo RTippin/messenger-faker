@@ -1,0 +1,18 @@
+<?php
+
+namespace RTippin\MessengerFaker\Broadcasting;
+
+use RTippin\Messenger\Broadcasting\MessengerBroadcast;
+
+class ReadBroadcast extends MessengerBroadcast
+{
+    /**
+     * The event's broadcast name.
+     *
+     * @return string
+     */
+    public function broadcastAs(): string
+    {
+        return 'client-read';
+    }
+}
