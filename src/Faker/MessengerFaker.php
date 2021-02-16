@@ -13,11 +13,6 @@ abstract class MessengerFaker
     protected Thread $thread;
 
     /**
-     * @var int
-     */
-    protected int $delay = 1;
-
-    /**
      * @param string $threadId
      * @return $this
      * @throws ModelNotFoundException
@@ -25,17 +20,6 @@ abstract class MessengerFaker
     public function setThread(string $threadId): self
     {
         $this->thread = Thread::findOrFail($threadId);
-
-        return $this;
-    }
-
-    /**
-     * @param int $delay
-     * @return $this
-     */
-    public function setDelay(int $delay): self
-    {
-        $this->delay = $delay;
 
         return $this;
     }
@@ -49,4 +33,10 @@ abstract class MessengerFaker
             ? $this->thread->name()
             : "{$this->thread->participants->first()->owner->name()} and {$this->thread->participants->last()->owner->name()}";
     }
+
+    /**
+     * @param int $delay
+     * @return mixed
+     */
+    public abstract function execute($delay = 0);
 }

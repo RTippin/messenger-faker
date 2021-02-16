@@ -36,9 +36,13 @@ class Knock extends MessengerFaker
     }
 
     /**
-     * @throws InvalidProviderException|InvalidArgumentException|FeatureDisabledException|KnockException
+     * @param int $delay
+     * @throws FeatureDisabledException
+     * @throws InvalidArgumentException
+     * @throws InvalidProviderException
+     * @throws KnockException
      */
-    public function execute(): void
+    public function execute($delay = 0): void
     {
         if ($this->thread->isGroup()) {
             $this->messenger->setProvider($this->thread->participants->first()->owner);

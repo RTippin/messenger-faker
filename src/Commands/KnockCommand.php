@@ -17,10 +17,7 @@ class KnockCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'messenger:faker:knock
-                                            {thread : ID of the thread you wish to knock at} 
-                                            {--delay=1 : delay between rounds}
-                                            {--rounds=1 : Number of loops to run the knock}';
+    protected $signature = 'messenger:faker:knock {thread : ID of the thread you wish to knock at}';
 
     /**
      * The console command description.
@@ -46,26 +43,8 @@ class KnockCommand extends Command
             return;
         }
 
-        $this->info("Thread: {$knock->getThreadName()} found, knocking!");
+        $knock->execute();
 
-        $bar = $this->output->createProgressBar($this->option('rounds'));
-
-        $bar->start();
-
-        for ($x = 1; $x <= $this->option('rounds'); $x++) {
-            $knock->execute();
-
-            $bar->advance();
-
-            if ($this->option('rounds') > $x) {
-                sleep($this->option('delay'));
-            }
-        }
-
-        $bar->finish();
-
-        $this->info(' (done)');
-
-        $this->info(" Finished knocking at {$knock->getThreadName()}!");
+        $this->info("Finished knocking at {$knock->getThreadName()}!");
     }
 }
