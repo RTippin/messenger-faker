@@ -15,7 +15,7 @@ class OnlineStatusCommand extends Command
      */
     protected $signature = 'messenger:faker:status 
                                             {thread : ID of the thread you wish to have online status}
-                                            {status=online : Online status to set participants (online/away/offline)}
+                                            {--status=online : Online status to set participants (online/away/offline)}
                                             {--admins : Only use admins for online status if group thread}';
 
     /**
@@ -45,8 +45,8 @@ class OnlineStatusCommand extends Command
             $status->useOnlyAdmins();
         }
 
-        $status->execute($this->argument('status'));
+        $status->execute($this->option('status'));
 
-        $this->info("Finished making participants in {$status->getThreadName()} to {$this->argument('status')}!");
+        $this->info("Finished making participants in {$status->getThreadName()} to {$this->option('status')}!");
     }
 }

@@ -17,7 +17,7 @@ class MessageCommand extends Command
      */
     protected $signature = 'messenger:faker:message 
                                             {thread : ID of the thread you wish to have messaged}
-                                            {count=5 : Number of messages to send}
+                                            {--count=5 : Number of messages to send}
                                             {--delay=3 : Delay between each message being sent}
                                             {--admins : Only use admins to send messages if group thread}';
 
@@ -51,12 +51,12 @@ class MessageCommand extends Command
 
         $this->info("Found {$message->getThreadName()}, now messaging...");
 
-        $bar = $this->output->createProgressBar($this->argument('count'));
+        $bar = $this->output->createProgressBar($this->option('count'));
 
         $bar->start();
 
-        for ($x = 1; $x <= $this->argument('count'); $x++) {
-            $message->execute($this->argument('count') <= $x);
+        for ($x = 1; $x <= $this->option('count'); $x++) {
+            $message->execute($this->option('count') <= $x);
 
             $bar->advance();
         }
@@ -65,6 +65,6 @@ class MessageCommand extends Command
 
         $this->line(' (done)');
 
-        $this->info("Finished sending {$this->argument('count')} messages to {$message->getThreadName()}!");
+        $this->info("Finished sending {$this->option('count')} messages to {$message->getThreadName()}!");
     }
 }
