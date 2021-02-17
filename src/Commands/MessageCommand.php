@@ -19,7 +19,7 @@ class MessageCommand extends Command
                                             {thread : ID of the thread you wish to have messaged}
                                             {count=5 : Number of messages to send}
                                             {--delay=3 : Delay between each message being sent}
-                                            {--admins : Only use admins for messaging}';
+                                            {--admins : Only use admins to send messages if group thread}';
 
     /**
      * The console command description.

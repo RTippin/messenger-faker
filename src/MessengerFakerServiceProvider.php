@@ -9,6 +9,7 @@ use RTippin\MessengerFaker\Commands\MessageCommand;
 use RTippin\MessengerFaker\Commands\OnlineStatusCommand;
 use RTippin\MessengerFaker\Commands\ReadCommand;
 use RTippin\MessengerFaker\Commands\TypingCommand;
+use RTippin\MessengerFaker\Commands\UnReadCommand;
 
 class MessengerFakerServiceProvider extends ServiceProvider implements DeferrableProvider
 {
@@ -36,6 +37,7 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
                 OnlineStatusCommand::class,
                 ReadCommand::class,
                 TypingCommand::class,
+                UnReadCommand::class,
             ]);
         }
     }
@@ -53,6 +55,7 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
             OnlineStatusCommand::class,
             ReadCommand::class,
             TypingCommand::class,
+            UnReadCommand::class,
         ];
     }
 }

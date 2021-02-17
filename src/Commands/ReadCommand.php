@@ -22,7 +22,7 @@ class ReadCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Mark all participants as read.';
+    protected $description = 'Mark participants as read.';
 
     /**
      * Execute the console command.
@@ -46,6 +46,6 @@ class ReadCommand extends Command
 
         $read->execute();
 
-        $this->info("Finished marking {$read->getThreadName()} read!");
+        $this->info("Finished marking participants in {$read->getThreadName()} read!");
     }
 }

@@ -15,7 +15,7 @@ class TypingCommand extends Command
      */
     protected $signature = 'messenger:faker:typing 
                                             {thread : ID of the thread you wish to have typing}
-                                            {--admins : Only use admins for typing}';
+                                            {--admins : Only use admins for typing if group thread}';
 
     /**
      * The console command description.

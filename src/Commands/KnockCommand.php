@@ -17,7 +17,8 @@ class KnockCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'messenger:faker:knock {thread : ID of the thread you wish to knock at}';
+    protected $signature = 'messenger:faker:knock 
+                                            {thread : ID of the thread you wish to knock at}';
 
     /**
      * The console command description.

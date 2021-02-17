@@ -16,7 +16,7 @@ class OnlineStatusCommand extends Command
     protected $signature = 'messenger:faker:status 
                                             {thread : ID of the thread you wish to have online status}
                                             {status=online : Online status to set participants (online/away/offline)}
-                                            {--admins : Only use admins for online status}';
+                                            {--admins : Only use admins for online status if group thread}';
 
     /**
      * The console command description.
