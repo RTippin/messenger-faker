@@ -36,7 +36,7 @@ class KnockCommand extends Command
     public function handle(Knock $knock): void
     {
         try {
-            $knock->setThread($this->argument('thread'));
+            $knock->setThreadWithId($this->argument('thread'));
         } catch (ModelNotFoundException $e) {
             $this->error('Thread not found.');
 

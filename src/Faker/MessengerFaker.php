@@ -17,9 +17,20 @@ abstract class MessengerFaker
      * @return $this
      * @throws ModelNotFoundException
      */
-    public function setThread(string $threadId): self
+    public function setThreadWithId(string $threadId): self
     {
         $this->thread = Thread::findOrFail($threadId);
+
+        return $this;
+    }
+
+    /**
+     * @param Thread $thread
+     * @return $this
+     */
+    public function setThread(Thread $thread): self
+    {
+        $this->thread = $thread;
 
         return $this;
     }
@@ -33,10 +44,4 @@ abstract class MessengerFaker
             ? $this->thread->name()
             : "{$this->thread->participants->first()->owner->name()} and {$this->thread->participants->last()->owner->name()}";
     }
-
-    /**
-     * @param int $delay
-     * @return mixed
-     */
-    public abstract function execute($delay = 0);
 }
