@@ -116,7 +116,7 @@ class Message extends MessengerFaker
 
         $this->storeMessage->execute(
             $this->thread,
-            $this->faker->realText(rand(10, 200), rand(1,4))
+            $this->faker->realText(rand(10, 200), rand(1, 4))
         );
 
         if (! $isFinal) {

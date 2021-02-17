@@ -5,7 +5,7 @@ namespace RTippin\MessengerFaker\Faker;
 class UnRead extends MessengerFaker
 {
     /**
-     * Reset specified last_read on participants
+     * Reset specified last_read on participants.
      */
     public function execute(): void
     {
