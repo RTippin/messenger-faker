@@ -13,6 +13,11 @@ abstract class MessengerFaker
     protected Thread $thread;
 
     /**
+     * @var bool
+     */
+    protected bool $useOnlyAdmins = false;
+
+    /**
      * @param string $threadId
      * @return $this
      * @throws ModelNotFoundException
@@ -31,6 +36,16 @@ abstract class MessengerFaker
     public function setThread(Thread $thread): self
     {
         $this->thread = $thread;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function useOnlyAdmins(): self
+    {
+        $this->useOnlyAdmins = true;
 
         return $this;
     }

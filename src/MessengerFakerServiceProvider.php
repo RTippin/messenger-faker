@@ -5,7 +5,9 @@ namespace RTippin\MessengerFaker;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 use RTippin\MessengerFaker\Commands\KnockCommand;
+use RTippin\MessengerFaker\Commands\OnlineStatusCommand;
 use RTippin\MessengerFaker\Commands\ReadCommand;
+use RTippin\MessengerFaker\Commands\TypingCommand;
 
 class MessengerFakerServiceProvider extends ServiceProvider implements DeferrableProvider
 {
@@ -29,7 +31,9 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
         if ($this->app->runningInConsole()) {
             $this->commands([
                 KnockCommand::class,
+                OnlineStatusCommand::class,
                 ReadCommand::class,
+                TypingCommand::class,
             ]);
         }
     }
@@ -43,7 +47,9 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
     {
         return [
             KnockCommand::class,
+            OnlineStatusCommand::class,
             ReadCommand::class,
+            TypingCommand::class,
         ];
     }
 }

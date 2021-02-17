@@ -69,8 +69,10 @@ class Read extends MessengerFaker
     {
         if (! is_null($participant)) {
             $this->markRead($participant);
+        } elseif ($this->useOnlyAdmins && $this->thread->isGroup()) {
+            $this->thread->participants()->admins()->each(fn (Participant $participant) => $this->markRead($participant));
         } else {
-            $this->thread->participants->each(fn (Participant $participant) => $this->markRead($participant));
+            $this->thread->participants()->each(fn (Participant $participant) => $this->markRead($participant));
         }
     }
 
@@ -81,7 +83,7 @@ class Read extends MessengerFaker
     {
         $this->markRead->withoutDispatches()->execute($participant);
 
-        if (! is_null($this->messenger)) {
+        if (! is_null($this->message)) {
             $this->broadcaster
                 ->toPresence($this->thread)
                 ->with([

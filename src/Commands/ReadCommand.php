@@ -13,7 +13,9 @@ class ReadCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'messenger:faker:read {thread : ID of the thread you wish to mark read}';
+    protected $signature = 'messenger:faker:read 
+                                            {thread : ID of the thread you wish to mark read}
+                                            {--admins : Only mark admins read if group thread}';
 
     /**
      * The console command description.
@@ -36,6 +38,10 @@ class ReadCommand extends Command
             $this->error('Thread not found.');
 
             return;
+        }
+
+        if ($this->option('admins')) {
+            $read->useOnlyAdmins();
         }
 
         $read->execute();
