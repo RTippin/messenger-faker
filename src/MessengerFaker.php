@@ -221,6 +221,26 @@ class MessengerFaker
     }
 
     /**
+     * Mark the given providers as unread.
+     *
+     * @return $this
+     */
+    public function unread(): self
+    {
+        if ($this->useOnlyAdmins && $this->thread->isGroup()) {
+            $this->thread->participants()->admins()->update([
+                'last_read' => null,
+            ]);
+        } else {
+            $this->thread->participants()->update([
+                'last_read' => null,
+            ]);
+        }
+
+        return $this;
+    }
+
+    /**
      * @param string $status
      * @param MessengerProvider $provider
      */
