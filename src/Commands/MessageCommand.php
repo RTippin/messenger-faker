@@ -4,8 +4,7 @@ namespace RTippin\MessengerFaker\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use RTippin\Messenger\Exceptions\InvalidProviderException;
-use RTippin\MessengerFaker\Faker\Message;
+use RTippin\MessengerFaker\MessengerFaker;
 use Throwable;
 
 class MessageCommand extends Command
@@ -31,32 +30,29 @@ class MessageCommand extends Command
     /**
      * Execute the console command.
      *
-     * @param Message $message
+     * @param MessengerFaker $faker
      * @return void
-     * @throws InvalidProviderException
      * @throws Throwable
      */
-    public function handle(Message $message): void
+    public function handle(MessengerFaker $faker): void
     {
         try {
-            $message->setThreadWithId($this->argument('thread'))->setup(
-                $this->option('delay'),
-                $this->option('admins')
-            );
+            $faker->setThreadWithId($this->argument('thread'), $this->option('admins'))
+                ->setDelay($this->option('delay'));
         } catch (ModelNotFoundException $e) {
             $this->error('Thread not found.');
 
             return;
         }
 
-        $this->info("Found {$message->getThreadName()}, now messaging...");
+        $this->info("Found {$faker->getThreadName()}, now messaging...");
 
         $bar = $this->output->createProgressBar($this->option('count'));
 
         $bar->start();
 
         for ($x = 1; $x <= $this->option('count'); $x++) {
-            $message->execute($this->option('count') <= $x);
+            $faker->message($this->option('count') <= $x);
 
             $bar->advance();
         }
@@ -65,6 +61,6 @@ class MessageCommand extends Command
 
         $this->line(' (done)');
 
-        $this->info("Finished sending {$this->option('count')} messages to {$message->getThreadName()}!");
+        $this->info("Finished sending {$this->option('count')} messages to {$faker->getThreadName()}!");
     }
 }
