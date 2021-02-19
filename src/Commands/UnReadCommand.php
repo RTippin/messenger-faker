@@ -33,14 +33,14 @@ class UnReadCommand extends Command
     public function handle(MessengerFaker $faker): void
     {
         try {
-            $faker->setThreadWithId($this->argument('thread'));
+            $faker->setThreadWithId($this->argument('thread'), $this->option('admins'));
         } catch (ModelNotFoundException $e) {
             $this->error('Thread not found.');
 
             return;
         }
 
-        $faker->useAdmins($this->option('admins'))->unread();
+        $faker->unread();
 
         $this->info("Finished marking {$faker->getThreadName()} participants as unread!");
     }

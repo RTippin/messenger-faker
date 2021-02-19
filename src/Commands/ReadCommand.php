@@ -33,14 +33,14 @@ class ReadCommand extends Command
     public function handle(MessengerFaker $faker): void
     {
         try {
-            $faker->setThreadWithId($this->argument('thread'));
+            $faker->setThreadWithId($this->argument('thread'), $this->option('admins'));
         } catch (ModelNotFoundException $e) {
             $this->error('Thread not found.');
 
             return;
         }
 
-        $faker->useAdmins($this->option('admins'))->read();
+        $faker->read();
 
         $this->info("Finished marking participants in {$faker->getThreadName()} read!");
     }

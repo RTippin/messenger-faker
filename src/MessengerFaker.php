@@ -3,7 +3,9 @@
 namespace RTippin\MessengerFaker;
 
 use Faker\Generator;
+use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Collection;
 use Psr\SimpleCache\InvalidArgumentException;
 use RTippin\Messenger\Actions\Messages\StoreMessage;
 use RTippin\Messenger\Actions\Threads\MarkParticipantRead;
@@ -59,9 +61,14 @@ class MessengerFaker
     private ?Thread $thread = null;
 
     /**
-     * @var bool
+     * @var DBCollection
      */
-    private bool $useOnlyAdmins;
+    private DBCollection $participants;
+
+    /**
+     * @var Collection
+     */
+    private Collection $usedParticipants;
 
     /**
      * @var int
@@ -91,7 +98,6 @@ class MessengerFaker
         $this->markRead = $markRead;
         $this->faker = $faker;
         $this->storeMessage = $storeMessage;
-        $this->useOnlyAdmins = false;
         $this->delay = 0;
         $this->messenger->setKnockKnock(true);
         $this->messenger->setKnockTimeout(0);
@@ -113,34 +119,30 @@ class MessengerFaker
 
     /**
      * @param string $threadId
+     * @param bool $useAdmins
      * @return $this
      * @throws ModelNotFoundException
      */
-    public function setThreadWithId(string $threadId): self
+    public function setThreadWithId(string $threadId, bool $useAdmins = false): self
     {
         $this->thread = Thread::findOrFail($threadId);
+
+        $this->setParticipants($useAdmins);
 
         return $this;
     }
 
     /**
      * @param Thread $thread
+     * @param bool $useAdmins
      * @return $this
+     * @throws ModelNotFoundException
      */
-    public function setThread(Thread $thread): self
+    public function setThread(Thread $thread, bool $useAdmins = false): self
     {
         $this->thread = $thread;
 
-        return $this;
-    }
-
-    /**
-     * @param bool $useAdmins
-     * @return $this
-     */
-    public function useAdmins(bool $useAdmins = true): self
-    {
-        $this->useOnlyAdmins = $useAdmins;
+        $this->setParticipants($useAdmins);
 
         return $this;
     }
@@ -160,7 +162,7 @@ class MessengerFaker
     {
         return $this->thread->isGroup()
             ? $this->thread->name()
-            : "{$this->thread->participants->first()->owner->name()} and {$this->thread->participants->last()->owner->name()}";
+            : "{$this->participants->first()->owner->name()} and {$this->participants->last()->owner->name()}";
     }
 
     /**
@@ -175,15 +177,15 @@ class MessengerFaker
     public function knock(): self
     {
         if ($this->thread->isGroup()) {
-            $this->setProvider($this->thread->participants->first()->owner);
+            $this->setProvider($this->participants->first()->owner);
 
             $this->sendKnock->execute($this->thread);
         } else {
-            $this->setProvider($this->thread->participants->first()->owner);
+            $this->setProvider($this->participants->first()->owner);
 
             $this->sendKnock->execute($this->thread);
 
-            $this->setProvider($this->thread->participants->last()->owner);
+            $this->setProvider($this->participants->last()->owner);
 
             $this->sendKnock->execute($this->thread);
         }
@@ -202,12 +204,8 @@ class MessengerFaker
     {
         if (! is_null($provider)) {
             $this->setStatus($status, $provider);
-        } elseif ($this->useOnlyAdmins) {
-            $this->thread->participants()->admins()->each(function (Participant $participant) use ($status) {
-                $this->setStatus($status, $participant->owner);
-            });
         } else {
-            $this->thread->participants()->each(function (Participant $participant) use ($status) {
+            $this->participants->each(function (Participant $participant) use ($status) {
                 $this->setStatus($status, $participant->owner);
             });
         }
@@ -226,10 +224,8 @@ class MessengerFaker
         if (! is_null($message = $this->thread->messages()->latest()->first())) {
             if (! is_null($participant)) {
                 $this->markRead($participant, $message);
-            } elseif ($this->useOnlyAdmins && $this->thread->isGroup()) {
-                $this->thread->participants()->admins()->each(fn (Participant $participant) => $this->markRead($participant, $message));
             } else {
-                $this->thread->participants()->each(fn (Participant $participant) => $this->markRead($participant, $message));
+                $this->participants->each(fn (Participant $participant) => $this->markRead($participant, $message));
             }
         }
 
@@ -243,15 +239,7 @@ class MessengerFaker
      */
     public function unread(): self
     {
-        if ($this->useOnlyAdmins && $this->thread->isGroup()) {
-            $this->thread->participants()->admins()->update([
-                'last_read' => null,
-            ]);
-        } else {
-            $this->thread->participants()->update([
-                'last_read' => null,
-            ]);
-        }
+        $this->participants->each(fn (Participant $participant) => $participant->update(['last_read' => null]));
 
         return $this;
     }
@@ -268,15 +256,25 @@ class MessengerFaker
 
         if (! is_null($provider)) {
             $this->sendTyping($provider);
-        } elseif ($this->useOnlyAdmins) {
-            $this->thread->participants()->admins()->each(fn (Participant $participant) => $this->sendTyping($participant->owner));
         } else {
-            $this->thread->participants()->each(fn (Participant $participant) => $this->sendTyping($participant->owner));
+            $this->participants->each(fn (Participant $participant) => $this->sendTyping($participant->owner));
         }
 
         $this->messenger->setOnlineCacheLifetime(1);
 
         return $this;
+    }
+
+    /**
+     * @param bool $useAdmins
+     */
+    private function setParticipants(bool $useAdmins): void
+    {
+        if ($useAdmins) {
+            $this->participants = $this->thread->participants()->admins()->get();
+        } else {
+            $this->participants = $this->thread->participants()->get();
+        }
     }
 
     /**
@@ -310,6 +308,30 @@ class MessengerFaker
                 'online_status' => $online,
             ])
             ->broadcast(OnlineStatusBroadcast::class);
+    }
+
+    public function message(bool $isFinal = false): void
+    {
+//        /** @var Participant $participant */
+//        $participant = $this->participants->random();
+//        $this->usedParticipants->push($participant);
+//        $this->messenger->setProvider($participant->owner);
+//        $this->typing->execute($participant->owner);
+//
+//        if ($this->delay > 0) {
+//            sleep(1);
+//        }
+//
+//        $this->storeMessage->withoutEvents()->execute(
+//            $this->thread,
+//            $this->faker->realText(rand(10, 200), rand(1, 4))
+//        );
+//
+//        if (! $isFinal) {
+//            sleep($this->delay);
+//        } else {
+//            $this->read();
+//        }
     }
 
     /**
