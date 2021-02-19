@@ -4,7 +4,7 @@ namespace RTippin\MessengerFaker\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use RTippin\MessengerFaker\Faker\Read;
+use RTippin\MessengerFaker\MessengerFaker;
 
 class ReadCommand extends Command
 {
@@ -27,25 +27,21 @@ class ReadCommand extends Command
     /**
      * Execute the console command.
      *
-     * @param Read $read
+     * @param MessengerFaker $faker
      * @return void
      */
-    public function handle(Read $read): void
+    public function handle(MessengerFaker $faker): void
     {
         try {
-            $read->setThreadWithId($this->argument('thread'))->setLatestMessage();
+            $faker->setThreadWithId($this->argument('thread'));
         } catch (ModelNotFoundException $e) {
             $this->error('Thread not found.');
 
             return;
         }
 
-        if ($this->option('admins')) {
-            $read->useOnlyAdmins();
-        }
+        $faker->useAdmins($this->option('admins'))->read();
 
-        $read->execute();
-
-        $this->info("Finished marking participants in {$read->getThreadName()} read!");
+        $this->info("Finished marking participants in {$faker->getThreadName()} read!");
     }
 }

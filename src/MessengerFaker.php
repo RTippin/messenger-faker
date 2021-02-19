@@ -4,6 +4,7 @@ namespace RTippin\MessengerFaker;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Psr\SimpleCache\InvalidArgumentException;
+use RTippin\Messenger\Actions\Threads\MarkParticipantRead;
 use RTippin\Messenger\Actions\Threads\SendKnock;
 use RTippin\Messenger\Contracts\BroadcastDriver;
 use RTippin\Messenger\Contracts\MessengerProvider;
@@ -11,9 +12,11 @@ use RTippin\Messenger\Exceptions\FeatureDisabledException;
 use RTippin\Messenger\Exceptions\InvalidProviderException;
 use RTippin\Messenger\Exceptions\KnockException;
 use RTippin\Messenger\Messenger;
+use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
 use RTippin\MessengerFaker\Broadcasting\OnlineStatusBroadcast;
+use RTippin\MessengerFaker\Broadcasting\ReadBroadcast;
 
 class MessengerFaker
 {
@@ -31,6 +34,11 @@ class MessengerFaker
      * @var SendKnock
      */
     private SendKnock $sendKnock;
+
+    /**
+     * @var MarkParticipantRead
+     */
+    private MarkParticipantRead $markRead;
 
     /**
      * @var Thread|null
@@ -53,14 +61,18 @@ class MessengerFaker
      * @param Messenger $messenger
      * @param BroadcastDriver $broadcaster
      * @param SendKnock $sendKnock
+     * @param MarkParticipantRead $markRead
      */
     public function __construct(Messenger $messenger,
                                 BroadcastDriver $broadcaster,
-                                SendKnock $sendKnock)
+                                SendKnock $sendKnock,
+                                MarkParticipantRead $markRead)
     {
         $this->messenger = $messenger;
         $this->broadcaster = $broadcaster;
         $this->sendKnock = $sendKnock;
+        $this->markRead = $markRead;
+
 
         $this->useOnlyAdmins = false;
         $this->delay = 0;
@@ -69,7 +81,6 @@ class MessengerFaker
         $this->messenger->setKnockTimeout(0);
         $this->messenger->setOnlineStatus(true);
         $this->messenger->setOnlineCacheLifetime(1);
-
     }
 
     /**
@@ -188,20 +199,26 @@ class MessengerFaker
         return $this;
     }
 
+    /**
+     * Mark the given providers as read and send broadcast.
+     *
+     * @param Participant|null $participant
+     * @return $this
+     */
+    public function read(Participant $participant = null): self
+    {
+        if (! is_null($message = $this->thread->messages()->latest()->first())) {
+            if (! is_null($participant)) {
+                $this->markRead($participant, $message);
+            } elseif ($this->useOnlyAdmins && $this->thread->isGroup()) {
+                $this->thread->participants()->admins()->each(fn (Participant $participant) => $this->markRead($participant, $message));
+            } else {
+                $this->thread->participants()->each(fn (Participant $participant) => $this->markRead($participant, $message));
+            }
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return $this;
+    }
 
     /**
      * @param string $status
@@ -234,5 +251,23 @@ class MessengerFaker
                 'online_status' => $online,
             ])
             ->broadcast(OnlineStatusBroadcast::class);
+    }
+
+    /**
+     * @param Participant $participant
+     * @param Message $message
+     */
+    private function markRead(Participant $participant, Message $message): void
+    {
+        $this->markRead->withoutDispatches()->execute($participant);
+
+        $this->broadcaster
+            ->toPresence($this->thread)
+            ->with([
+                'provider_id' => $participant->owner_id,
+                'provider_alias' => $this->messenger->findProviderAlias($participant->owner_type),
+                'message_id' => $message->id,
+            ])
+            ->broadcast(ReadBroadcast::class);
     }
 }
