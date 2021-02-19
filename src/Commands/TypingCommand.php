@@ -4,7 +4,7 @@ namespace RTippin\MessengerFaker\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use RTippin\MessengerFaker\Faker\Typing;
+use RTippin\MessengerFaker\MessengerFaker;
 
 class TypingCommand extends Command
 {
@@ -27,24 +27,21 @@ class TypingCommand extends Command
     /**
      * Execute the console command.
      *
-     * @param Typing $typing
+     * @param MessengerFaker $faker
      * @return void
      */
-    public function handle(Typing $typing): void
+    public function handle(MessengerFaker $faker): void
     {
         try {
-            $typing->setThreadWithId($this->argument('thread'));
+            $faker->setThreadWithId($this->argument('thread'));
         } catch (ModelNotFoundException $e) {
             $this->error('Thread not found.');
 
             return;
         }
-        if ($this->option('admins')) {
-            $typing->useOnlyAdmins();
-        }
 
-        $typing->execute();
+        $faker->useAdmins($this->option('admins'))->typing();
 
-        $this->info("Finished making participants in {$typing->getThreadName()} type!");
+        $this->info("Finished making participants in {$faker->getThreadName()} type!");
     }
 }

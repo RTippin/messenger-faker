@@ -2,8 +2,10 @@
 
 namespace RTippin\MessengerFaker;
 
+use Faker\Generator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Psr\SimpleCache\InvalidArgumentException;
+use RTippin\Messenger\Actions\Messages\StoreMessage;
 use RTippin\Messenger\Actions\Threads\MarkParticipantRead;
 use RTippin\Messenger\Actions\Threads\SendKnock;
 use RTippin\Messenger\Contracts\BroadcastDriver;
@@ -17,6 +19,7 @@ use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
 use RTippin\MessengerFaker\Broadcasting\OnlineStatusBroadcast;
 use RTippin\MessengerFaker\Broadcasting\ReadBroadcast;
+use RTippin\MessengerFaker\Broadcasting\TypingBroadcast;
 
 class MessengerFaker
 {
@@ -31,6 +34,11 @@ class MessengerFaker
     private BroadcastDriver $broadcaster;
 
     /**
+     * @var Generator
+     */
+    private Generator $faker;
+
+    /**
      * @var SendKnock
      */
     private SendKnock $sendKnock;
@@ -39,6 +47,11 @@ class MessengerFaker
      * @var MarkParticipantRead
      */
     private MarkParticipantRead $markRead;
+
+    /**
+     * @var StoreMessage
+     */
+    private StoreMessage $storeMessage;
 
     /**
      * @var Thread|null
@@ -60,23 +73,26 @@ class MessengerFaker
      *
      * @param Messenger $messenger
      * @param BroadcastDriver $broadcaster
+     * @param Generator $faker
      * @param SendKnock $sendKnock
      * @param MarkParticipantRead $markRead
+     * @param StoreMessage $storeMessage
      */
     public function __construct(Messenger $messenger,
                                 BroadcastDriver $broadcaster,
+                                Generator $faker,
                                 SendKnock $sendKnock,
-                                MarkParticipantRead $markRead)
+                                MarkParticipantRead $markRead,
+                                StoreMessage $storeMessage)
     {
         $this->messenger = $messenger;
         $this->broadcaster = $broadcaster;
         $this->sendKnock = $sendKnock;
         $this->markRead = $markRead;
-
-
+        $this->faker = $faker;
+        $this->storeMessage = $storeMessage;
         $this->useOnlyAdmins = false;
         $this->delay = 0;
-
         $this->messenger->setKnockKnock(true);
         $this->messenger->setKnockTimeout(0);
         $this->messenger->setOnlineStatus(true);
@@ -241,6 +257,29 @@ class MessengerFaker
     }
 
     /**
+     * Make the given providers send typing broadcast.
+     *
+     * @param MessengerProvider|null $provider
+     * @return $this
+     */
+    public function typing(MessengerProvider $provider = null): self
+    {
+        $this->messenger->setOnlineCacheLifetime(0);
+
+        if (! is_null($provider)) {
+            $this->sendTyping($provider);
+        } elseif ($this->useOnlyAdmins) {
+            $this->thread->participants()->admins()->each(fn (Participant $participant) => $this->sendTyping($participant->owner));
+        } else {
+            $this->thread->participants()->each(fn (Participant $participant) => $this->sendTyping($participant->owner));
+        }
+
+        $this->messenger->setOnlineCacheLifetime(1);
+
+        return $this;
+    }
+
+    /**
      * @param string $status
      * @param MessengerProvider $provider
      */
@@ -289,5 +328,23 @@ class MessengerFaker
                 'message_id' => $message->id,
             ])
             ->broadcast(ReadBroadcast::class);
+    }
+
+    /**
+     * @param MessengerProvider $provider
+     */
+    private function sendTyping(MessengerProvider $provider): void
+    {
+        $this->status('online', $provider);
+
+        $this->broadcaster
+            ->toPresence($this->thread)
+            ->with([
+                'provider_id' => $provider->getKey(),
+                'provider_alias' => $this->messenger->findProviderAlias($provider),
+                'name' => $provider->name(),
+                'typing' => true,
+            ])
+            ->broadcast(TypingBroadcast::class);
     }
 }
