@@ -278,6 +278,43 @@ class MessengerFaker
         return $this;
     }
 
+
+    /**
+     * Send messages using the given providers and show typing and mark read.
+     *
+     * @param bool $isFinal
+     * @return $this
+     * @throws InvalidProviderException
+     * @throws Throwable
+     */
+    public function message(bool $isFinal = false): self
+    {
+        /** @var Participant $participant */
+        $participant = $this->participants->random();
+        $this->usedParticipants->push($participant);
+        $this->setProvider($participant->owner);
+        $this->typing($participant->owner);
+
+        if ($this->delay > 0) {
+            sleep(1);
+        }
+
+        $this->storeMessage->withoutEvents()->execute(
+            $this->thread,
+            $this->faker->realText(rand(10, 200), rand(1, 4))
+        );
+
+        if (! $isFinal) {
+            sleep($this->delay);
+        } else {
+            $this->usedParticipants
+                ->unique('owner_id')
+                ->each(fn (Participant $participant) => $this->read($participant));
+        }
+
+        return $this;
+    }
+
     /**
      * @param bool $useAdmins
      */
@@ -321,42 +358,6 @@ class MessengerFaker
                 'online_status' => $online,
             ])
             ->broadcast(OnlineStatusBroadcast::class);
-    }
-
-    /**
-     * Send messages using the given providers and show typing and mark read.
-     *
-     * @param bool $isFinal
-     * @return $this
-     * @throws InvalidProviderException
-     * @throws Throwable
-     */
-    public function message(bool $isFinal = false): self
-    {
-        /** @var Participant $participant */
-        $participant = $this->participants->random();
-        $this->usedParticipants->push($participant);
-        $this->setProvider($participant->owner);
-        $this->typing($participant->owner);
-
-        if ($this->delay > 0) {
-            sleep(1);
-        }
-
-        $this->storeMessage->withoutEvents()->execute(
-            $this->thread,
-            $this->faker->realText(rand(10, 200), rand(1, 4))
-        );
-
-        if (! $isFinal) {
-            sleep($this->delay);
-        } else {
-            $this->usedParticipants
-                ->unique('owner_id')
-                ->each(fn (Participant $participant) => $this->read($participant));
-        }
-
-        return $this;
     }
 
     /**
