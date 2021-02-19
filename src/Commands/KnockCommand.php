@@ -27,7 +27,6 @@ class KnockCommand extends Command
      */
     protected $description = 'Send a knock to the given thread.';
 
-
     /**
      * Execute the console command.
      *

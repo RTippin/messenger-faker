@@ -278,7 +278,6 @@ class MessengerFaker
         return $this;
     }
 
-
     /**
      * Send messages using the given providers and show typing and mark read.
      *
