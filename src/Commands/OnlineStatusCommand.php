@@ -4,7 +4,7 @@ namespace RTippin\MessengerFaker\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use RTippin\MessengerFaker\Faker\OnlineStatus;
+use RTippin\MessengerFaker\MessengerFaker;
 
 class OnlineStatusCommand extends Command
 {
@@ -28,25 +28,21 @@ class OnlineStatusCommand extends Command
     /**
      * Execute the console command.
      *
-     * @param OnlineStatus $status
+     * @param MessengerFaker $faker
      * @return void
      */
-    public function handle(OnlineStatus $status): void
+    public function handle(MessengerFaker $faker): void
     {
         try {
-            $status->setThreadWithId($this->argument('thread'));
+            $faker->setThreadWithId($this->argument('thread'));
         } catch (ModelNotFoundException $e) {
             $this->error('Thread not found.');
 
             return;
         }
 
-        if ($this->option('admins')) {
-            $status->useOnlyAdmins();
-        }
+        $faker->useAdmins($this->option('admins'))->status($this->option('status'));
 
-        $status->execute($this->option('status'));
-
-        $this->info("Finished making participants in {$status->getThreadName()} to {$this->option('status')}!");
+        $this->info("Finished making participants in {$faker->getThreadName()} to {$this->option('status')}!");
     }
 }

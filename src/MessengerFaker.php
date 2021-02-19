@@ -11,7 +11,9 @@ use RTippin\Messenger\Exceptions\FeatureDisabledException;
 use RTippin\Messenger\Exceptions\InvalidProviderException;
 use RTippin\Messenger\Exceptions\KnockException;
 use RTippin\Messenger\Messenger;
+use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
+use RTippin\MessengerFaker\Broadcasting\OnlineStatusBroadcast;
 
 class MessengerFaker
 {
@@ -135,6 +137,8 @@ class MessengerFaker
     }
 
     /**
+     * Send a knock to the given thread.
+     *
      * @return $this
      * @throws InvalidProviderException
      * @throws InvalidArgumentException
@@ -158,5 +162,77 @@ class MessengerFaker
         }
 
         return $this;
+    }
+
+    /**
+     * Set and broadcast the given providers online status.
+     *
+     * @param string $status
+     * @param MessengerProvider|null $provider
+     * @return $this
+     */
+    public function status(string $status, MessengerProvider $provider = null): self
+    {
+        if (! is_null($provider)) {
+            $this->setStatus($status, $provider);
+        } elseif ($this->useOnlyAdmins) {
+            $this->thread->participants()->admins()->each(function (Participant $participant) use ($status) {
+                $this->setStatus($status, $participant->owner);
+            });
+        } else {
+            $this->thread->participants()->each(function (Participant $participant) use ($status) {
+                $this->setStatus($status, $participant->owner);
+            });
+        }
+
+        return $this;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * @param string $status
+     * @param MessengerProvider $provider
+     */
+    private function setStatus(string $status, MessengerProvider $provider): void
+    {
+        $online = 0;
+
+        switch ($status) {
+            case 'online':
+                $this->messenger->setProviderToOnline($provider);
+                $online = 1;
+            break;
+            case 'away':
+                $this->messenger->setProviderToAway($provider);
+                $online = 2;
+            break;
+            case 'offline':
+                $this->messenger->setProviderToOffline($provider);
+            break;
+        }
+
+        $this->broadcaster
+            ->toPresence($this->thread)
+            ->with([
+                'provider_id' => $provider->getKey(),
+                'provider_alias' => $this->messenger->findProviderAlias($provider),
+                'name' => $provider->name(),
+                'online_status' => $online,
+            ])
+            ->broadcast(OnlineStatusBroadcast::class);
     }
 }
