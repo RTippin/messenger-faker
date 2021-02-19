@@ -8,7 +8,7 @@ use Psr\SimpleCache\InvalidArgumentException;
 use RTippin\Messenger\Exceptions\FeatureDisabledException;
 use RTippin\Messenger\Exceptions\InvalidProviderException;
 use RTippin\Messenger\Exceptions\KnockException;
-use RTippin\MessengerFaker\Faker\Knock;
+use RTippin\MessengerFaker\MessengerFaker;
 
 class KnockCommand extends Command
 {
@@ -27,25 +27,28 @@ class KnockCommand extends Command
      */
     protected $description = 'Send a knock to the given thread.';
 
+
     /**
      * Execute the console command.
      *
-     * @param Knock $knock
-     * @return void
-     * @throws InvalidProviderException|InvalidArgumentException|FeatureDisabledException|KnockException
+     * @param MessengerFaker $faker
+     * @throws FeatureDisabledException
+     * @throws InvalidArgumentException
+     * @throws InvalidProviderException
+     * @throws KnockException
      */
-    public function handle(Knock $knock): void
+    public function handle(MessengerFaker $faker): void
     {
         try {
-            $knock->setThreadWithId($this->argument('thread'));
+            $faker->setThreadWithId($this->argument('thread'));
         } catch (ModelNotFoundException $e) {
             $this->error('Thread not found.');
 
             return;
         }
 
-        $knock->execute();
+        $faker->knock();
 
-        $this->info("Finished knocking at {$knock->getThreadName()}!");
+        $this->info("Finished knocking at {$faker->getThreadName()}!");
     }
 }

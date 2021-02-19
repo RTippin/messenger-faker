@@ -20,7 +20,10 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(
+            MessengerFaker::class,
+            MessengerFaker::class
+        );
     }
 
     /**
@@ -52,6 +55,7 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
         return [
             KnockCommand::class,
             MessageCommand::class,
+            MessengerFaker::class,
             OnlineStatusCommand::class,
             ReadCommand::class,
             TypingCommand::class,

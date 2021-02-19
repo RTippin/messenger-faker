@@ -5,7 +5,7 @@ namespace RTippin\MessengerFaker\Faker;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use RTippin\Messenger\Models\Thread;
 
-abstract class MessengerFaker
+abstract class MessengerFakerBase
 {
     /**
      * @var Thread

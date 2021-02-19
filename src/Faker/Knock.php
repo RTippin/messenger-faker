@@ -7,14 +7,14 @@ use RTippin\Messenger\Actions\Threads\SendKnock;
 use RTippin\Messenger\Exceptions\FeatureDisabledException;
 use RTippin\Messenger\Exceptions\InvalidProviderException;
 use RTippin\Messenger\Exceptions\KnockException;
-use RTippin\Messenger\Messenger;
+use RTippin\MessengerFaker\MessengerFaker;
 
-class Knock extends MessengerFaker
+class Knock
 {
     /**
-     * @var Messenger
+     * @var MessengerFaker
      */
-    private Messenger $messenger;
+    private MessengerFaker $faker;
 
     /**
      * @var SendKnock
@@ -24,15 +24,13 @@ class Knock extends MessengerFaker
     /**
      * Knock constructor.
      *
-     * @param Messenger $messenger
+     * @param MessengerFaker $faker
      * @param SendKnock $sendKnock
      */
-    public function __construct(Messenger $messenger, SendKnock $sendKnock)
+    public function __construct(MessengerFaker $faker, SendKnock $sendKnock)
     {
-        $this->messenger = $messenger;
+        $this->faker = $faker;
         $this->sendKnock = $sendKnock;
-        $this->messenger->setKnockKnock(true);
-        $this->messenger->setKnockTimeout(0);
     }
 
     /**
@@ -43,18 +41,18 @@ class Knock extends MessengerFaker
      */
     public function execute(): void
     {
-        if ($this->thread->isGroup()) {
-            $this->messenger->setProvider($this->thread->participants->first()->owner);
+        if ($this->faker->getThread()->isGroup()) {
+            $this->faker->setProvider($this->faker->getThread()->participants->first()->owner);
 
-            $this->sendKnock->execute($this->thread);
+            $this->sendKnock->execute($this->faker->getThread());
         } else {
-            $this->messenger->setProvider($this->thread->participants->first()->owner);
+            $this->faker->setProvider($this->faker->getThread()->participants->first()->owner);
 
-            $this->sendKnock->execute($this->thread);
+            $this->sendKnock->execute($this->faker->getThread());
 
-            $this->messenger->setProvider($this->thread->participants->last()->owner);
+            $this->faker->setProvider($this->faker->getThread()->participants->last()->owner);
 
-            $this->sendKnock->execute($this->thread);
+            $this->sendKnock->execute($this->faker->getThread());
         }
     }
 }

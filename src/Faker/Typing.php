@@ -8,7 +8,7 @@ use RTippin\Messenger\Messenger;
 use RTippin\Messenger\Models\Participant;
 use RTippin\MessengerFaker\Broadcasting\TypingBroadcast;
 
-class Typing extends MessengerFaker
+class Typing extends MessengerFakerBase
 {
     /**
      * @var Messenger

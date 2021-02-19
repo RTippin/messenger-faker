@@ -8,7 +8,7 @@ use RTippin\Messenger\Messenger;
 use RTippin\Messenger\Models\Participant;
 use RTippin\MessengerFaker\Broadcasting\OnlineStatusBroadcast;
 
-class OnlineStatus extends MessengerFaker
+class OnlineStatus extends MessengerFakerBase
 {
     /**
      * @var Messenger

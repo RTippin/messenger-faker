@@ -11,7 +11,7 @@ use RTippin\Messenger\Messenger;
 use RTippin\Messenger\Models\Participant;
 use Throwable;
 
-class Message extends MessengerFaker
+class Message extends MessengerFakerBase
 {
     /**
      * @var Messenger

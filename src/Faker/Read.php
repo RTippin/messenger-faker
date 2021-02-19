@@ -9,7 +9,7 @@ use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Participant;
 use RTippin\MessengerFaker\Broadcasting\ReadBroadcast;
 
-class Read extends MessengerFaker
+class Read extends MessengerFakerBase
 {
     /**
      * @var MarkParticipantRead
