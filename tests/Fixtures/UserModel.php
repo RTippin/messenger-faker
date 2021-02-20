@@ -4,14 +4,11 @@ namespace RTippin\MessengerFaker\Tests\Fixtures;
 
 use Illuminate\Foundation\Auth\User;
 use RTippin\Messenger\Contracts\MessengerProvider;
-use RTippin\Messenger\Contracts\Searchable;
 use RTippin\Messenger\Traits\Messageable;
-use RTippin\Messenger\Traits\Search;
 
-class UserModel extends User implements MessengerProvider, Searchable
+class UserModel extends User implements MessengerProvider
 {
     use Messageable;
-    use Search;
 
     protected $table = 'users';
 
