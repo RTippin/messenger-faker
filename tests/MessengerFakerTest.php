@@ -204,8 +204,6 @@ class MessengerFakerTest extends MessengerFakerTestCase
         $this->assertFalse(Cache::has("user:online:{$this->doe->getKey()}"));
     }
 
-
-
     /** @test */
     public function faker_sets_online_status_for_admin_participants()
     {
@@ -362,14 +360,39 @@ class MessengerFakerTest extends MessengerFakerTestCase
 
         $faker = app(MessengerFaker::class);
 
-        $private = $this->createPrivateThread($this->tippin, $this->doe);
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
-        $faker->setThread($private)->message();
+        $faker->setThread($group)->message();
 
         $this->assertDatabaseCount('messages', 1);
         Event::assertDispatched(NewMessageBroadcast::class);
         Event::assertDispatched(NewMessageEvent::class);
         Event::assertDispatched(OnlineStatusBroadcast::class);
         Event::assertDispatched(TypingBroadcast::class);
+    }
+
+    /** @test */
+    public function faker_messages_and_marks_used_participants_read_when_final()
+    {
+        Event::fake([
+            NewMessageBroadcast::class,
+            NewMessageEvent::class,
+            OnlineStatusBroadcast::class,
+            TypingBroadcast::class,
+            ReadBroadcast::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+
+        $faker->setThread($group)->message()->message(true);
+
+        $this->assertDatabaseCount('messages', 2);
+        Event::assertDispatchedTimes(NewMessageBroadcast::class, 2);
+        Event::assertDispatchedTimes(NewMessageEvent::class, 2);
+        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
+        Event::assertDispatchedTimes(TypingBroadcast::class, 2);
+        Event::assertDispatched(ReadBroadcast::class);
     }
 }
