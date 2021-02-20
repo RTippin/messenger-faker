@@ -42,6 +42,6 @@ class ReadCommand extends Command
 
         $faker->read();
 
-        $this->info("Finished marking participants in {$faker->getThreadName()} read!");
+        $this->info("Finished marking participants in {$faker->getThreadName()} as read!");
     }
 }
