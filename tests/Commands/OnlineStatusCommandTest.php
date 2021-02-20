@@ -24,7 +24,7 @@ class OnlineStatusCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:status', [
             'thread' => $group->id,
         ])
-            ->expectsOutput('Finished making participants in First Test Group to online!')
+            ->expectsOutput('Finished marking participants in First Test Group to online!')
             ->assertExitCode(0);
     }
 
@@ -36,7 +36,7 @@ class OnlineStatusCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:status', [
             'thread' => $private->id,
         ])
-            ->expectsOutput('Finished making participants in Richard Tippin and John Doe to online!')
+            ->expectsOutput('Finished marking participants in Richard Tippin and John Doe to online!')
             ->assertExitCode(0);
     }
 
@@ -49,7 +49,7 @@ class OnlineStatusCommandTest extends MessengerFakerTestCase
             'thread' => $group->id,
             '--status' => 'away',
         ])
-            ->expectsOutput('Finished making participants in First Test Group to away!')
+            ->expectsOutput('Finished marking participants in First Test Group to away!')
             ->assertExitCode(0);
     }
 
@@ -62,7 +62,7 @@ class OnlineStatusCommandTest extends MessengerFakerTestCase
             'thread' => $group->id,
             '--status' => 'offline',
         ])
-            ->expectsOutput('Finished making participants in First Test Group to offline!')
+            ->expectsOutput('Finished marking participants in First Test Group to offline!')
             ->assertExitCode(0);
     }
 }

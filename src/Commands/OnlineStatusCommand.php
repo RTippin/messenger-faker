@@ -43,6 +43,6 @@ class OnlineStatusCommand extends Command
 
         $faker->status($this->option('status'));
 
-        $this->info("Finished making participants in {$faker->getThreadName()} to {$this->option('status')}!");
+        $this->info("Finished marking participants in {$faker->getThreadName()} to {$this->option('status')}!");
     }
 }
