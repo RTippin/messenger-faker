@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Cache;
 use Orchestra\Testbench\TestCase;
 use RTippin\Messenger\Contracts\MessengerProvider;
 use RTippin\Messenger\MessengerServiceProvider;
+use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Messenger as MessengerModel;
 use RTippin\Messenger\Models\Thread;
 use RTippin\Messenger\Support\Definitions;
@@ -168,5 +169,15 @@ class MessengerFakerTestCase extends TestCase
         }
 
         return $group;
+    }
+
+    protected function createMessage(Thread $thread, MessengerProvider $owner): Message
+    {
+        return $thread->messages()->create([
+            'body' => 'First Test Message',
+            'type' => 0,
+            'owner_id' => $owner->getKey(),
+            'owner_type' => get_class($owner),
+        ]);
     }
 }

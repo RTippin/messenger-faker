@@ -3,7 +3,9 @@
 namespace RTippin\MessengerFaker\Tests;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use RTippin\Messenger\Broadcasting\KnockBroadcast;
 use RTippin\Messenger\Broadcasting\NewMessageBroadcast;
@@ -11,7 +13,9 @@ use RTippin\Messenger\Contracts\MessengerProvider;
 use RTippin\Messenger\Events\KnockEvent;
 use RTippin\Messenger\Events\NewMessageEvent;
 use RTippin\Messenger\Facades\Messenger;
+use RTippin\Messenger\Models\Participant;
 use RTippin\MessengerFaker\Broadcasting\OnlineStatusBroadcast;
+use RTippin\MessengerFaker\Broadcasting\ReadBroadcast;
 use RTippin\MessengerFaker\MessengerFaker;
 
 class MessengerFakerTest extends MessengerFakerTestCase
@@ -146,61 +150,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_sets_online_status_for_private_thread_participants()
-    {
-        Event::fake([
-            OnlineStatusBroadcast::class,
-        ]);
-
-        $faker = app(MessengerFaker::class);
-
-        $private = $this->createPrivateThread($this->tippin, $this->doe);
-
-        $faker->setThread($private)->status('online');
-
-        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
-        $this->assertSame('online', Cache::get("user:online:{$this->tippin->getKey()}"));
-        $this->assertSame('online', Cache::get("user:online:{$this->doe->getKey()}"));
-    }
-
-    /** @test */
-    public function faker_sets_away_status_for_private_thread_participants()
-    {
-        Event::fake([
-            OnlineStatusBroadcast::class,
-        ]);
-
-        $faker = app(MessengerFaker::class);
-
-        $private = $this->createPrivateThread($this->tippin, $this->doe);
-
-        $faker->setThread($private)->status('away');
-
-        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
-        $this->assertSame('away', Cache::get("user:online:{$this->tippin->getKey()}"));
-        $this->assertSame('away', Cache::get("user:online:{$this->doe->getKey()}"));
-    }
-
-    /** @test */
-    public function faker_sets_offline_status_for_private_thread_participants()
-    {
-        Event::fake([
-            OnlineStatusBroadcast::class,
-        ]);
-
-        $faker = app(MessengerFaker::class);
-
-        $private = $this->createPrivateThread($this->tippin, $this->doe);
-
-        $faker->setThread($private)->status('offline');
-
-        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
-        $this->assertFalse(Cache::has("user:online:{$this->tippin->getKey()}"));
-        $this->assertFalse(Cache::has("user:online:{$this->doe->getKey()}"));
-    }
-
-    /** @test */
-    public function faker_sets_online_status_for_group_thread_participants()
+    public function faker_sets_online_status_for_all_participants()
     {
         Event::fake([
             OnlineStatusBroadcast::class,
@@ -218,7 +168,45 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_sets_online_status_for_group_thread_admin_participants()
+    public function faker_sets_away_status_for_all_participants()
+    {
+        Event::fake([
+            OnlineStatusBroadcast::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+
+        $faker->setThread($group)->status('away');
+
+        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
+        $this->assertSame('away', Cache::get("user:online:{$this->tippin->getKey()}"));
+        $this->assertSame('away', Cache::get("user:online:{$this->doe->getKey()}"));
+    }
+
+    /** @test */
+    public function faker_sets_offline_status_for_all_participants()
+    {
+        Event::fake([
+            OnlineStatusBroadcast::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+
+        $faker->setThread($group)->status('offline');
+
+        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
+        $this->assertFalse(Cache::has("user:online:{$this->tippin->getKey()}"));
+        $this->assertFalse(Cache::has("user:online:{$this->doe->getKey()}"));
+    }
+
+
+
+    /** @test */
+    public function faker_sets_online_status_for_admin_participants()
     {
         Event::fake([
             OnlineStatusBroadcast::class,
@@ -233,6 +221,96 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 1);
         $this->assertSame('online', Cache::get("user:online:{$this->tippin->getKey()}"));
         $this->assertFalse(Cache::has("user:online:{$this->doe->getKey()}"));
+    }
+
+    /** @test */
+    public function faker_mark_read_does_nothing_when_no_last_message()
+    {
+        Event::fake([
+            ReadBroadcast::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $group = $this->createGroupThread($this->tippin);
+
+        $faker->setThread($group)->read();
+
+        Event::assertNotDispatched(ReadBroadcast::class);
+    }
+
+    /** @test */
+    public function faker_mark_read_for_all_participants()
+    {
+        Event::fake([
+            ReadBroadcast::class,
+        ]);
+
+        $read = now()->addMinute();
+
+        Carbon::setTestNow($read);
+
+        $faker = app(MessengerFaker::class);
+
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+
+        $this->createMessage($group, $this->tippin);
+
+        $faker->setThread($group)->read();
+
+        Event::assertDispatchedTimes(ReadBroadcast::class, 2);
+        $this->assertSame(2, Participant::whereNotNull('last_read')->count());
+    }
+
+    /** @test */
+    public function faker_mark_read_for_admin_participants()
+    {
+        Event::fake([
+            ReadBroadcast::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+
+        $this->createMessage($group, $this->tippin);
+
+        $faker->setThread($group, true)->read();
+
+        Event::assertDispatchedTimes(ReadBroadcast::class, 1);
+        $this->assertSame(1, Participant::whereNotNull('last_read')->count());
+    }
+
+    /** @test */
+    public function faker_mark_unread_for_all_participants()
+    {
+        $faker = app(MessengerFaker::class);
+
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+
+        DB::table('participants')->update([
+            'last_read' => now(),
+        ]);
+
+        $faker->setThread($group)->unread();
+
+        $this->assertSame(2, Participant::whereNull('last_read')->count());
+    }
+
+    /** @test */
+    public function faker_mark_unread_for_admin_participants()
+    {
+        $faker = app(MessengerFaker::class);
+
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+
+        DB::table('participants')->update([
+            'last_read' => now(),
+        ]);
+
+        $faker->setThread($group, true)->unread();
+
+        $this->assertSame(1, Participant::whereNull('last_read')->count());
     }
 
 //    /** @test */
