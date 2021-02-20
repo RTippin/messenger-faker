@@ -3,8 +3,15 @@
 namespace RTippin\MessengerFaker\Tests;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
+use RTippin\Messenger\Broadcasting\KnockBroadcast;
+use RTippin\Messenger\Broadcasting\NewMessageBroadcast;
 use RTippin\Messenger\Contracts\MessengerProvider;
+use RTippin\Messenger\Events\KnockEvent;
+use RTippin\Messenger\Events\NewMessageEvent;
 use RTippin\Messenger\Facades\Messenger;
+use RTippin\MessengerFaker\Broadcasting\OnlineStatusBroadcast;
 use RTippin\MessengerFaker\MessengerFaker;
 
 class MessengerFakerTest extends MessengerFakerTestCase
@@ -13,8 +20,6 @@ class MessengerFakerTest extends MessengerFakerTestCase
 
     private MessengerProvider $doe;
 
-    private MessengerFaker $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -22,14 +27,25 @@ class MessengerFakerTest extends MessengerFakerTestCase
         $this->tippin = $this->userTippin();
 
         $this->doe = $this->userDoe();
+    }
 
-        $this->faker = app(MessengerFaker::class);
+    /** @test */
+    public function faker_sets_messenger_configs()
+    {
+        app(MessengerFaker::class);
+
+        $this->assertTrue(Messenger::isKnockKnockEnabled());
+        $this->assertTrue(Messenger::isOnlineStatusEnabled());
+        $this->assertSame(0, Messenger::getKnockTimeout());
+        $this->assertSame(1, Messenger::getOnlineCacheLifetime());
     }
 
     /** @test */
     public function faker_sets_messenger_provider()
     {
-        $this->faker->setProvider($this->tippin);
+        $faker = app(MessengerFaker::class);
+
+        $faker->setProvider($this->tippin);
 
         $this->assertTrue(Messenger::isProviderSet());
         $this->assertSame($this->tippin->getKey(), Messenger::getProvider()->getKey());
@@ -38,48 +54,206 @@ class MessengerFakerTest extends MessengerFakerTestCase
     /** @test */
     public function faker_throws_model_not_found_when_thread_id_not_found()
     {
+        $faker = app(MessengerFaker::class);
+
         $this->expectException(ModelNotFoundException::class);
 
-        $this->faker->setThreadWithId(404);
+        $faker->setThreadWithId(404);
     }
 
     /** @test */
     public function faker_sets_thread_using_id()
     {
+        $faker = app(MessengerFaker::class);
+
         $group = $this->createGroupThread($this->tippin);
 
-        $this->faker->setThreadWithId($group->id);
+        $faker->setThreadWithId($group->id);
 
-        $this->assertSame($group->id, $this->faker->getThread()->id);
+        $this->assertSame($group->id, $faker->getThread()->id);
     }
 
     /** @test */
     public function faker_sets_thread_using_thread()
     {
+        $faker = app(MessengerFaker::class);
+
         $group = $this->createGroupThread($this->tippin);
 
-        $this->faker->setThread($group);
+        $faker->setThread($group);
 
-        $this->assertSame($group, $this->faker->getThread());
+        $this->assertSame($group, $faker->getThread());
     }
 
     /** @test */
     public function faker_shows_group_thread_name()
     {
+        $faker = app(MessengerFaker::class);
+
         $group = $this->createGroupThread($this->tippin);
 
-        $this->faker->setThread($group);
+        $faker->setThread($group);
 
-        $this->assertSame('First Test Group', $this->faker->getThreadName());
+        $this->assertSame('First Test Group', $faker->getThreadName());
     }
 
     /** @test */
     public function faker_shows_private_thread_names()
     {
+        $faker = app(MessengerFaker::class);
+
         $group = $this->createPrivateThread($this->tippin, $this->doe);
 
-        $this->faker->setThread($group);
+        $faker->setThread($group);
 
-        $this->assertSame('Richard Tippin and John Doe', $this->faker->getThreadName());
+        $this->assertSame('Richard Tippin and John Doe', $faker->getThreadName());
     }
+
+    /** @test */
+    public function faker_knocks_at_group_thread()
+    {
+        Event::fake([
+            KnockBroadcast::class,
+            KnockEvent::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+
+        $faker->setThread($group)->knock();
+
+        Event::assertDispatchedTimes(KnockBroadcast::class, 1);
+        Event::assertDispatchedTimes(KnockEvent::class, 1);
+    }
+
+    /** @test */
+    public function faker_knocks_at_private_thread()
+    {
+        Event::fake([
+            KnockBroadcast::class,
+            KnockEvent::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
+
+        $faker->setThread($private)->knock();
+
+        Event::assertDispatchedTimes(KnockBroadcast::class, 2);
+        Event::assertDispatchedTimes(KnockEvent::class, 2);
+    }
+
+    /** @test */
+    public function faker_sets_online_status_for_private_thread_participants()
+    {
+        Event::fake([
+            OnlineStatusBroadcast::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
+
+        $faker->setThread($private)->status('online');
+
+        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
+        $this->assertSame('online', Cache::get("user:online:{$this->tippin->getKey()}"));
+        $this->assertSame('online', Cache::get("user:online:{$this->doe->getKey()}"));
+    }
+
+    /** @test */
+    public function faker_sets_away_status_for_private_thread_participants()
+    {
+        Event::fake([
+            OnlineStatusBroadcast::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
+
+        $faker->setThread($private)->status('away');
+
+        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
+        $this->assertSame('away', Cache::get("user:online:{$this->tippin->getKey()}"));
+        $this->assertSame('away', Cache::get("user:online:{$this->doe->getKey()}"));
+    }
+
+    /** @test */
+    public function faker_sets_offline_status_for_private_thread_participants()
+    {
+        Event::fake([
+            OnlineStatusBroadcast::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
+
+        $faker->setThread($private)->status('offline');
+
+        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
+        $this->assertFalse(Cache::has("user:online:{$this->tippin->getKey()}"));
+        $this->assertFalse(Cache::has("user:online:{$this->doe->getKey()}"));
+    }
+
+    /** @test */
+    public function faker_sets_online_status_for_group_thread_participants()
+    {
+        Event::fake([
+            OnlineStatusBroadcast::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+
+        $faker->setThread($group)->status('online');
+
+        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
+        $this->assertSame('online', Cache::get("user:online:{$this->tippin->getKey()}"));
+        $this->assertSame('online', Cache::get("user:online:{$this->doe->getKey()}"));
+    }
+
+    /** @test */
+    public function faker_sets_online_status_for_group_thread_admin_participants()
+    {
+        Event::fake([
+            OnlineStatusBroadcast::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+
+        $faker->setThread($group, true)->status('online');
+
+        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 1);
+        $this->assertSame('online', Cache::get("user:online:{$this->tippin->getKey()}"));
+        $this->assertFalse(Cache::has("user:online:{$this->doe->getKey()}"));
+    }
+
+//    /** @test */
+//    public function faker_messages_private_thread()
+//    {
+//        $faker = app(MessengerFaker::class);
+//
+//        $private = $this->createPrivateThread($this->tippin, $this->doe);
+//
+//        $this->faker->setThread($private);
+//
+//        Event::fake([
+//            NewMessageBroadcast::class,
+//            NewMessageEvent::class,
+//        ]);
+//
+//        $this->faker->message();
+//
+//        Event::assertDispatched(NewMessageBroadcast::class);
+//        Event::assertDispatched(NewMessageEvent::class);
+//
+//        Event::assertDispatched(KnockEvent::class);
+//    }
 }
