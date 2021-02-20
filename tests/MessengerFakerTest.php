@@ -16,6 +16,7 @@ use RTippin\Messenger\Facades\Messenger;
 use RTippin\Messenger\Models\Participant;
 use RTippin\MessengerFaker\Broadcasting\OnlineStatusBroadcast;
 use RTippin\MessengerFaker\Broadcasting\ReadBroadcast;
+use RTippin\MessengerFaker\Broadcasting\TypingBroadcast;
 use RTippin\MessengerFaker\MessengerFaker;
 
 class MessengerFakerTest extends MessengerFakerTestCase
@@ -311,6 +312,42 @@ class MessengerFakerTest extends MessengerFakerTestCase
         $faker->setThread($group, true)->unread();
 
         $this->assertSame(1, Participant::whereNull('last_read')->count());
+    }
+
+    /** @test */
+    public function faker_makes_all_participants_type_and_sends_online_status()
+    {
+        Event::fake([
+            OnlineStatusBroadcast::class,
+            TypingBroadcast::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+
+        $faker->setThread($group)->typing();
+
+        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
+        Event::assertDispatchedTimes(TypingBroadcast::class, 2);
+    }
+
+    /** @test */
+    public function faker_makes_admin_participants_type_and_sends_online_status()
+    {
+        Event::fake([
+            OnlineStatusBroadcast::class,
+            TypingBroadcast::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+
+        $faker->setThread($group, true)->typing();
+
+        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 1);
+        Event::assertDispatchedTimes(TypingBroadcast::class, 1);
     }
 
 //    /** @test */
