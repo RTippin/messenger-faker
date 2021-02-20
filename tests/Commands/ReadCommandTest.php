@@ -2,10 +2,18 @@
 
 namespace RTippin\MessengerFaker\Tests\Commands;
 
+use RTippin\Messenger\Facades\Messenger;
 use RTippin\MessengerFaker\Tests\MessengerFakerTestCase;
 
 class ReadCommandTest extends MessengerFakerTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Messenger::setBroadcastDriver('null');
+    }
+
     /** @test */
     public function read_command_does_not_find_thread()
     {
