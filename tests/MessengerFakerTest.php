@@ -350,25 +350,26 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::assertDispatchedTimes(TypingBroadcast::class, 1);
     }
 
-//    /** @test */
-//    public function faker_messages_private_thread()
-//    {
-//        $faker = app(MessengerFaker::class);
-//
-//        $private = $this->createPrivateThread($this->tippin, $this->doe);
-//
-//        $this->faker->setThread($private);
-//
-//        Event::fake([
-//            NewMessageBroadcast::class,
-//            NewMessageEvent::class,
-//        ]);
-//
-//        $this->faker->message();
-//
-//        Event::assertDispatched(NewMessageBroadcast::class);
-//        Event::assertDispatched(NewMessageEvent::class);
-//
-//        Event::assertDispatched(KnockEvent::class);
-//    }
+    /** @test */
+    public function faker_messages_using_random_participant_and_calls_typing()
+    {
+        Event::fake([
+            NewMessageBroadcast::class,
+            NewMessageEvent::class,
+            OnlineStatusBroadcast::class,
+            TypingBroadcast::class,
+        ]);
+
+        $faker = app(MessengerFaker::class);
+
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
+
+        $faker->setThread($private)->message();
+
+        $this->assertDatabaseCount('messages', 1);
+        Event::assertDispatched(NewMessageBroadcast::class);
+        Event::assertDispatched(NewMessageEvent::class);
+        Event::assertDispatched(OnlineStatusBroadcast::class);
+        Event::assertDispatched(TypingBroadcast::class);
+    }
 }

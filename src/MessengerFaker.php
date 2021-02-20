@@ -319,7 +319,7 @@ class MessengerFaker
      */
     private function setParticipants(bool $useAdmins): void
     {
-        if ($useAdmins) {
+        if ($useAdmins && $this->thread->isGroup()) {
             $this->participants = $this->thread->participants()->admins()->get();
         } else {
             $this->participants = $this->thread->participants()->get();
