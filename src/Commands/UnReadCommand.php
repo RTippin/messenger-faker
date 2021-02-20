@@ -42,6 +42,6 @@ class UnReadCommand extends Command
 
         $faker->unread();
 
-        $this->info("Finished marking {$faker->getThreadName()} participants as unread!");
+        $this->info("Finished marking participants in {$faker->getThreadName()} as unread!");
     }
 }

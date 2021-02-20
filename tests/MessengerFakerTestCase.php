@@ -65,9 +65,9 @@ class MessengerFakerTestCase extends TestCase
         return [
             'user' => [
                 'model' => UserModel::class,
-                'searchable' => true,
-                'friendable' => true,
-                'devices' => true,
+                'searchable' => false,
+                'friendable' => false,
+                'devices' => false,
                 'default_avatar' => '/path/to/user.png',
                 'provider_interactions' => [
                     'can_message' => true,
