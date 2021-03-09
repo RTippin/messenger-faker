@@ -83,7 +83,7 @@ class MessengerFakerTestCase extends TestCase
     {
         $tippin = UserModel::create([
             'name' => 'Richard Tippin',
-            'email' => 'richard.tippin@gmail.com',
+            'email' => 'tippindev@gmail.com',
             'password' => 'secret',
         ]);
 
@@ -109,7 +109,7 @@ class MessengerFakerTestCase extends TestCase
      */
     protected function userTippin()
     {
-        return UserModel::where('email', '=', 'richard.tippin@gmail.com')->first();
+        return UserModel::where('email', '=', 'tippindev@gmail.com')->first();
     }
 
     /**
