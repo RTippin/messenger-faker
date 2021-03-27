@@ -8,27 +8,26 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use RTippin\MessengerFaker\MessengerFaker;
 use Throwable;
 
-class ImageCommand extends Command
+class DocumentCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'messenger:faker:image 
+    protected $signature = 'messenger:faker:document 
                                             {thread : ID of the thread you wish to have messaged}
-                                            {--count=1 : Number of image messages to send}
-                                            {--delay=3 : Delay between each image message being sent}
-                                            {--admins : Only use admins to send image messages if group thread}
-                                            {--local : Pick a random image stored locally under storage/faker/images/}
-                                            {--url= : Set the path/URL we grab an image from. Default uses unsplash}';
+                                            {--count=1 : Number of document messages to send}
+                                            {--delay=3 : Delay between each document message being sent}
+                                            {--admins : Only use admins to send document messages if group thread}
+                                            {--url= : Set the path/URL we grab a document from. Default uses local storage}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Make participants send image messages. Will also emit typing and mark read.';
+    protected $description = 'Make participants send document messages. Will also emit typing and mark read.';
 
     /**
      * Execute the console command.
@@ -48,13 +47,13 @@ class ImageCommand extends Command
             return;
         }
 
-        if ($this->option('local')) {
-            $message = 'a random image from '.config('messenger-faker.paths.images');
+        if (! is_null($this->option('url'))) {
+            $message = $this->option('url');
         } else {
-            $message = is_null($this->option('url')) ? MessengerFaker::DefaultImageURL : $this->option('url');
+            $message = 'a random document from '.config('messenger-faker.paths.documents');
         }
         $this->line('');
-        $this->info("Found {$faker->getThreadName()}, now messaging images...");
+        $this->info("Found {$faker->getThreadName()}, now messaging documents...");
         $this->info("Using {$message}");
         $this->line('');
         $bar = $this->output->createProgressBar($this->option('count'));
@@ -62,11 +61,7 @@ class ImageCommand extends Command
 
         try {
             for ($x = 1; $x <= $this->option('count'); $x++) {
-                $faker->image(
-                    $this->option('count') <= $x,
-                    $this->option('local'),
-                    $this->option('url')
-                );
+                $faker->document($this->option('count') <= $x, $this->option('url'));
                 $bar->advance();
             }
         } catch (Exception $e) {
@@ -80,7 +75,7 @@ class ImageCommand extends Command
         $bar->finish();
         $this->line('');
         $this->line('');
-        $this->info("Finished sending {$this->option('count')} image messages to {$faker->getThreadName()}!");
+        $this->info("Finished sending {$this->option('count')} document messages to {$faker->getThreadName()}!");
         $this->line('');
     }
 }
