@@ -5,8 +5,10 @@ namespace RTippin\MessengerFaker;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Psr\SimpleCache\InvalidArgumentException;
+use RTippin\Messenger\Actions\Messages\StoreImageMessage;
 use RTippin\Messenger\Actions\Messages\StoreMessage;
 use RTippin\Messenger\Actions\Threads\MarkParticipantRead;
 use RTippin\Messenger\Actions\Threads\SendKnock;
@@ -57,6 +59,11 @@ class MessengerFaker
     private StoreMessage $storeMessage;
 
     /**
+     * @var StoreImageMessage
+     */
+    private StoreImageMessage $storeImage;
+
+    /**
      * @var Thread|null
      */
     private ?Thread $thread = null;
@@ -85,13 +92,15 @@ class MessengerFaker
      * @param SendKnock $sendKnock
      * @param MarkParticipantRead $markRead
      * @param StoreMessage $storeMessage
+     * @param StoreImageMessage $storeImage
      */
     public function __construct(Messenger $messenger,
                                 BroadcastDriver $broadcaster,
                                 Generator $faker,
                                 SendKnock $sendKnock,
                                 MarkParticipantRead $markRead,
-                                StoreMessage $storeMessage)
+                                StoreMessage $storeMessage,
+                                StoreImageMessage $storeImage)
     {
         $this->messenger = $messenger;
         $this->broadcaster = $broadcaster;
@@ -99,6 +108,7 @@ class MessengerFaker
         $this->markRead = $markRead;
         $this->faker = $faker;
         $this->storeMessage = $storeMessage;
+        $this->storeImage = $storeImage;
         $this->delay = 0;
         $this->usedParticipants = new Collection([]);
         $this->messenger->setKnockKnock(true);
@@ -191,15 +201,11 @@ class MessengerFaker
     {
         if ($this->thread->isGroup()) {
             $this->setProvider($this->participants->first()->owner);
-
             $this->sendKnock->execute($this->thread);
         } else {
             $this->setProvider($this->participants->first()->owner);
-
             $this->sendKnock->execute($this->thread);
-
             $this->setProvider($this->participants->last()->owner);
-
             $this->sendKnock->execute($this->thread);
         }
 
@@ -283,10 +289,50 @@ class MessengerFaker
      *
      * @param bool $isFinal
      * @return $this
-     * @throws InvalidProviderException
-     * @throws Throwable
+     * @throws Throwable|InvalidProviderException
      */
     public function message(bool $isFinal = false): self
+    {
+        $this->startMessage();
+        $this->storeMessage->execute(
+            $this->thread,
+            [
+                'message' => $this->faker->realText(rand(10, 200), rand(1, 4)),
+            ]
+        );
+        $this->endMessage($isFinal);
+
+        return $this;
+    }
+
+    /**
+     * Send image messages using the given providers and show typing and mark read.
+     *
+     * @param bool $isFinal
+     * @return $this
+     * @throws Throwable|InvalidProviderException
+     */
+    public function image(bool $isFinal = false): self
+    {
+        $this->startMessage();
+        $file = '/tmp/' . uniqid() . '.jpg';
+        file_put_contents($file, file_get_contents('https://source.unsplash.com/random'));
+        $this->storeImage->execute(
+            $this->thread,
+            [
+                'image' => new UploadedFile($file, 'random.jpg'),
+            ]
+        );
+        unlink($file);
+        $this->endMessage($isFinal);
+
+        return $this;
+    }
+
+    /**
+     * @throws InvalidProviderException
+     */
+    private function startMessage(): void
     {
         /** @var Participant $participant */
         $participant = $this->participants->random();
@@ -297,14 +343,13 @@ class MessengerFaker
         if ($this->delay > 0) {
             sleep(1);
         }
+    }
 
-        $this->storeMessage->execute(
-            $this->thread,
-            [
-                'message' => $this->faker->realText(rand(10, 200), rand(1, 4)),
-            ]
-        );
-
+    /**
+     * @param bool $isFinal
+     */
+    private function endMessage(bool $isFinal = false): void
+    {
         if (! $isFinal) {
             sleep($this->delay);
         } else {
@@ -312,8 +357,6 @@ class MessengerFaker
                 ->unique('owner_id')
                 ->each(fn (Participant $participant) => $this->read($participant));
         }
-
-        return $this;
     }
 
     /**
