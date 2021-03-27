@@ -14,6 +14,7 @@
 ### Features:
 - Commands to mock realtime events such as knocks, typing, marking read, online status.
 - Command to seed realtime messages with typing included.
+- Commands to send attachment messages (images, documents, audio).
 
 ---
 
@@ -27,27 +28,67 @@ $ composer require rtippin/messenger-faker --dev
 
 ---
 
+# Config
+
+- Default config values for local storage location of files used when needing.
+  - When seeding using local files, a random file from the message types specified folder will be used.
+
+```php
+    'paths' => [
+        'images' => storage_path('faker/images'),
+        'documents' => storage_path('faker/documents'),
+        'audio' => storage_path('faker/audio'),
+    ],
+```
+
+### To override the file paths, please publish our config and edit accordingly
+
+``` bash
+$ php artisan vendor:publish --tag=messenger-faker
+```
+
+___
+
 # Commands
 
 - `php artisan messenger:faker:knock {thread}`
     * Send a knock to the given thread.
 - `php artisan messenger:faker:message {thread}` | `--count=5` | `--delay=3` | `--admins`
     * Make participants send messages. Will also emit typing and mark read.
-    * Default count of 5 messages sent.
-    * Default delay of 3 seconds between each message.
-    * Admins flag will only use admin participants if using a group thread.
+    * `--count=X` flag to set how many messages are sent.
+    * `--delay=X` flag to set delay in seconds between each message.
+    * `--admins` flag will only use admin participants if using a group thread.
+- `php artisan messenger:faker:image {thread}` | `--count=1` | `--delay=3` | `--admins` | `--local` | `--url=`
+    * Make participants send image messages. Will also emit typing and mark read. If `--local` or `--url` is not set, we pull images from unsplash API.
+    * `--count=X` flag to set how many images are sent.
+    * `--delay=X` flag to set delay in seconds between each image.
+    * `--admins` flag will only use admin participants if using a group thread.
+    * `--local` flag will choose a random image from the directory specified for images in the config file.
+    * `--url=X` flag lets you directly specify an image URL to download and emit.
+- `php artisan messenger:faker:document {thread}` | `--count=1` | `--delay=3` | `--admins` | `--url=`
+    * Make participants send document messages. Will also emit typing and mark read. If `--url` is not set, will choose a random document from the directory specified for documents in the config file.
+    * `--count=X` flag to set how many documents are sent.
+    * `--delay=X` flag to set delay in seconds between each document.
+    * `--admins` flag will only use admin participants if using a group thread.
+    * `--url=X` flag lets you directly specify a document URL to download and emit.
+- `php artisan messenger:faker:audio {thread}` | `--count=1` | `--delay=3` | `--admins` | `--url=`
+    * Make participants send audio messages. Will also emit typing and mark read. If `--url` is not set, will choose a random audio file from the directory specified for audio in the config file.
+    * `--count=X` flag to set how many audio files are sent.
+    * `--delay=X` flag to set delay in seconds between each audio file.
+    * `--admins` flag will only use admin participants if using a group thread.
+    * `--url=X` flag lets you directly specify an audio URL to download and emit.
 - `php artisan messenger:faker:status {thread}` | `--status=online` | `--admins`
     * Set participants online status. Default of online, May use (online/offline/away)
-    * Admins flag will only use admin participants if using a group thread.
+    * `--admins` flag will only use admin participants if using a group thread.
 - `php artisan messenger:faker:read {thread}` | `--admins`
     * Mark participants in the thread as read.
-    * Admins flag will only use admin participants if using a group thread.
+    * `--admins` flag will only use admin participants if using a group thread.
 - `php artisan messenger:faker:typing {thread}` | `--admins`
     * Make participants in the thread type.
-    * Admins flag will only use admin participants if using a group thread.
+    * `--admins` flag will only use admin participants if using a group thread.
 - `php artisan messenger:faker:unread {thread}` | `--admins`
     * Mark participants in the thread as unread.
-    * Admins flag will only use admin participants if using a group thread.
+    * `--admins` flag will only use admin participants if using a group thread.
 
 ---
 
