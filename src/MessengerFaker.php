@@ -84,6 +84,11 @@ class MessengerFaker
     private int $delay;
 
     /**
+     * @var bool
+     */
+    private bool $isTesting = false;
+
+    /**
      * MessengerFaker constructor.
      *
      * @param Messenger $messenger
@@ -115,6 +120,16 @@ class MessengerFaker
         $this->messenger->setKnockTimeout(0);
         $this->messenger->setOnlineStatus(true);
         $this->messenger->setOnlineCacheLifetime(1);
+    }
+
+    /**
+     * @return $this
+     */
+    public function fake(): self
+    {
+        $this->isTesting = true;
+
+        return $this;
     }
 
     /**
@@ -315,15 +330,14 @@ class MessengerFaker
     public function image(bool $isFinal = false): self
     {
         $this->startMessage();
-        $file = '/tmp/' . uniqid() . '.jpg';
-        file_put_contents($file, file_get_contents('https://source.unsplash.com/random'));
+        $image = $this->getImage();
         $this->storeImage->execute(
             $this->thread,
             [
-                'image' => new UploadedFile($file, 'random.jpg'),
+                'image' => $image[0],
             ]
         );
-        unlink($file);
+        $this->unlinkFile($image[1]);
         $this->endMessage($isFinal);
 
         return $this;
@@ -356,6 +370,31 @@ class MessengerFaker
             $this->usedParticipants
                 ->unique('owner_id')
                 ->each(fn (Participant $participant) => $this->read($participant));
+        }
+    }
+
+    /**
+     * @return array
+     */
+    private function getImage(): array
+    {
+        if ($this->isTesting) {
+            return [UploadedFile::fake()->image('test.jpg'), 'test.jpg'];
+        }
+
+        $file = '/tmp/' . uniqid() . '.jpg';
+        file_put_contents($file, file_get_contents('https://source.unsplash.com/random'));
+
+        return [new UploadedFile($file, 'random.jpg'), $file];
+    }
+
+    /**
+     * @param string $file
+     */
+    private function unlinkFile(string $file): void
+    {
+        if (! $this->isTesting) {
+            unlink($file);
         }
     }
 

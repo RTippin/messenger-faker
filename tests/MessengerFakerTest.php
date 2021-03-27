@@ -7,6 +7,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Storage;
 use RTippin\Messenger\Broadcasting\KnockBroadcast;
 use RTippin\Messenger\Broadcasting\NewMessageBroadcast;
 use RTippin\Messenger\Contracts\MessengerProvider;
@@ -49,7 +50,6 @@ class MessengerFakerTest extends MessengerFakerTestCase
     public function faker_sets_messenger_provider()
     {
         $faker = app(MessengerFaker::class);
-
         $faker->setProvider($this->tippin);
 
         $this->assertTrue(Messenger::isProviderSet());
@@ -70,9 +70,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     public function faker_sets_thread_using_id()
     {
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin);
-
         $faker->setThreadWithId($group->id);
 
         $this->assertSame($group->id, $faker->getThread()->id);
@@ -82,9 +80,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     public function faker_sets_thread_using_thread()
     {
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin);
-
         $faker->setThread($group);
 
         $this->assertSame($group, $faker->getThread());
@@ -94,9 +90,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     public function faker_shows_group_thread_name()
     {
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin);
-
         $faker->setThread($group);
 
         $this->assertSame('First Test Group', $faker->getThreadName());
@@ -106,9 +100,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     public function faker_shows_private_thread_names()
     {
         $faker = app(MessengerFaker::class);
-
         $group = $this->createPrivateThread($this->tippin, $this->doe);
-
         $faker->setThread($group);
 
         $this->assertSame('Richard Tippin and John Doe', $faker->getThreadName());
@@ -121,11 +113,8 @@ class MessengerFakerTest extends MessengerFakerTestCase
             KnockBroadcast::class,
             KnockEvent::class,
         ]);
-
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin, $this->doe);
-
         $faker->setThread($group)->knock();
 
         Event::assertDispatchedTimes(KnockBroadcast::class, 1);
@@ -139,11 +128,8 @@ class MessengerFakerTest extends MessengerFakerTestCase
             KnockBroadcast::class,
             KnockEvent::class,
         ]);
-
         $faker = app(MessengerFaker::class);
-
         $private = $this->createPrivateThread($this->tippin, $this->doe);
-
         $faker->setThread($private)->knock();
 
         Event::assertDispatchedTimes(KnockBroadcast::class, 2);
@@ -156,11 +142,8 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::fake([
             OnlineStatusBroadcast::class,
         ]);
-
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin, $this->doe);
-
         $faker->setThread($group)->status('online');
 
         Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
@@ -174,11 +157,8 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::fake([
             OnlineStatusBroadcast::class,
         ]);
-
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin, $this->doe);
-
         $faker->setThread($group)->status('away');
 
         Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
@@ -192,11 +172,8 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::fake([
             OnlineStatusBroadcast::class,
         ]);
-
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin, $this->doe);
-
         $faker->setThread($group)->status('offline');
 
         Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
@@ -210,11 +187,8 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::fake([
             OnlineStatusBroadcast::class,
         ]);
-
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin, $this->doe);
-
         $faker->setThread($group, true)->status('online');
 
         Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 1);
@@ -228,11 +202,8 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::fake([
             ReadBroadcast::class,
         ]);
-
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin);
-
         $faker->setThread($group)->read();
 
         Event::assertNotDispatched(ReadBroadcast::class);
@@ -244,17 +215,11 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::fake([
             ReadBroadcast::class,
         ]);
-
         $read = now()->addMinute();
-
         Carbon::setTestNow($read);
-
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin, $this->doe);
-
         $this->createMessage($group, $this->tippin);
-
         $faker->setThread($group)->read();
 
         Event::assertDispatchedTimes(ReadBroadcast::class, 2);
@@ -267,13 +232,9 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::fake([
             ReadBroadcast::class,
         ]);
-
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin, $this->doe);
-
         $this->createMessage($group, $this->tippin);
-
         $faker->setThread($group, true)->read();
 
         Event::assertDispatchedTimes(ReadBroadcast::class, 1);
@@ -284,13 +245,10 @@ class MessengerFakerTest extends MessengerFakerTestCase
     public function faker_mark_unread_for_all_participants()
     {
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin, $this->doe);
-
         DB::table('participants')->update([
             'last_read' => now(),
         ]);
-
         $faker->setThread($group)->unread();
 
         $this->assertSame(2, Participant::whereNull('last_read')->count());
@@ -300,13 +258,10 @@ class MessengerFakerTest extends MessengerFakerTestCase
     public function faker_mark_unread_for_admin_participants()
     {
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin, $this->doe);
-
         DB::table('participants')->update([
             'last_read' => now(),
         ]);
-
         $faker->setThread($group, true)->unread();
 
         $this->assertSame(1, Participant::whereNull('last_read')->count());
@@ -319,11 +274,8 @@ class MessengerFakerTest extends MessengerFakerTestCase
             OnlineStatusBroadcast::class,
             TypingBroadcast::class,
         ]);
-
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin, $this->doe);
-
         $faker->setThread($group)->typing();
 
         Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
@@ -337,11 +289,8 @@ class MessengerFakerTest extends MessengerFakerTestCase
             OnlineStatusBroadcast::class,
             TypingBroadcast::class,
         ]);
-
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin, $this->doe);
-
         $faker->setThread($group, true)->typing();
 
         Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 1);
@@ -357,11 +306,8 @@ class MessengerFakerTest extends MessengerFakerTestCase
             OnlineStatusBroadcast::class,
             TypingBroadcast::class,
         ]);
-
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin, $this->doe);
-
         $faker->setThread($group)->message();
 
         $this->assertDatabaseCount('messages', 1);
@@ -381,11 +327,8 @@ class MessengerFakerTest extends MessengerFakerTestCase
             TypingBroadcast::class,
             ReadBroadcast::class,
         ]);
-
         $faker = app(MessengerFaker::class);
-
         $group = $this->createGroupThread($this->tippin, $this->doe);
-
         $faker->setThread($group)->message()->message(true);
 
         $this->assertDatabaseCount('messages', 2);
@@ -394,5 +337,28 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
         Event::assertDispatchedTimes(TypingBroadcast::class, 2);
         Event::assertDispatched(ReadBroadcast::class);
+    }
+
+    /** @test */
+    public function faker_seeds_image_messages()
+    {
+        Event::fake([
+            NewMessageBroadcast::class,
+            NewMessageEvent::class,
+            OnlineStatusBroadcast::class,
+            TypingBroadcast::class,
+        ]);
+        Storage::fake(Messenger::getThreadStorage('disk'));
+        $faker = app(MessengerFaker::class)->fake();
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+        $faker->setThread($group)->image();
+
+        $this->assertDatabaseHas('messages', [
+            'type' => 1,
+        ]);
+        Event::assertDispatched(NewMessageBroadcast::class);
+        Event::assertDispatched(NewMessageEvent::class);
+        Event::assertDispatched(OnlineStatusBroadcast::class);
+        Event::assertDispatched(TypingBroadcast::class);
     }
 }

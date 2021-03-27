@@ -45,22 +45,21 @@ class ImageCommand extends Command
             return;
         }
 
+        $this->line('');
         $this->info("Found {$faker->getThreadName()}, now messaging images...");
-
+        $this->line('');
         $bar = $this->output->createProgressBar($this->option('count'));
-
         $bar->start();
 
         for ($x = 1; $x <= $this->option('count'); $x++) {
             $faker->image($this->option('count') <= $x);
-
             $bar->advance();
         }
 
         $bar->finish();
-
-        $this->line(' (done)');
-
+        $this->line('');
+        $this->line('');
         $this->info("Finished sending {$this->option('count')} image messages to {$faker->getThreadName()}!");
+        $this->line('');
     }
 }
