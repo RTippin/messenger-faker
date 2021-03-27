@@ -111,7 +111,7 @@ class ImageCommandTest extends MessengerFakerTestCase
             '--local' => true,
         ])
             ->expectsOutput('Found First Test Group, now messaging images...')
-            ->expectsOutput('Using a random image from ' . config('messenger-faker.paths.images'))
+            ->expectsOutput('Using a random image from '.config('messenger-faker.paths.images'))
             ->expectsOutput('Finished sending 1 image messages to First Test Group!')
             ->assertExitCode(0);
     }

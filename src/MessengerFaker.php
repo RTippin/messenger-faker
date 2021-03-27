@@ -409,8 +409,8 @@ class MessengerFaker
             $file = $images[rand(0, count($images) - 1)];
             $name = $file->getFilename();
         } else {
-            $name = uniqid() . '.jpg';
-            $file = '/tmp/' . $name;
+            $name = uniqid().'.jpg';
+            $file = '/tmp/'.$name;
             file_put_contents($file, file_get_contents(is_null($url) ? self::DefaultImageURL : $url));
         }
 
