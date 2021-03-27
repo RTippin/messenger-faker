@@ -11,6 +11,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Psr\SimpleCache\InvalidArgumentException;
+use RTippin\Messenger\Actions\Messages\StoreAudioMessage;
 use RTippin\Messenger\Actions\Messages\StoreDocumentMessage;
 use RTippin\Messenger\Actions\Messages\StoreImageMessage;
 use RTippin\Messenger\Actions\Messages\StoreMessage;
@@ -75,6 +76,11 @@ class MessengerFaker
     private StoreDocumentMessage $storeDocument;
 
     /**
+     * @var StoreAudioMessage
+     */
+    private StoreAudioMessage $storeAudio;
+
+    /**
      * @var Thread|null
      */
     private ?Thread $thread = null;
@@ -110,6 +116,7 @@ class MessengerFaker
      * @param StoreMessage $storeMessage
      * @param StoreImageMessage $storeImage
      * @param StoreDocumentMessage $storeDocument
+     * @param StoreAudioMessage $storeAudio
      */
     public function __construct(Messenger $messenger,
                                 BroadcastDriver $broadcaster,
@@ -118,7 +125,8 @@ class MessengerFaker
                                 MarkParticipantRead $markRead,
                                 StoreMessage $storeMessage,
                                 StoreImageMessage $storeImage,
-                                StoreDocumentMessage $storeDocument)
+                                StoreDocumentMessage $storeDocument,
+                                StoreAudioMessage $storeAudio)
     {
         $this->messenger = $messenger;
         $this->broadcaster = $broadcaster;
@@ -128,6 +136,7 @@ class MessengerFaker
         $this->storeMessage = $storeMessage;
         $this->storeImage = $storeImage;
         $this->storeDocument = $storeDocument;
+        $this->storeAudio = $storeAudio;
         $this->delay = 0;
         $this->usedParticipants = new Collection([]);
         $this->messenger->setKnockKnock(true);
@@ -398,6 +407,35 @@ class MessengerFaker
     }
 
     /**
+     * Send audio messages using the given providers and show typing and mark read.
+     *
+     * @param bool $isFinal
+     * @param string|null $url
+     * @return $this
+     * @throws FeatureDisabledException
+     * @throws InvalidProviderException
+     * @throws Throwable
+     */
+    public function audio(bool $isFinal = false, ?string $url = null): self
+    {
+        $this->startMessage();
+        $audio = $this->getAudio($url);
+        $this->storeAudio->execute(
+            $this->thread,
+            [
+                'audio' => $audio[0],
+            ]
+        );
+        $this->endMessage($isFinal);
+
+        if (! is_null($url)) {
+            $this->unlinkFile($audio[1]);
+        }
+
+        return $this;
+    }
+
+    /**
      * @throws InvalidProviderException
      */
     private function startMessage(): void
@@ -478,6 +516,34 @@ class MessengerFaker
                 $this->throwFailedException("No documents found within {$path}");
             }
             $file = Arr::random($documents, 1)[0];
+            $name = $file->getFilename();
+        }
+
+        return [new UploadedFile($file, $name), $file];
+    }
+
+    /**
+     * @param string|null $url
+     * @return array
+     * @throws Exception
+     */
+    private function getAudio(?string $url): array
+    {
+        if ($this->isTesting) {
+            return [UploadedFile::fake()->create('test.mp3', 500, 'audio/mpeg'), 'test.mp3'];
+        }
+
+        if (! is_null($url)) {
+            $name = uniqid();
+            $file = '/tmp/'.$name;
+            file_put_contents($file, file_get_contents($url));
+        } else {
+            $path = config('messenger-faker.paths.audio');
+            $audio = File::files($path);
+            if (! count($audio)) {
+                $this->throwFailedException("No audio found within {$path}");
+            }
+            $file = Arr::random($audio, 1)[0];
             $name = $file->getFilename();
         }
 

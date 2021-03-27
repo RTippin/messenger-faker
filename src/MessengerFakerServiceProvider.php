@@ -4,6 +4,7 @@ namespace RTippin\MessengerFaker;
 
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
+use RTippin\MessengerFaker\Commands\AudioCommand;
 use RTippin\MessengerFaker\Commands\DocumentCommand;
 use RTippin\MessengerFaker\Commands\ImageCommand;
 use RTippin\MessengerFaker\Commands\KnockCommand;
@@ -43,6 +44,7 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
             ], 'messenger-faker');
 
             $this->commands([
+                AudioCommand::class,
                 DocumentCommand::class,
                 ImageCommand::class,
                 KnockCommand::class,
@@ -63,6 +65,7 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
     public function provides(): array
     {
         return [
+            AudioCommand::class,
             DocumentCommand::class,
             ImageCommand::class,
             KnockCommand::class,
