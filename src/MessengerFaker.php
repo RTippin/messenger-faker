@@ -6,10 +6,7 @@ use Exception;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\File;
 use Psr\SimpleCache\InvalidArgumentException;
 use RTippin\Messenger\Actions\Messages\StoreAudioMessage;
 use RTippin\Messenger\Actions\Messages\StoreDocumentMessage;
@@ -23,17 +20,16 @@ use RTippin\Messenger\Exceptions\FeatureDisabledException;
 use RTippin\Messenger\Exceptions\InvalidProviderException;
 use RTippin\Messenger\Exceptions\KnockException;
 use RTippin\Messenger\Messenger;
-use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
-use RTippin\MessengerFaker\Broadcasting\OnlineStatusBroadcast;
-use RTippin\MessengerFaker\Broadcasting\ReadBroadcast;
-use RTippin\MessengerFaker\Broadcasting\TypingBroadcast;
 use Throwable;
 
 class MessengerFaker
 {
     const DefaultImageURL = 'https://source.unsplash.com/random';
+
+    use FakerEvents;
+    use FakerFiles;
 
     /**
      * @var Messenger
@@ -103,7 +99,7 @@ class MessengerFaker
     /**
      * @var bool
      */
-    private bool $isTesting = false;
+    private bool $isTesting;
 
     /**
      * MessengerFaker constructor.
@@ -138,6 +134,7 @@ class MessengerFaker
         $this->storeDocument = $storeDocument;
         $this->storeAudio = $storeAudio;
         $this->delay = 0;
+        $this->isTesting = false;
         $this->usedParticipants = new Collection([]);
         $this->messenger->setKnockKnock(true);
         $this->messenger->setKnockTimeout(0);
@@ -232,9 +229,7 @@ class MessengerFaker
      * Send a knock to the given thread.
      *
      * @return $this
-     * @throws InvalidProviderException
-     * @throws InvalidArgumentException
-     * @throws FeatureDisabledException
+     * @throws FeatureDisabledException|InvalidArgumentException|InvalidProviderException
      * @throws KnockException
      */
     public function knock(): self
@@ -329,7 +324,7 @@ class MessengerFaker
      *
      * @param bool $isFinal
      * @return $this
-     * @throws Throwable|InvalidProviderException
+     * @throws Throwable
      */
     public function message(bool $isFinal = false): self
     {
@@ -352,9 +347,7 @@ class MessengerFaker
      * @param bool $local
      * @param string|null $url
      * @return $this
-     * @throws FeatureDisabledException
-     * @throws InvalidProviderException
-     * @throws Throwable
+     * @throws Throwable|FeatureDisabledException
      */
     public function image(bool $isFinal = false,
                           bool $local = false,
@@ -383,9 +376,7 @@ class MessengerFaker
      * @param bool $isFinal
      * @param string|null $url
      * @return $this
-     * @throws FeatureDisabledException
-     * @throws InvalidProviderException
-     * @throws Throwable
+     * @throws Throwable|FeatureDisabledException
      */
     public function document(bool $isFinal = false, ?string $url = null): self
     {
@@ -412,9 +403,7 @@ class MessengerFaker
      * @param bool $isFinal
      * @param string|null $url
      * @return $this
-     * @throws FeatureDisabledException
-     * @throws InvalidProviderException
-     * @throws Throwable
+     * @throws Throwable|FeatureDisabledException
      */
     public function audio(bool $isFinal = false, ?string $url = null): self
     {
@@ -433,212 +422,6 @@ class MessengerFaker
         }
 
         return $this;
-    }
-
-    /**
-     * @throws InvalidProviderException
-     */
-    private function startMessage(): void
-    {
-        /** @var Participant $participant */
-        $participant = $this->participants->random();
-        $this->usedParticipants->push($participant);
-        $this->setProvider($participant->owner);
-        $this->typing($participant->owner);
-
-        if ($this->delay > 0) {
-            sleep(1);
-        }
-    }
-
-    /**
-     * @param bool $isFinal
-     */
-    private function endMessage(bool $isFinal = false): void
-    {
-        if (! $isFinal) {
-            sleep($this->delay);
-        } else {
-            $this->usedParticipants
-                ->unique('owner_id')
-                ->each(fn (Participant $participant) => $this->read($participant));
-        }
-    }
-
-    /**
-     * @param bool $local
-     * @param string|null $url
-     * @return array
-     * @throws Exception
-     */
-    private function getImage(bool $local, ?string $url): array
-    {
-        if ($this->isTesting) {
-            return [UploadedFile::fake()->image('test.jpg'), 'test.jpg'];
-        }
-
-        if ($local) {
-            $path = config('messenger-faker.paths.images');
-            $images = File::files($path);
-            if (! count($images)) {
-                $this->throwFailedException("No images found within {$path}");
-            }
-            $file = Arr::random($images, 1)[0];
-            $name = $file->getFilename();
-        } else {
-            $name = uniqid();
-            $file = '/tmp/'.$name;
-            file_put_contents($file, file_get_contents(is_null($url) ? self::DefaultImageURL : $url));
-        }
-
-        return [new UploadedFile($file, $name), $file];
-    }
-
-    /**
-     * @param string|null $url
-     * @return array
-     * @throws Exception
-     */
-    private function getDocument(?string $url): array
-    {
-        if ($this->isTesting) {
-            return [UploadedFile::fake()->create('test.pdf', 500, 'application/pdf'), 'test.pdf'];
-        }
-
-        if (! is_null($url)) {
-            $name = uniqid();
-            $file = '/tmp/'.$name;
-            file_put_contents($file, file_get_contents($url));
-        } else {
-            $path = config('messenger-faker.paths.documents');
-            $documents = File::files($path);
-            if (! count($documents)) {
-                $this->throwFailedException("No documents found within {$path}");
-            }
-            $file = Arr::random($documents, 1)[0];
-            $name = $file->getFilename();
-        }
-
-        return [new UploadedFile($file, $name), $file];
-    }
-
-    /**
-     * @param string|null $url
-     * @return array
-     * @throws Exception
-     */
-    private function getAudio(?string $url): array
-    {
-        if ($this->isTesting) {
-            return [UploadedFile::fake()->create('test.mp3', 500, 'audio/mpeg'), 'test.mp3'];
-        }
-
-        if (! is_null($url)) {
-            $name = uniqid();
-            $file = '/tmp/'.$name;
-            file_put_contents($file, file_get_contents($url));
-        } else {
-            $path = config('messenger-faker.paths.audio');
-            $audio = File::files($path);
-            if (! count($audio)) {
-                $this->throwFailedException("No audio found within {$path}");
-            }
-            $file = Arr::random($audio, 1)[0];
-            $name = $file->getFilename();
-        }
-
-        return [new UploadedFile($file, $name), $file];
-    }
-
-    /**
-     * @param string $file
-     */
-    private function unlinkFile(string $file): void
-    {
-        if (! $this->isTesting) {
-            unlink($file);
-        }
-    }
-
-    /**
-     * @param bool $useAdmins
-     */
-    private function setParticipants(bool $useAdmins): void
-    {
-        if ($useAdmins && $this->thread->isGroup()) {
-            $this->participants = $this->thread->participants()->admins()->get();
-        } else {
-            $this->participants = $this->thread->participants()->get();
-        }
-    }
-
-    /**
-     * @param string $status
-     * @param MessengerProvider $provider
-     */
-    private function setStatus(string $status, MessengerProvider $provider): void
-    {
-        $online = 0;
-
-        switch ($status) {
-            case 'online':
-                $this->messenger->setProviderToOnline($provider);
-                $online = 1;
-            break;
-            case 'away':
-                $this->messenger->setProviderToAway($provider);
-                $online = 2;
-            break;
-            case 'offline':
-                $this->messenger->setProviderToOffline($provider);
-            break;
-        }
-
-        $this->broadcaster
-            ->toPresence($this->thread)
-            ->with([
-                'provider_id' => $provider->getKey(),
-                'provider_alias' => $this->messenger->findProviderAlias($provider),
-                'name' => $provider->name(),
-                'online_status' => $online,
-            ])
-            ->broadcast(OnlineStatusBroadcast::class);
-    }
-
-    /**
-     * @param Participant $participant
-     * @param Message $message
-     */
-    private function markRead(Participant $participant, Message $message): void
-    {
-        $this->markRead->withoutDispatches()->execute($participant);
-
-        $this->broadcaster
-            ->toPresence($this->thread)
-            ->with([
-                'provider_id' => $participant->owner_id,
-                'provider_alias' => $this->messenger->findProviderAlias($participant->owner_type),
-                'message_id' => $message->id,
-            ])
-            ->broadcast(ReadBroadcast::class);
-    }
-
-    /**
-     * @param MessengerProvider $provider
-     */
-    private function sendTyping(MessengerProvider $provider): void
-    {
-        $this->status('online', $provider);
-
-        $this->broadcaster
-            ->toPresence($this->thread)
-            ->with([
-                'provider_id' => $provider->getKey(),
-                'provider_alias' => $this->messenger->findProviderAlias($provider),
-                'name' => $provider->name(),
-                'typing' => true,
-            ])
-            ->broadcast(TypingBroadcast::class);
     }
 
     /**
