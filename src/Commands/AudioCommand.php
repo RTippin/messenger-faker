@@ -61,7 +61,7 @@ class AudioCommand extends Command
 
         try {
             for ($x = 1; $x <= $this->option('count'); $x++) {
-                $faker->document($this->option('count') <= $x, $this->option('url'));
+                $faker->audio($this->option('count') <= $x, $this->option('url'));
                 $bar->advance();
             }
         } catch (Exception $e) {
