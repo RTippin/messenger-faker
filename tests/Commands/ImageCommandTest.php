@@ -93,7 +93,7 @@ class ImageCommandTest extends MessengerFakerTestCase
 
         $this->artisan('messenger:faker:image', [
             'thread' => $group->id,
-            '--path' => 'https://example.org/test.png',
+            '--url' => 'https://example.org/test.png',
         ])
             ->expectsOutput('Found First Test Group, now messaging images...')
             ->expectsOutput('Using https://example.org/test.png')

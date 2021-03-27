@@ -2,11 +2,14 @@
 
 namespace RTippin\MessengerFaker;
 
+use Exception;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Psr\SimpleCache\InvalidArgumentException;
 use RTippin\Messenger\Actions\Messages\StoreImageMessage;
 use RTippin\Messenger\Actions\Messages\StoreMessage;
@@ -28,7 +31,7 @@ use Throwable;
 
 class MessengerFaker
 {
-    const DefaultImagePath = 'https://source.unsplash.com/random';
+    const DefaultImageURL = 'https://source.unsplash.com/random';
 
     /**
      * @var Messenger
@@ -328,24 +331,30 @@ class MessengerFaker
      * Send image messages using the given providers and show typing and mark read.
      *
      * @param bool $isFinal
-     * @param string|null $path
+     * @param bool $local
+     * @param string|null $url
      * @return $this
      * @throws FeatureDisabledException
      * @throws InvalidProviderException
      * @throws Throwable
      */
-    public function image(bool $isFinal = false, ?string $path = null): self
+    public function image(bool $isFinal = false,
+                          bool $local = false,
+                          ?string $url = null): self
     {
         $this->startMessage();
-        $image = $this->getImage($path);
+        $image = $this->getImage($local, $url);
         $this->storeImage->execute(
             $this->thread,
             [
                 'image' => $image[0],
             ]
         );
-        $this->unlinkFile($image[1]);
         $this->endMessage($isFinal);
+
+        if (! $local) {
+            $this->unlinkFile($image[1]);
+        }
 
         return $this;
     }
@@ -381,18 +390,30 @@ class MessengerFaker
     }
 
     /**
-     * @param string|null $path
+     * @param bool $local
+     * @param string|null $url
      * @return array
+     * @throws Exception
      */
-    private function getImage(?string $path): array
+    private function getImage(bool $local, ?string $url): array
     {
         if ($this->isTesting) {
             return [UploadedFile::fake()->image('test.jpg'), 'test.jpg'];
         }
 
-        $name = uniqid() . '.jpg';
-        $file = '/tmp/' . $name;
-        file_put_contents($file, file_get_contents(is_null($path) ? self::DefaultImagePath : $path));
+        if ($local) {
+            $path = storage_path('faker/images');
+            $images = File::files($path);
+            if (! count($images)) {
+                $this->throwFailedException("No images found within {$path}");
+            }
+            $file = $images[rand(0, count($images) - 1)];
+            $name = $file->getFilename();
+        } else {
+            $name = uniqid() . '.jpg';
+            $file = '/tmp/' . $name;
+            file_put_contents($file, file_get_contents(is_null($url) ? self::DefaultImageURL : $url));
+        }
 
         return [new UploadedFile($file, $name), $file];
     }
@@ -486,5 +507,14 @@ class MessengerFaker
                 'typing' => true,
             ])
             ->broadcast(TypingBroadcast::class);
+    }
+
+    /**
+     * @param string $message
+     * @throws Exception
+     */
+    private function throwFailedException(string $message): void
+    {
+        throw new Exception($message);
     }
 }
