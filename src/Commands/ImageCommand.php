@@ -18,7 +18,8 @@ class ImageCommand extends Command
                                             {thread : ID of the thread you wish to have messaged}
                                             {--count=1 : Number of messages to send}
                                             {--delay=3 : Delay between each message being sent}
-                                            {--admins : Only use admins to send messages if group thread}';
+                                            {--admins : Only use admins to send messages if group thread}
+                                            {--path= : Set the path/URL we grab an image from. Default uses unsplash}';
 
     /**
      * The console command description.
@@ -45,14 +46,16 @@ class ImageCommand extends Command
             return;
         }
 
+        $path = is_null($this->option('path')) ? MessengerFaker::DefaultImagePath : $this->option('path');
         $this->line('');
         $this->info("Found {$faker->getThreadName()}, now messaging images...");
+        $this->info("Using {$path}");
         $this->line('');
         $bar = $this->output->createProgressBar($this->option('count'));
         $bar->start();
 
         for ($x = 1; $x <= $this->option('count'); $x++) {
-            $faker->image($this->option('count') <= $x);
+            $faker->image($this->option('count') <= $x, $this->option('path'));
             $bar->advance();
         }
 

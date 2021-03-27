@@ -15,7 +15,7 @@ class OnlineStatusCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function status_command_does_not_find_thread()
+    public function it_does_not_find_thread()
     {
         $this->artisan('messenger:faker:status', [
             'thread' => 404,
@@ -25,7 +25,7 @@ class OnlineStatusCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function status_command_group_participants_default_online()
+    public function it_sets_group_participants_online_by_default()
     {
         $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
 
@@ -37,7 +37,7 @@ class OnlineStatusCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function status_command_private_participants_default_online()
+    public function it_sets_private_participants_online_default()
     {
         $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
 
@@ -49,7 +49,7 @@ class OnlineStatusCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function status_command_participants_to_away()
+    public function it_sets_participants_to_away()
     {
         $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
 
@@ -62,7 +62,7 @@ class OnlineStatusCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function status_command_participants_to_offline()
+    public function it_sets_participants_to_offline()
     {
         $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
 

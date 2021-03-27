@@ -15,7 +15,7 @@ class UnReadCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function unread_command_does_not_find_thread()
+    public function it_does_not_find_thread()
     {
         $this->artisan('messenger:faker:unread', [
             'thread' => 404,
@@ -25,7 +25,7 @@ class UnReadCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function unread_command_group_participants_unread()
+    public function it_marks_group_participants_unread()
     {
         $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
 
@@ -37,7 +37,7 @@ class UnReadCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function unread_command_private_participants_unread()
+    public function it_marks_private_participants_unread()
     {
         $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
 

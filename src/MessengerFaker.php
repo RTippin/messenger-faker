@@ -28,6 +28,8 @@ use Throwable;
 
 class MessengerFaker
 {
+    const DefaultImagePath = 'https://source.unsplash.com/random';
+
     /**
      * @var Messenger
      */
@@ -180,7 +182,9 @@ class MessengerFaker
      */
     public function setDelay(int $delay): self
     {
-        $this->delay = $delay;
+        if (! $this->isTesting) {
+            $this->delay = $delay;
+        }
 
         return $this;
     }
@@ -324,13 +328,16 @@ class MessengerFaker
      * Send image messages using the given providers and show typing and mark read.
      *
      * @param bool $isFinal
+     * @param string|null $path
      * @return $this
-     * @throws Throwable|InvalidProviderException
+     * @throws FeatureDisabledException
+     * @throws InvalidProviderException
+     * @throws Throwable
      */
-    public function image(bool $isFinal = false): self
+    public function image(bool $isFinal = false, ?string $path = null): self
     {
         $this->startMessage();
-        $image = $this->getImage();
+        $image = $this->getImage($path);
         $this->storeImage->execute(
             $this->thread,
             [
@@ -374,18 +381,20 @@ class MessengerFaker
     }
 
     /**
+     * @param string|null $path
      * @return array
      */
-    private function getImage(): array
+    private function getImage(?string $path): array
     {
         if ($this->isTesting) {
             return [UploadedFile::fake()->image('test.jpg'), 'test.jpg'];
         }
 
-        $file = '/tmp/' . uniqid() . '.jpg';
-        file_put_contents($file, file_get_contents('https://source.unsplash.com/random'));
+        $name = uniqid() . '.jpg';
+        $file = '/tmp/' . $name;
+        file_put_contents($file, file_get_contents(is_null($path) ? self::DefaultImagePath : $path));
 
-        return [new UploadedFile($file, 'random.jpg'), $file];
+        return [new UploadedFile($file, $name), $file];
     }
 
     /**

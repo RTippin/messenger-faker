@@ -15,7 +15,7 @@ class ReadCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function read_command_does_not_find_thread()
+    public function it_does_not_find_thread()
     {
         $this->artisan('messenger:faker:read', [
             'thread' => 404,
@@ -25,7 +25,7 @@ class ReadCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function read_command_marks_group_read()
+    public function it_marks_group_read()
     {
         $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
 
@@ -37,7 +37,7 @@ class ReadCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function read_command_marks_private_read()
+    public function it_marks_private_read()
     {
         $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
 

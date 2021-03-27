@@ -23,7 +23,6 @@ use RTippin\MessengerFaker\MessengerFaker;
 class MessengerFakerTest extends MessengerFakerTestCase
 {
     private MessengerProvider $tippin;
-
     private MessengerProvider $doe;
 
     protected function setUp(): void
@@ -31,12 +30,11 @@ class MessengerFakerTest extends MessengerFakerTestCase
         parent::setUp();
 
         $this->tippin = $this->userTippin();
-
         $this->doe = $this->userDoe();
     }
 
     /** @test */
-    public function faker_sets_messenger_configs()
+    public function it_sets_messenger_configs()
     {
         app(MessengerFaker::class);
 
@@ -47,7 +45,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_sets_messenger_provider()
+    public function it_sets_messenger_provider()
     {
         $faker = app(MessengerFaker::class);
         $faker->setProvider($this->tippin);
@@ -57,7 +55,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_throws_model_not_found_when_thread_id_not_found()
+    public function it_throws_model_not_found_when_thread_id_not_found()
     {
         $faker = app(MessengerFaker::class);
 
@@ -67,7 +65,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_sets_thread_using_id()
+    public function it_sets_thread_using_id()
     {
         $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin);
@@ -77,7 +75,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_sets_thread_using_thread()
+    public function it_sets_thread_using_thread()
     {
         $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin);
@@ -87,7 +85,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_shows_group_thread_name()
+    public function it_shows_group_thread_name()
     {
         $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin);
@@ -97,7 +95,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_shows_private_thread_names()
+    public function it_shows_private_thread_names()
     {
         $faker = app(MessengerFaker::class);
         $group = $this->createPrivateThread($this->tippin, $this->doe);
@@ -107,7 +105,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_knocks_at_group_thread()
+    public function it_knocks_at_group_thread()
     {
         Event::fake([
             KnockBroadcast::class,
@@ -122,7 +120,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_knocks_at_private_thread()
+    public function it_knocks_at_private_thread()
     {
         Event::fake([
             KnockBroadcast::class,
@@ -137,7 +135,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_sets_online_status_for_all_participants()
+    public function it_sets_online_status_for_all_participants()
     {
         Event::fake([
             OnlineStatusBroadcast::class,
@@ -152,7 +150,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_sets_away_status_for_all_participants()
+    public function it_sets_away_status_for_all_participants()
     {
         Event::fake([
             OnlineStatusBroadcast::class,
@@ -167,7 +165,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_sets_offline_status_for_all_participants()
+    public function it_sets_offline_status_for_all_participants()
     {
         Event::fake([
             OnlineStatusBroadcast::class,
@@ -182,7 +180,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_sets_online_status_for_admin_participants()
+    public function it_sets_online_status_for_admin_participants()
     {
         Event::fake([
             OnlineStatusBroadcast::class,
@@ -197,7 +195,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_mark_read_does_nothing_when_no_last_message()
+    public function it_mark_read_does_nothing_when_no_last_message()
     {
         Event::fake([
             ReadBroadcast::class,
@@ -210,7 +208,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_mark_read_for_all_participants()
+    public function it_mark_read_for_all_participants()
     {
         Event::fake([
             ReadBroadcast::class,
@@ -227,7 +225,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_mark_read_for_admin_participants()
+    public function it_mark_read_for_admin_participants()
     {
         Event::fake([
             ReadBroadcast::class,
@@ -242,7 +240,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_mark_unread_for_all_participants()
+    public function it_mark_unread_for_all_participants()
     {
         $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin, $this->doe);
@@ -255,7 +253,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_mark_unread_for_admin_participants()
+    public function it_mark_unread_for_admin_participants()
     {
         $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin, $this->doe);
@@ -268,7 +266,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_makes_all_participants_type_and_sends_online_status()
+    public function it_makes_all_participants_type_and_sends_online_status()
     {
         Event::fake([
             OnlineStatusBroadcast::class,
@@ -283,7 +281,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_makes_admin_participants_type_and_sends_online_status()
+    public function it_makes_admin_participants_type_and_sends_online_status()
     {
         Event::fake([
             OnlineStatusBroadcast::class,
@@ -298,7 +296,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_messages_using_random_participant_and_calls_typing()
+    public function it_messages_using_random_participant_and_calls_typing()
     {
         Event::fake([
             NewMessageBroadcast::class,
@@ -318,7 +316,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_messages_and_marks_used_participants_read_when_final()
+    public function it_messages_and_marks_used_participants_read_when_final()
     {
         Event::fake([
             NewMessageBroadcast::class,
@@ -340,7 +338,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function faker_seeds_image_messages()
+    public function it_seeds_image_messages()
     {
         Event::fake([
             NewMessageBroadcast::class,

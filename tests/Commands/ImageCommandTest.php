@@ -35,9 +35,9 @@ class ImageCommandTest extends MessengerFakerTestCase
 
         $this->artisan('messenger:faker:image', [
             'thread' => $group->id,
-            '--delay' => 0,
         ])
             ->expectsOutput('Found First Test Group, now messaging images...')
+            ->expectsOutput('Using https://source.unsplash.com/random')
             ->expectsOutput('Finished sending 1 image messages to First Test Group!')
             ->assertExitCode(0);
     }
@@ -49,40 +49,55 @@ class ImageCommandTest extends MessengerFakerTestCase
 
         $this->artisan('messenger:faker:image', [
             'thread' => $private->id,
-            '--delay' => 0,
         ])
             ->expectsOutput('Found Richard Tippin and John Doe, now messaging images...')
+            ->expectsOutput('Using https://source.unsplash.com/random')
             ->expectsOutput('Finished sending 1 image messages to Richard Tippin and John Doe!')
             ->assertExitCode(0);
     }
 
     /** @test */
-    public function it_accepts_message_count()
+    public function it_accepts_image_count()
     {
         $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
 
         $this->artisan('messenger:faker:image', [
             'thread' => $group->id,
             '--count' => 2,
-            '--delay' => 0,
         ])
             ->expectsOutput('Found First Test Group, now messaging images...')
+            ->expectsOutput('Using https://source.unsplash.com/random')
             ->expectsOutput('Finished sending 2 image messages to First Test Group!')
             ->assertExitCode(0);
     }
 
     /** @test */
-    public function it_accepts_zero_message_count()
+    public function it_accepts_zero_image_count()
     {
         $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
 
         $this->artisan('messenger:faker:image', [
             'thread' => $group->id,
             '--count' => 0,
-            '--delay' => 0,
         ])
             ->expectsOutput('Found First Test Group, now messaging images...')
+            ->expectsOutput('Using https://source.unsplash.com/random')
             ->expectsOutput('Finished sending 0 image messages to First Test Group!')
+            ->assertExitCode(0);
+    }
+
+    /** @test */
+    public function it_accepts_image_path()
+    {
+        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+
+        $this->artisan('messenger:faker:image', [
+            'thread' => $group->id,
+            '--path' => 'https://example.org/test.png',
+        ])
+            ->expectsOutput('Found First Test Group, now messaging images...')
+            ->expectsOutput('Using https://example.org/test.png')
+            ->expectsOutput('Finished sending 1 image messages to First Test Group!')
             ->assertExitCode(0);
     }
 }

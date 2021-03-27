@@ -15,7 +15,7 @@ class TypingCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function typing_command_does_not_find_thread()
+    public function it_does_not_find_thread()
     {
         $this->artisan('messenger:faker:typing', [
             'thread' => 404,
@@ -25,7 +25,7 @@ class TypingCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function typing_command_group_participants_type()
+    public function it_makes_group_participants_type()
     {
         $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
 
@@ -37,7 +37,7 @@ class TypingCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function typing_command_private_participants_type()
+    public function it_makes_private_participants_type()
     {
         $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
 

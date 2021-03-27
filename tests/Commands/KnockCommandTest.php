@@ -15,7 +15,7 @@ class KnockCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function knock_command_does_not_find_thread()
+    public function it_does_not_find_thread()
     {
         $this->artisan('messenger:faker:knock', [
             'thread' => 404,
@@ -25,7 +25,7 @@ class KnockCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function knock_command_knocks_at_group()
+    public function it_knocks_at_group()
     {
         $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
 
@@ -37,7 +37,7 @@ class KnockCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function knock_command_knocks_at_private()
+    public function it_knocks_at_private()
     {
         $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
 
