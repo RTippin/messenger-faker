@@ -48,10 +48,14 @@ class ImageCommand extends Command
             return;
         }
 
-        $path = is_null($this->option('url')) ? MessengerFaker::DefaultImageURL : $this->option('url');
+        if ($this->option('local')) {
+            $message = 'a random image from ' . config('messenger-faker.paths.images');
+        } else {
+            $message = is_null($this->option('url')) ? MessengerFaker::DefaultImageURL : $this->option('url');
+        }
         $this->line('');
         $this->info("Found {$faker->getThreadName()}, now messaging images...");
-        $this->info("Using {$path}");
+        $this->info("Using {$message}");
         $this->line('');
         $bar = $this->output->createProgressBar($this->option('count'));
         $bar->start();

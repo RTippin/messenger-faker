@@ -21,6 +21,8 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
      */
     public function register(): void
     {
+        $this->mergeConfigFrom(__DIR__.'/../config/messenger-faker.php', 'messenger-faker');
+
         $this->app->singleton(
             MessengerFaker::class,
             MessengerFaker::class
@@ -35,6 +37,10 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
     public function boot(): void
     {
         if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../config/messenger-faker.php' => config_path('messenger-faker.php'),
+            ], 'messenger-faker');
+
             $this->commands([
                 ImageCommand::class,
                 KnockCommand::class,

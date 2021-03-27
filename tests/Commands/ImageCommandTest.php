@@ -87,7 +87,7 @@ class ImageCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function it_accepts_image_path()
+    public function it_accepts_image_url()
     {
         $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
 
@@ -97,6 +97,21 @@ class ImageCommandTest extends MessengerFakerTestCase
         ])
             ->expectsOutput('Found First Test Group, now messaging images...')
             ->expectsOutput('Using https://example.org/test.png')
+            ->expectsOutput('Finished sending 1 image messages to First Test Group!')
+            ->assertExitCode(0);
+    }
+
+    /** @test */
+    public function it_accepts_local_image_path()
+    {
+        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+
+        $this->artisan('messenger:faker:image', [
+            'thread' => $group->id,
+            '--local' => true,
+        ])
+            ->expectsOutput('Found First Test Group, now messaging images...')
+            ->expectsOutput('Using a random image from ' . config('messenger-faker.paths.images'))
             ->expectsOutput('Finished sending 1 image messages to First Test Group!')
             ->assertExitCode(0);
     }

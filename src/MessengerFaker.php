@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 use Psr\SimpleCache\InvalidArgumentException;
 use RTippin\Messenger\Actions\Messages\StoreImageMessage;
 use RTippin\Messenger\Actions\Messages\StoreMessage;
@@ -402,7 +401,7 @@ class MessengerFaker
         }
 
         if ($local) {
-            $path = storage_path('faker/images');
+            $path = config('messenger-faker.paths.images');
             $images = File::files($path);
             if (! count($images)) {
                 $this->throwFailedException("No images found within {$path}");
