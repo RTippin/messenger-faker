@@ -4,6 +4,7 @@ namespace RTippin\MessengerFaker;
 
 use Exception;
 use Faker\Generator;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
@@ -26,8 +27,6 @@ use Throwable;
 
 class MessengerFaker
 {
-    const DefaultImageURL = 'https://source.unsplash.com/random';
-
     use FakerEvents;
     use FakerFiles;
 
@@ -45,6 +44,11 @@ class MessengerFaker
      * @var Generator
      */
     private Generator $faker;
+
+    /**
+     * @var ConfigRepository
+     */
+    private ConfigRepository $configRepo;
 
     /**
      * @var SendKnock
@@ -107,6 +111,7 @@ class MessengerFaker
      * @param Messenger $messenger
      * @param BroadcastDriver $broadcaster
      * @param Generator $faker
+     * @param ConfigRepository $configRepo
      * @param SendKnock $sendKnock
      * @param MarkParticipantRead $markRead
      * @param StoreMessage $storeMessage
@@ -117,6 +122,7 @@ class MessengerFaker
     public function __construct(Messenger $messenger,
                                 BroadcastDriver $broadcaster,
                                 Generator $faker,
+                                ConfigRepository $configRepo,
                                 SendKnock $sendKnock,
                                 MarkParticipantRead $markRead,
                                 StoreMessage $storeMessage,
@@ -127,6 +133,7 @@ class MessengerFaker
         $this->messenger = $messenger;
         $this->broadcaster = $broadcaster;
         $this->sendKnock = $sendKnock;
+        $this->configRepo = $configRepo;
         $this->markRead = $markRead;
         $this->faker = $faker;
         $this->storeMessage = $storeMessage;

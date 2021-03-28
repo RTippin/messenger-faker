@@ -3,10 +3,14 @@
 namespace RTippin\MessengerFaker;
 
 use Exception;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 
+/**
+ * @property-read ConfigRepository $configRepo
+ */
 trait FakerFiles
 {
     /**
@@ -22,7 +26,7 @@ trait FakerFiles
         }
 
         if ($local) {
-            $path = config('messenger-faker.paths.images');
+            $path = $this->configRepo->get('messenger-faker.paths.images');
             $images = File::files($path);
             if (! count($images)) {
                 $this->throwFailedException("No images found within {$path}");
@@ -32,7 +36,7 @@ trait FakerFiles
         } else {
             $name = uniqid();
             $file = '/tmp/'.$name;
-            file_put_contents($file, file_get_contents(is_null($url) ? self::DefaultImageURL : $url));
+            file_put_contents($file, file_get_contents(is_null($url) ? $this->configRepo->get('messenger-faker.default_image_url') : $url));
         }
 
         return [new UploadedFile($file, $name), $file];
@@ -54,7 +58,7 @@ trait FakerFiles
             $file = '/tmp/'.$name;
             file_put_contents($file, file_get_contents($url));
         } else {
-            $path = config('messenger-faker.paths.documents');
+            $path = $this->configRepo->get('messenger-faker.paths.documents');
             $documents = File::files($path);
             if (! count($documents)) {
                 $this->throwFailedException("No documents found within {$path}");
@@ -82,7 +86,7 @@ trait FakerFiles
             $file = '/tmp/'.$name;
             file_put_contents($file, file_get_contents($url));
         } else {
-            $path = config('messenger-faker.paths.audio');
+            $path = $this->configRepo->get('messenger-faker.paths.audio');
             $audio = File::files($path);
             if (! count($audio)) {
                 $this->throwFailedException("No audio found within {$path}");

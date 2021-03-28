@@ -2,13 +2,25 @@
 
 namespace RTippin\MessengerFaker;
 
+use Illuminate\Database\Eloquent\Collection as DBCollection;
+use Illuminate\Support\Collection;
+use RTippin\Messenger\Contracts\BroadcastDriver;
 use RTippin\Messenger\Contracts\MessengerProvider;
+use RTippin\Messenger\Messenger;
 use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Participant;
+use RTippin\Messenger\Models\Thread;
 use RTippin\MessengerFaker\Broadcasting\OnlineStatusBroadcast;
 use RTippin\MessengerFaker\Broadcasting\ReadBroadcast;
 use RTippin\MessengerFaker\Broadcasting\TypingBroadcast;
 
+/**
+ * @property-read Collection $usedParticipants;
+ * @property-read DBCollection $participants;
+ * @property-read ?Thread $thread;
+ * @property-read Messenger $messenger;
+ * @property-read BroadcastDriver $broadcaster;
+ */
 trait FakerEvents
 {
     /**

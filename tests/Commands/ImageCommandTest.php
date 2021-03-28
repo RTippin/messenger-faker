@@ -37,7 +37,7 @@ class ImageCommandTest extends MessengerFakerTestCase
             'thread' => $group->id,
         ])
             ->expectsOutput('Found First Test Group, now messaging images...')
-            ->expectsOutput('Using https://source.unsplash.com/random')
+            ->expectsOutput('Using '.config('messenger-faker.default_image_url'))
             ->expectsOutput('Finished sending 1 image messages to First Test Group!')
             ->assertExitCode(0);
     }
@@ -51,7 +51,7 @@ class ImageCommandTest extends MessengerFakerTestCase
             'thread' => $private->id,
         ])
             ->expectsOutput('Found Richard Tippin and John Doe, now messaging images...')
-            ->expectsOutput('Using https://source.unsplash.com/random')
+            ->expectsOutput('Using '.config('messenger-faker.default_image_url'))
             ->expectsOutput('Finished sending 1 image messages to Richard Tippin and John Doe!')
             ->assertExitCode(0);
     }
@@ -66,7 +66,7 @@ class ImageCommandTest extends MessengerFakerTestCase
             '--count' => 2,
         ])
             ->expectsOutput('Found First Test Group, now messaging images...')
-            ->expectsOutput('Using https://source.unsplash.com/random')
+            ->expectsOutput('Using '.config('messenger-faker.default_image_url'))
             ->expectsOutput('Finished sending 2 image messages to First Test Group!')
             ->assertExitCode(0);
     }
@@ -81,7 +81,7 @@ class ImageCommandTest extends MessengerFakerTestCase
             '--count' => 0,
         ])
             ->expectsOutput('Found First Test Group, now messaging images...')
-            ->expectsOutput('Using https://source.unsplash.com/random')
+            ->expectsOutput('Using '.config('messenger-faker.default_image_url'))
             ->expectsOutput('Finished sending 0 image messages to First Test Group!')
             ->assertExitCode(0);
     }

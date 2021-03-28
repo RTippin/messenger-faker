@@ -51,7 +51,7 @@ class ImageCommand extends Command
         if ($this->option('local')) {
             $message = 'a random image from '.config('messenger-faker.paths.images');
         } else {
-            $message = is_null($this->option('url')) ? MessengerFaker::DefaultImageURL : $this->option('url');
+            $message = is_null($this->option('url')) ? config('messenger-faker.default_image_url') : $this->option('url');
         }
         $this->line('');
         $this->info("Found {$faker->getThreadName()}, now messaging images...");

@@ -30,8 +30,9 @@ $ composer require rtippin/messenger-faker --dev
 
 # Config
 
-- Default config values for local storage location of files used when needing.
+- Default config values for local storage location of files used when seeding.
   - When seeding using local files, a random file from the message types specified folder will be used.
+  - When seeding image files with no url/local flag specified, it will use the default image url from the config.
 
 ```php
     'paths' => [
@@ -39,6 +40,8 @@ $ composer require rtippin/messenger-faker --dev
         'documents' => storage_path('faker/documents'),
         'audio' => storage_path('faker/audio'),
     ],
+    
+    'default_image_url' => 'https://source.unsplash.com/random',
 ```
 
 ### To override the file paths, please publish our config and edit accordingly
@@ -59,7 +62,7 @@ ___
     * `--delay=X` flag to set delay in seconds between each message.
     * `--admins` flag will only use admin participants if using a group thread.
 - `php artisan messenger:faker:image {thread}` | `--count=1` | `--delay=3` | `--admins` | `--local` | `--url=`
-    * Make participants send image messages. Will also emit typing and mark read. If `--local` or `--url` is not set, we pull images from unsplash API.
+    * Make participants send image messages. Will also emit typing and mark read. If `--local` or `--url` is not set, we pull images from the default image url in the config.
     * `--count=X` flag to set how many images are sent.
     * `--delay=X` flag to set delay in seconds between each image.
     * `--admins` flag will only use admin participants if using a group thread.
