@@ -61,6 +61,12 @@ ___
     * `--count=X` flag to set how many messages are sent.
     * `--delay=X` flag to set delay in seconds between each message.
     * `--admins` flag will only use admin participants if using a group thread.
+- `php artisan messenger:faker:system {thread}` | `--type=` | `--count=1` | `--delay=3` | `--admins`
+    * Make participants send system messages.
+    * `--count=X` flag to set how many system messages are sent.
+    * `--type=X` flag to set the system message (INT) type to be used. `88, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99`
+    * `--delay=X` flag to set delay in seconds between each system message.
+    * `--admins` flag will only use admin participants if using a group thread.
 - `php artisan messenger:faker:image {thread}` | `--count=1` | `--delay=3` | `--admins` | `--local` | `--url=`
     * Make participants send image messages. Will also emit typing and mark read. If `--local` or `--url` is not set, we pull images from the default image url in the config.
     * `--count=X` flag to set how many images are sent.
