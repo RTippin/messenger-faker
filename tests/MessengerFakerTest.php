@@ -396,8 +396,12 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::assertDispatched(TypingBroadcast::class);
     }
 
-    /** @test */
-    public function it_seeds_system_message_type_88()
+    /**
+     * @test
+     * @dataProvider systemMessageTypes
+     * @param $type
+     */
+    public function it_seeds_system_messages($type)
     {
         Event::fake([
             NewMessageBroadcast::class,
@@ -405,32 +409,29 @@ class MessengerFakerTest extends MessengerFakerTestCase
         ]);
         $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin, $this->doe);
-        $faker->setThread($group)->system(88);
+        $faker->setThread($group)->system($type);
 
         $this->assertDatabaseHas('messages', [
-            'type' => 88,
-            'body' => 'joined',
+            'type' => $type,
         ]);
         Event::assertDispatched(NewMessageBroadcast::class);
         Event::assertDispatched(NewMessageEvent::class);
     }
 
-    /** @test */
-    public function it_seeds_system_message_type_90()
+    public function systemMessageTypes(): array
     {
-        Event::fake([
-            NewMessageBroadcast::class,
-            NewMessageEvent::class,
-        ]);
-        $faker = app(MessengerFaker::class);
-        $group = $this->createGroupThread($this->tippin, $this->doe);
-        $faker->setThread($group)->system(90);
-
-        $this->assertDatabaseHas('messages', [
-            'type' => 90,
-        ]);
-        $this->assertDatabaseCount('calls', 1);
-        Event::assertDispatched(NewMessageBroadcast::class);
-        Event::assertDispatched(NewMessageEvent::class);
+        return [
+            'PARTICIPANT_JOINED_WITH_INVITE' => [88],
+            'VIDEO_CALL' => [90],
+            'GROUP_AVATAR_CHANGED' => [91],
+            'THREAD_ARCHIVED' => [92],
+            'GROUP_CREATED' => [93],
+            'GROUP_RENAMED' => [94],
+            'DEMOTED_ADMIN' => [95],
+            'PROMOTED_ADMIN' => [96],
+            'PARTICIPANT_LEFT_GROUP' => [97],
+            'PARTICIPANT_REMOVED' => [98],
+            'PARTICIPANTS_ADDED' => [99],
+        ];
     }
 }

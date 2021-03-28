@@ -68,7 +68,7 @@ trait FakerSystemMessages
             if (is_null($type)) {
                 return Arr::random($this->getAllowedTypesPrivate(), 1)[0];
             } elseif (! in_array($type, $this->getAllowedTypesPrivate())) {
-                $this->throwFailedException('Invalid system message type.');
+                $this->throwFailedException('Invalid system message type for private thread.');
             }
         }
 
@@ -85,6 +85,15 @@ trait FakerSystemMessages
         switch ($type) {
             case 88: return $this->makeJoinedWithInvite();
             case 90: return $this->makeVideoCall($participant);
+            case 91: return $this->makeGroupAvatarChanged();
+            case 92: return $this->makeThreadArchived();
+            case 93: return $this->makeGroupCreated();
+            case 94: return $this->makeGroupRenamed();
+            case 95: return $this->makeParticipantDemoted($participant);
+            case 96: return $this->makeParticipantPromoted($participant);
+            case 97: return $this->makeGroupLeft();
+            case 98: return $this->makeRemovedFromGroup($participant);
+            case 99: return $this->makeParticipantsAdded($participant);
         }
 
         return '';
@@ -123,7 +132,7 @@ trait FakerSystemMessages
             ->reject(fn (Participant $p) => $p->id === $participant->id)
             ->shuffle()
             ->take(rand(0, $this->participants->count() - 1))
-            ->each(function (Participant $p) use ($call){
+            ->each(function (Participant $p) use ($call) {
                 $call->participants()->create([
                     'owner_id' => $p->owner_id,
                     'owner_type' => $p->owner_type,
@@ -132,5 +141,131 @@ trait FakerSystemMessages
             });
 
         return collect(['call_id' => $call->id])->toJson();
+    }
+
+    /**
+     * @return string
+     */
+    private function makeGroupAvatarChanged(): string
+    {
+        return 'updated the avatar';
+    }
+
+    /**
+     * @return string
+     */
+    private function makeThreadArchived(): string
+    {
+        return $this->thread->isGroup()
+            ? 'archived the group'
+            : 'archived the conversation';
+    }
+
+    /**
+     * @return string
+     */
+    private function makeGroupCreated(): string
+    {
+        return "created {$this->thread->subject}";
+    }
+
+    /**
+     * @return string
+     */
+    private function makeGroupRenamed(): string
+    {
+        return "renamed the group to {$this->thread->subject}";
+    }
+
+    /**
+     * @param Participant $participant
+     * @return string
+     */
+    private function makeParticipantDemoted(Participant $participant): string
+    {
+        $demoted = $this->participants
+            ->reject(fn (Participant $p) => $p->id === $participant->id)
+            ->shuffle()
+            ->take(1);
+
+        if (! $demoted->count()) {
+            $this->throwFailedException('No other participants to choose from.');
+        }
+
+        return collect([
+            'owner_id' => $demoted->first()->owner_id,
+            'owner_type' => $demoted->first()->owner_type,
+        ])->toJson();
+    }
+
+    /**
+     * @param Participant $participant
+     * @return string
+     */
+    private function makeParticipantPromoted(Participant $participant): string
+    {
+        $promoted = $this->participants
+            ->reject(fn (Participant $p) => $p->id === $participant->id)
+            ->shuffle()
+            ->take(1);
+
+        if (! $promoted->count()) {
+            $this->throwFailedException('No other participants to choose from.');
+        }
+
+        return collect([
+            'owner_id' => $promoted->first()->owner_id,
+            'owner_type' => $promoted->first()->owner_type,
+        ])->toJson();
+    }
+
+    /**
+     * @return string
+     */
+    private function makeGroupLeft(): string
+    {
+        return 'left';
+    }
+
+    /**
+     * @param Participant $participant
+     * @return string
+     */
+    private function makeRemovedFromGroup(Participant $participant): string
+    {
+        $removed = $this->participants
+            ->reject(fn (Participant $p) => $p->id === $participant->id)
+            ->shuffle()
+            ->take(1);
+
+        if (! $removed->count()) {
+            $this->throwFailedException('No other participants to choose from.');
+        }
+
+        return collect([
+            'owner_id' => $removed->first()->owner_id,
+            'owner_type' => $removed->first()->owner_type,
+        ])->toJson();
+    }
+
+    /**
+     * @param Participant $participant
+     * @return string
+     */
+    private function makeParticipantsAdded(Participant $participant): string
+    {
+        $added = $this->participants
+            ->reject(fn (Participant $p) => $p->id === $participant->id)
+            ->shuffle()
+            ->take(rand(1, $this->participants->count() - 1));
+
+        if (! $added->count()) {
+            $this->throwFailedException('No other participants to choose from.');
+        }
+
+        return $added->map(fn ($item) => [
+            'owner_id' => $item['owner_id'],
+            'owner_type' => $item['owner_type'],
+        ])->toJson();
     }
 }
