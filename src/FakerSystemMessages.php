@@ -84,6 +84,7 @@ trait FakerSystemMessages
     {
         switch ($type) {
             case 88: return $this->makeJoinedWithInvite();
+            case 90: return $this->makeVideoCall($participant);
         }
 
         return '';
@@ -95,5 +96,41 @@ trait FakerSystemMessages
     private function makeJoinedWithInvite(): string
     {
         return 'joined';
+    }
+
+    /**
+     * @param Participant $participant
+     * @return string
+     */
+    private function makeVideoCall(Participant $participant): string
+    {
+        $call = $this->thread->calls()->create([
+            'type' => 1,
+            'owner_id' => $participant->owner_id,
+            'owner_type' => $participant->owner_type,
+            'call_ended' => now(),
+            'setup_complete' => true,
+            'teardown_complete' => true,
+        ]);
+
+        $call->participants()->create([
+            'owner_id' => $participant->owner_id,
+            'owner_type' => $participant->owner_type,
+            'left_call' => now(),
+        ]);
+
+        $this->participants
+            ->reject(fn (Participant $p) => $p->id === $participant->id)
+            ->shuffle()
+            ->take(rand(0, $this->participants->count() - 1))
+            ->each(function (Participant $p) use ($call){
+                $call->participants()->create([
+                    'owner_id' => $p->owner_id,
+                    'owner_type' => $p->owner_type,
+                    'left_call' => now(),
+                ]);
+            });
+
+        return collect(['call_id' => $call->id])->toJson();
     }
 }

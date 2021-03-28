@@ -2,6 +2,7 @@
 
 namespace RTippin\MessengerFaker\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use RTippin\MessengerFaker\MessengerFaker;
@@ -52,9 +53,17 @@ class SystemCommand extends Command
         $bar = $this->output->createProgressBar($this->option('count'));
         $bar->start();
 
-        for ($x = 1; $x <= $this->option('count'); $x++) {
-            $faker->system($this->option('type'), $this->option('count') <= $x);
-            $bar->advance();
+        try {
+            for ($x = 1; $x <= $this->option('count'); $x++) {
+                $faker->system($this->option('type'), $this->option('count') <= $x);
+                $bar->advance();
+            }
+        } catch (Exception $e) {
+            $this->line('');
+            $this->line('');
+            $this->error($e->getMessage());
+
+            return;
         }
 
         $bar->finish();
