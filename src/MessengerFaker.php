@@ -431,12 +431,17 @@ class MessengerFaker
 
     /**
      * @param int|null $type
+     * @param bool $isFinal
      * @return $this
      * @throws Throwable
      */
-    public function system(?int $type = null): self
+    public function system(?int $type = null, bool $isFinal = false): self
     {
         $this->storeSystem->execute(...$this->generateSystemMessage($type));
+
+        if (! $isFinal) {
+            sleep($this->delay);
+        }
 
         return $this;
     }
