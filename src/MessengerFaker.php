@@ -13,6 +13,7 @@ use RTippin\Messenger\Actions\Messages\StoreAudioMessage;
 use RTippin\Messenger\Actions\Messages\StoreDocumentMessage;
 use RTippin\Messenger\Actions\Messages\StoreImageMessage;
 use RTippin\Messenger\Actions\Messages\StoreMessage;
+use RTippin\Messenger\Actions\Messages\StoreSystemMessage;
 use RTippin\Messenger\Actions\Threads\MarkParticipantRead;
 use RTippin\Messenger\Actions\Threads\SendKnock;
 use RTippin\Messenger\Contracts\BroadcastDriver;
@@ -29,6 +30,7 @@ class MessengerFaker
 {
     use FakerEvents;
     use FakerFiles;
+    use FakerSystemMessages;
 
     /**
      * @var Messenger
@@ -81,6 +83,11 @@ class MessengerFaker
     private StoreAudioMessage $storeAudio;
 
     /**
+     * @var StoreSystemMessage
+     */
+    private StoreSystemMessage $storeSystem;
+
+    /**
      * @var Thread|null
      */
     private ?Thread $thread = null;
@@ -118,6 +125,7 @@ class MessengerFaker
      * @param StoreImageMessage $storeImage
      * @param StoreDocumentMessage $storeDocument
      * @param StoreAudioMessage $storeAudio
+     * @param StoreSystemMessage $storeSystem
      */
     public function __construct(Messenger $messenger,
                                 BroadcastDriver $broadcaster,
@@ -128,7 +136,8 @@ class MessengerFaker
                                 StoreMessage $storeMessage,
                                 StoreImageMessage $storeImage,
                                 StoreDocumentMessage $storeDocument,
-                                StoreAudioMessage $storeAudio)
+                                StoreAudioMessage $storeAudio,
+                                StoreSystemMessage $storeSystem)
     {
         $this->messenger = $messenger;
         $this->broadcaster = $broadcaster;
@@ -140,6 +149,7 @@ class MessengerFaker
         $this->storeImage = $storeImage;
         $this->storeDocument = $storeDocument;
         $this->storeAudio = $storeAudio;
+        $this->storeSystem = $storeSystem;
         $this->delay = 0;
         $this->isTesting = false;
         $this->usedParticipants = new Collection([]);
@@ -420,12 +430,14 @@ class MessengerFaker
     }
 
     /**
-     * @param bool $isFinal
      * @param int|null $type
      * @return $this
+     * @throws Throwable
      */
-    public function system(bool $isFinal = false, ?int $type = null): self
+    public function system(?int $type = null): self
     {
+        $this->storeSystem->execute(...$this->generateSystemMessage($type));
+
         return $this;
     }
 

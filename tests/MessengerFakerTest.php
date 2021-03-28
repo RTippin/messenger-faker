@@ -395,4 +395,23 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::assertDispatched(OnlineStatusBroadcast::class);
         Event::assertDispatched(TypingBroadcast::class);
     }
+
+    /** @test */
+    public function it_seeds_system_message_type_88()
+    {
+        Event::fake([
+            NewMessageBroadcast::class,
+            NewMessageEvent::class,
+        ]);
+        $faker = app(MessengerFaker::class);
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+        $faker->setThread($group)->system(88);
+
+        $this->assertDatabaseHas('messages', [
+            'type' => 88,
+            'body' => 'joined',
+        ]);
+        Event::assertDispatched(NewMessageBroadcast::class);
+        Event::assertDispatched(NewMessageEvent::class);
+    }
 }
