@@ -56,18 +56,6 @@ trait FakerEvents
     }
 
     /**
-     * @param bool $useAdmins
-     */
-    private function setParticipants(bool $useAdmins): void
-    {
-        if ($useAdmins && $this->thread->isGroup()) {
-            $this->participants = $this->thread->participants()->admins()->get();
-        } else {
-            $this->participants = $this->thread->participants()->get();
-        }
-    }
-
-    /**
      * @param string $status
      * @param MessengerProvider $provider
      */

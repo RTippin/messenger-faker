@@ -160,18 +160,6 @@ class MessengerFaker
     }
 
     /**
-     * @param MessengerProvider|mixed|null $provider
-     * @return $this
-     * @throws InvalidProviderException
-     */
-    public function setProvider($provider = null): self
-    {
-        $this->messenger->setProvider($provider);
-
-        return $this;
-    }
-
-    /**
      * @param string $threadId
      * @param bool $useAdmins
      * @return $this
@@ -429,6 +417,40 @@ class MessengerFaker
         }
 
         return $this;
+    }
+
+    /**
+     * @param bool $isFinal
+     * @param int|null $type
+     * @return $this
+     */
+    public function system(bool $isFinal = false, ?int $type = null): self
+    {
+        return $this;
+    }
+
+    /**
+     * @param MessengerProvider|mixed|null $provider
+     * @return $this
+     * @throws InvalidProviderException
+     */
+    private function setProvider($provider = null): self
+    {
+        $this->messenger->setProvider($provider);
+
+        return $this;
+    }
+
+    /**
+     * @param bool $useAdmins
+     */
+    private function setParticipants(bool $useAdmins): void
+    {
+        if ($useAdmins && $this->thread->isGroup()) {
+            $this->participants = $this->thread->participants()->admins()->get();
+        } else {
+            $this->participants = $this->thread->participants()->get();
+        }
     }
 
     /**

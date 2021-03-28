@@ -45,16 +45,6 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function it_sets_messenger_provider()
-    {
-        $faker = app(MessengerFaker::class);
-        $faker->setProvider($this->tippin);
-
-        $this->assertTrue(Messenger::isProviderSet());
-        $this->assertSame($this->tippin->getKey(), Messenger::getProvider()->getKey());
-    }
-
-    /** @test */
     public function it_throws_model_not_found_when_thread_id_not_found()
     {
         $faker = app(MessengerFaker::class);
