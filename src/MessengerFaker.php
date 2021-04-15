@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use Psr\SimpleCache\InvalidArgumentException;
+use RTippin\Messenger\Actions\Messages\AddReaction;
 use RTippin\Messenger\Actions\Messages\StoreAudioMessage;
 use RTippin\Messenger\Actions\Messages\StoreDocumentMessage;
 use RTippin\Messenger\Actions\Messages\StoreImageMessage;
@@ -21,7 +22,9 @@ use RTippin\Messenger\Contracts\MessengerProvider;
 use RTippin\Messenger\Exceptions\FeatureDisabledException;
 use RTippin\Messenger\Exceptions\InvalidProviderException;
 use RTippin\Messenger\Exceptions\KnockException;
+use RTippin\Messenger\Exceptions\ReactionException;
 use RTippin\Messenger\Messenger;
+use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
 use Throwable;
@@ -88,6 +91,11 @@ class MessengerFaker
     private StoreSystemMessage $storeSystem;
 
     /**
+     * @var AddReaction
+     */
+    private AddReaction $addReaction;
+
+    /**
      * @var Thread|null
      */
     private ?Thread $thread = null;
@@ -96,6 +104,11 @@ class MessengerFaker
      * @var DBCollection
      */
     private DBCollection $participants;
+
+    /**
+     * @var DBCollection|null
+     */
+    private ?DBCollection $messages = null;
 
     /**
      * @var Collection
@@ -126,6 +139,7 @@ class MessengerFaker
      * @param StoreDocumentMessage $storeDocument
      * @param StoreAudioMessage $storeAudio
      * @param StoreSystemMessage $storeSystem
+     * @param AddReaction $addReaction
      */
     public function __construct(Messenger $messenger,
                                 BroadcastDriver $broadcaster,
@@ -137,7 +151,8 @@ class MessengerFaker
                                 StoreImageMessage $storeImage,
                                 StoreDocumentMessage $storeDocument,
                                 StoreAudioMessage $storeAudio,
-                                StoreSystemMessage $storeSystem)
+                                StoreSystemMessage $storeSystem,
+                                AddReaction $addReaction)
     {
         $this->messenger = $messenger;
         $this->broadcaster = $broadcaster;
@@ -150,6 +165,7 @@ class MessengerFaker
         $this->storeDocument = $storeDocument;
         $this->storeAudio = $storeAudio;
         $this->storeSystem = $storeSystem;
+        $this->addReaction = $addReaction;
         $this->delay = 0;
         $this->isTesting = false;
         $this->usedParticipants = new Collection([]);
@@ -157,6 +173,7 @@ class MessengerFaker
         $this->messenger->setKnockTimeout(0);
         $this->messenger->setOnlineStatus(true);
         $this->messenger->setOnlineCacheLifetime(1);
+        $this->messenger->setMessageReactions(true);
     }
 
     /**
@@ -195,6 +212,22 @@ class MessengerFaker
         $this->thread = $thread;
 
         $this->setParticipants($useAdmins);
+
+        return $this;
+    }
+
+    /**
+     * @param int $count
+     * @return $this
+     * @throws Exception
+     */
+    public function setMessages(int $count = 5): self
+    {
+        if ($this->thread->messages()->count() < $count) {
+            $this->throwFailedException("{$this->getThreadName()} does not have $count or more messages to choose from.");
+        }
+
+        $this->messages = $this->thread->messages()->latest()->with('owner')->limit($count)->get();
 
         return $this;
     }
@@ -239,12 +272,10 @@ class MessengerFaker
      */
     public function knock(): self
     {
-        if ($this->thread->isGroup()) {
-            $this->setProvider($this->participants->first()->owner);
-            $this->sendKnock->execute($this->thread);
-        } else {
-            $this->setProvider($this->participants->first()->owner);
-            $this->sendKnock->execute($this->thread);
+        $this->setProvider($this->participants->first()->owner);
+        $this->sendKnock->execute($this->thread);
+
+        if ($this->thread->isPrivate()) {
             $this->setProvider($this->participants->last()->owner);
             $this->sendKnock->execute($this->thread);
         }
@@ -334,10 +365,15 @@ class MessengerFaker
     public function message(bool $isFinal = false): self
     {
         $this->startMessage();
+        if (rand(0, 100) > 80) {
+            $message = $this->faker->emoji.$this->faker->emoji.$this->faker->emoji;
+        } else {
+            $message = $this->faker->realText(rand(10, 200), rand(1, 4));
+        }
         $this->storeMessage->execute(
             $this->thread,
             [
-                'message' => $this->faker->realText(rand(10, 200), rand(1, 4)),
+                'message' => $message,
             ]
         );
         $this->endMessage($isFinal);
@@ -441,6 +477,28 @@ class MessengerFaker
 
         if (! $isFinal) {
             sleep($this->delay);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     * @throws FeatureDisabledException|Throwable
+     * @throws Throwable
+     */
+    public function reaction(): self
+    {
+        $this->setProvider($this->participants->random()->owner);
+
+        try {
+            $this->addReaction->execute(
+                $this->thread,
+                $this->messages->random(),
+                $this->faker->emoji
+            );
+        } catch (ReactionException $e) {
+
         }
 
         return $this;

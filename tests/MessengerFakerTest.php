@@ -2,6 +2,7 @@
 
 namespace RTippin\MessengerFaker\Tests;
 
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -10,9 +11,11 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use RTippin\Messenger\Broadcasting\KnockBroadcast;
 use RTippin\Messenger\Broadcasting\NewMessageBroadcast;
+use RTippin\Messenger\Broadcasting\ReactionAddedBroadcast;
 use RTippin\Messenger\Contracts\MessengerProvider;
 use RTippin\Messenger\Events\KnockEvent;
 use RTippin\Messenger\Events\NewMessageEvent;
+use RTippin\Messenger\Events\ReactionAddedEvent;
 use RTippin\Messenger\Facades\Messenger;
 use RTippin\Messenger\Models\Participant;
 use RTippin\MessengerFaker\Broadcasting\OnlineStatusBroadcast;
@@ -40,6 +43,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
 
         $this->assertTrue(Messenger::isKnockKnockEnabled());
         $this->assertTrue(Messenger::isOnlineStatusEnabled());
+        $this->assertTrue(Messenger::isMessageReactionsEnabled());
         $this->assertSame(0, Messenger::getKnockTimeout());
         $this->assertSame(1, Messenger::getOnlineCacheLifetime());
     }
@@ -52,6 +56,20 @@ class MessengerFakerTest extends MessengerFakerTestCase
         $this->expectException(ModelNotFoundException::class);
 
         $faker->setThreadWithId(404);
+    }
+
+    /** @test */
+    public function it_throws_exception_when_not_enough_messages_found()
+    {
+        $faker = app(MessengerFaker::class);
+        $group = $this->createGroupThread($this->tippin);
+        $this->createMessage($group, $this->tippin);
+        $faker->setThread($group);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('First Test Group does not have 2 or more messages to choose from.');
+
+        $faker->setMessages(2);
     }
 
     /** @test */
@@ -394,6 +412,23 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::assertDispatched(NewMessageEvent::class);
         Event::assertDispatched(OnlineStatusBroadcast::class);
         Event::assertDispatched(TypingBroadcast::class);
+    }
+
+    /** @test */
+    public function it_seeds_reactions()
+    {
+        Event::fake([
+            ReactionAddedBroadcast::class,
+            ReactionAddedEvent::class,
+        ]);
+        $faker = app(MessengerFaker::class);
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+        $this->createMessage($group, $this->tippin);
+        $faker->setThread($group)->setMessages(1)->reaction();
+
+        $this->assertDatabaseCount('message_reactions', 1);
+        Event::assertDispatched(ReactionAddedBroadcast::class);
+        Event::assertDispatched(ReactionAddedEvent::class);
     }
 
     /**
