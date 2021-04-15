@@ -365,7 +365,10 @@ class MessengerFaker
     {
         $this->startMessage();
         if (rand(0, 100) > 80) {
-            $message = $this->faker->emoji.$this->faker->emoji.$this->faker->emoji;
+            $message = $this->faker->emoji;
+            for ($x = 0; $x < rand(1, 10); $x++) {
+                $message .= $this->faker->emoji;
+            }
         } else {
             $message = $this->faker->realText(rand(10, 200), rand(1, 4));
         }
