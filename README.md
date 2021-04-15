@@ -61,6 +61,12 @@ ___
     * `--count=X` flag to set how many messages are sent.
     * `--delay=X` flag to set delay in seconds between each message.
     * `--admins` flag will only use admin participants if using a group thread.
+- `php artisan messenger:faker:react {thread}` | `--count=5` | `--messages=5` | `--delay=1` | `--admins`
+    * Make participants add reactions to the latest messages.
+    * `--count=X` flag to set how many reactions are added.
+    * `--messages=X` flag to set how many latest messages are chosen at random to be reacted to.
+    * `--delay=X` flag to set delay in seconds between each reaction.
+    * `--admins` flag will only use admin participants if using a group thread.
 - `php artisan messenger:faker:system {thread}` | `--type=` | `--count=1` | `--delay=3` | `--admins`
     * Make participants send system messages.
     * `--count=X` flag to set how many system messages are sent.
