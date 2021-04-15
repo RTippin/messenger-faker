@@ -27,7 +27,7 @@ class UnReadCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_marks_group_participants_unread()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:unread', [
             'thread' => $group->id,
@@ -39,7 +39,7 @@ class UnReadCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_marks_private_participants_unread()
     {
-        $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:unread', [
             'thread' => $private->id,

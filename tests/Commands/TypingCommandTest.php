@@ -27,7 +27,7 @@ class TypingCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_makes_group_participants_type()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:typing', [
             'thread' => $group->id,
@@ -39,7 +39,7 @@ class TypingCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_makes_private_participants_type()
     {
-        $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:typing', [
             'thread' => $private->id,

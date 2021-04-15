@@ -27,7 +27,7 @@ class OnlineStatusCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_sets_group_participants_online_by_default()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:status', [
             'thread' => $group->id,
@@ -39,7 +39,7 @@ class OnlineStatusCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_sets_private_participants_online_default()
     {
-        $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:status', [
             'thread' => $private->id,
@@ -51,7 +51,7 @@ class OnlineStatusCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_sets_participants_to_away()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:status', [
             'thread' => $group->id,
@@ -64,7 +64,7 @@ class OnlineStatusCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_sets_participants_to_offline()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:status', [
             'thread' => $group->id,

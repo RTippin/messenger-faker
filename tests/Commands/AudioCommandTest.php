@@ -31,7 +31,7 @@ class AudioCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_sends_default_of_1_audio_message_to_group()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:audio', [
             'thread' => $group->id,
@@ -45,7 +45,7 @@ class AudioCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_sends_default_of_1_audio_message_to_private()
     {
-        $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:audio', [
             'thread' => $private->id,
@@ -59,7 +59,7 @@ class AudioCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_accepts_audio_count()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:audio', [
             'thread' => $group->id,
@@ -74,7 +74,7 @@ class AudioCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_accepts_zero_audio_count()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:audio', [
             'thread' => $group->id,
@@ -89,7 +89,7 @@ class AudioCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_accepts_audio_url()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:audio', [
             'thread' => $group->id,

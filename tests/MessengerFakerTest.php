@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Storage;
 use RTippin\Messenger\Broadcasting\KnockBroadcast;
 use RTippin\Messenger\Broadcasting\NewMessageBroadcast;
 use RTippin\Messenger\Broadcasting\ReactionAddedBroadcast;
-use RTippin\Messenger\Contracts\MessengerProvider;
 use RTippin\Messenger\Events\KnockEvent;
 use RTippin\Messenger\Events\NewMessageEvent;
 use RTippin\Messenger\Events\ReactionAddedEvent;
@@ -25,17 +24,6 @@ use RTippin\MessengerFaker\MessengerFaker;
 
 class MessengerFakerTest extends MessengerFakerTestCase
 {
-    private MessengerProvider $tippin;
-    private MessengerProvider $doe;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->tippin = $this->userTippin();
-        $this->doe = $this->userDoe();
-    }
-
     /** @test */
     public function it_sets_messenger_configs()
     {

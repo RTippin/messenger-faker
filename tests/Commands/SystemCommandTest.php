@@ -29,7 +29,7 @@ class SystemCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_does_not_allow_invalid_type_on_private()
     {
-        $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:system', [
             'thread' => $private->id,
@@ -43,7 +43,7 @@ class SystemCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_does_not_allow_invalid_type_on_group()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:system', [
             'thread' => $group->id,
@@ -57,7 +57,7 @@ class SystemCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_sends_default_of_1_system_message_to_group()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:system', [
             'thread' => $group->id,
@@ -70,7 +70,7 @@ class SystemCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_sends_default_of_1_system_message_to_private()
     {
-        $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:system', [
             'thread' => $private->id,
@@ -83,7 +83,7 @@ class SystemCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_accepts_message_count()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:system', [
             'thread' => $group->id,
@@ -97,7 +97,7 @@ class SystemCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_accepts_zero_message_count()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:system', [
             'thread' => $group->id,
@@ -115,7 +115,7 @@ class SystemCommandTest extends MessengerFakerTestCase
      */
     public function it_accepts_type($type)
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:system', [
             'thread' => $group->id,
@@ -133,7 +133,7 @@ class SystemCommandTest extends MessengerFakerTestCase
      */
     public function it_doesnt_have_enough_participants($type)
     {
-        $group = $this->createGroupThread($this->userTippin());
+        $group = $this->createGroupThread($this->tippin);
 
         $this->artisan('messenger:faker:system', [
             'thread' => $group->id,

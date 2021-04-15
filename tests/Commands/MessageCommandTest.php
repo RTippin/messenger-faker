@@ -29,7 +29,7 @@ class MessageCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_sends_default_of_5_messages_to_group()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:message', [
             'thread' => $group->id,
@@ -42,7 +42,7 @@ class MessageCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_sends_default_of_5_messages_to_private()
     {
-        $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:message', [
             'thread' => $private->id,
@@ -55,7 +55,7 @@ class MessageCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_accepts_message_count()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:message', [
             'thread' => $group->id,
@@ -69,7 +69,7 @@ class MessageCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_accepts_zero_message_count()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:message', [
             'thread' => $group->id,

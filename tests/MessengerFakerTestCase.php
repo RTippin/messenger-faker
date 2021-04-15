@@ -8,13 +8,23 @@ use RTippin\Messenger\Contracts\MessengerProvider;
 use RTippin\Messenger\MessengerServiceProvider;
 use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Messenger as MessengerModel;
+use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
-use RTippin\Messenger\Support\Definitions;
 use RTippin\MessengerFaker\MessengerFakerServiceProvider;
 use RTippin\MessengerFaker\Tests\Fixtures\UserModel;
 
 class MessengerFakerTestCase extends TestCase
 {
+    /**
+     * @var MessengerProvider
+     */
+    protected $tippin;
+
+    /**
+     * @var MessengerProvider
+     */
+    protected $doe;
+
     protected function getPackageProviders($app): array
     {
         return [
@@ -28,11 +38,8 @@ class MessengerFakerTestCase extends TestCase
         $config = $app->get('config');
 
         $config->set('messenger.provider_uuids', false);
-
         $config->set('messenger.providers', $this->getBaseProvidersConfig());
-
         $config->set('database.default', 'testbench');
-
         $config->set('database.connections.testbench', [
             'driver' => 'sqlite',
             'database' => ':memory:',
@@ -46,11 +53,9 @@ class MessengerFakerTestCase extends TestCase
         parent::setUp();
 
         $this->loadMigrationsFrom(__DIR__.'/Fixtures/migrations');
-
         $this->artisan('migrate', [
             '--database' => 'testbench',
         ])->run();
-
         $this->storeBaseUsers();
     }
 
@@ -81,27 +86,18 @@ class MessengerFakerTestCase extends TestCase
 
     private function storeBaseUsers(): void
     {
-        $tippin = UserModel::create([
+        $this->tippin = UserModel::create([
             'name' => 'Richard Tippin',
             'email' => 'tippindev@gmail.com',
             'password' => 'secret',
         ]);
-
-        $doe = UserModel::create([
+        $this->doe = UserModel::create([
             'name' => 'John Doe',
             'email' => 'doe@example.net',
             'password' => 'secret',
         ]);
-
-        MessengerModel::create([
-            'owner_id' => $tippin->getKey(),
-            'owner_type' => get_class($tippin),
-        ]);
-
-        MessengerModel::create([
-            'owner_id' => $doe->getKey(),
-            'owner_type' => get_class($doe),
-        ]);
+        MessengerModel::factory()->owner($this->tippin)->create();
+        MessengerModel::factory()->owner($this->doe)->create();
     }
 
     /**
@@ -120,64 +116,54 @@ class MessengerFakerTestCase extends TestCase
         return UserModel::where('email', '=', 'doe@example.net')->first();
     }
 
-    protected function createPrivateThread(MessengerProvider $one, MessengerProvider $two, bool $pending = false): Thread
+    protected function createPrivateThread($one, $two, bool $pending = false): Thread
     {
-        $private = Thread::create(Definitions::DefaultThread);
-
-        $private->participants()
-            ->create(array_merge(Definitions::DefaultParticipant, [
-                'owner_id' => $one->getKey(),
-                'owner_type' => get_class($one),
+        $private = Thread::factory()->create();
+        Participant::factory()
+            ->for($private)
+            ->owner($one)
+            ->create([
                 'pending' => $pending,
-            ]));
-
-        $private->participants()
-            ->create(array_merge(Definitions::DefaultParticipant, [
-                'owner_id' => $two->getKey(),
-                'owner_type' => get_class($two),
-            ]));
+            ]);
+        Participant::factory()
+            ->for($private)
+            ->owner($two)
+            ->create();
 
         return $private;
     }
 
-    protected function createGroupThread(MessengerProvider $admin, ...$participants): Thread
+    protected function createGroupThread($admin, ...$participants): Thread
     {
-        $group = Thread::create([
-            'type' => 2,
-            'subject' => 'First Test Group',
-            'image' => '5.png',
-            'add_participants' => true,
-            'invitations' => true,
-            'calling' => true,
-            'knocks' => true,
-            'messaging' => true,
-            'lockout' => false,
-        ]);
-
-        $group->participants()
-            ->create(array_merge(Definitions::DefaultAdminParticipant, [
-                'owner_id' => $admin->getKey(),
-                'owner_type' => get_class($admin),
-            ]));
+        $group = Thread::factory()
+            ->group()
+            ->create([
+                'subject' => 'First Test Group',
+                'image' => '5.png',
+            ]);
+        Participant::factory()
+            ->for($group)
+            ->owner($admin)
+            ->admin()
+            ->create();
 
         foreach ($participants as $participant) {
-            $group->participants()
-                ->create(array_merge(Definitions::DefaultParticipant, [
-                    'owner_id' => $participant->getKey(),
-                    'owner_type' => get_class($participant),
-                ]));
+            Participant::factory()
+                ->for($group)
+                ->owner($participant)
+                ->create();
         }
 
         return $group;
     }
 
-    protected function createMessage(Thread $thread, MessengerProvider $owner): Message
+    protected function createMessage($thread, $owner): Message
     {
-        return $thread->messages()->create([
-            'body' => 'First Test Message',
-            'type' => 0,
-            'owner_id' => $owner->getKey(),
-            'owner_type' => get_class($owner),
-        ]);
+        return Message::factory()
+            ->for($thread)
+            ->owner($owner)
+            ->create([
+                'body' => 'First Test Message',
+            ]);
     }
 }

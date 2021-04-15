@@ -31,7 +31,7 @@ class DocumentCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_sends_default_of_1_document_message_to_group()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:document', [
             'thread' => $group->id,
@@ -45,7 +45,7 @@ class DocumentCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_sends_default_of_1_document_message_to_private()
     {
-        $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:document', [
             'thread' => $private->id,
@@ -59,7 +59,7 @@ class DocumentCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_accepts_document_count()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:document', [
             'thread' => $group->id,
@@ -74,7 +74,7 @@ class DocumentCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_accepts_zero_document_count()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:document', [
             'thread' => $group->id,
@@ -89,7 +89,7 @@ class DocumentCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_accepts_document_url()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:document', [
             'thread' => $group->id,

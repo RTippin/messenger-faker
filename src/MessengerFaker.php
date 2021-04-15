@@ -498,7 +498,7 @@ class MessengerFaker
                 $this->faker->emoji
             );
         } catch (ReactionException $e) {
-
+            // continue as it may pick duplicate random emoji
         }
 
         return $this;

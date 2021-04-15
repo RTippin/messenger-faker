@@ -29,7 +29,7 @@ trait FakerFiles
             $path = $this->configRepo->get('messenger-faker.paths.images');
             $images = File::files($path);
             if (! count($images)) {
-                $this->throwFailedException("No images found within {$path}");
+                $this->throwFailedException("No images found within $path");
             }
             $file = Arr::random($images, 1)[0];
             $name = $file->getFilename();
@@ -61,7 +61,7 @@ trait FakerFiles
             $path = $this->configRepo->get('messenger-faker.paths.documents');
             $documents = File::files($path);
             if (! count($documents)) {
-                $this->throwFailedException("No documents found within {$path}");
+                $this->throwFailedException("No documents found within $path");
             }
             $file = Arr::random($documents, 1)[0];
             $name = $file->getFilename();
@@ -89,7 +89,7 @@ trait FakerFiles
             $path = $this->configRepo->get('messenger-faker.paths.audio');
             $audio = File::files($path);
             if (! count($audio)) {
-                $this->throwFailedException("No audio found within {$path}");
+                $this->throwFailedException("No audio found within $path");
             }
             $file = Arr::random($audio, 1)[0];
             $name = $file->getFilename();

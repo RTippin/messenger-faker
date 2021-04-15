@@ -27,7 +27,7 @@ class KnockCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_knocks_at_group()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:knock', [
             'thread' => $group->id,
@@ -39,7 +39,7 @@ class KnockCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_knocks_at_private()
     {
-        $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:knock', [
             'thread' => $private->id,

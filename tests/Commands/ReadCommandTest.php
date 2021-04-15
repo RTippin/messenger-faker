@@ -27,7 +27,7 @@ class ReadCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_marks_group_read()
     {
-        $group = $this->createGroupThread($this->userTippin(), $this->userDoe());
+        $group = $this->createGroupThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:read', [
             'thread' => $group->id,
@@ -39,7 +39,7 @@ class ReadCommandTest extends MessengerFakerTestCase
     /** @test */
     public function it_marks_private_read()
     {
-        $private = $this->createPrivateThread($this->userTippin(), $this->userDoe());
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
 
         $this->artisan('messenger:faker:read', [
             'thread' => $private->id,
