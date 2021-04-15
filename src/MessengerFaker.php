@@ -24,7 +24,6 @@ use RTippin\Messenger\Exceptions\InvalidProviderException;
 use RTippin\Messenger\Exceptions\KnockException;
 use RTippin\Messenger\Exceptions\ReactionException;
 use RTippin\Messenger\Messenger;
-use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
 use Throwable;
@@ -223,11 +222,11 @@ class MessengerFaker
      */
     public function setMessages(int $count = 5): self
     {
-        if ($this->thread->messages()->count() < $count) {
+        if ($this->thread->messages()->nonSystem()->count() < $count) {
             $this->throwFailedException("{$this->getThreadName()} does not have $count or more messages to choose from.");
         }
 
-        $this->messages = $this->thread->messages()->latest()->with('owner')->limit($count)->get();
+        $this->messages = $this->thread->messages()->nonSystem()->latest()->with('owner')->limit($count)->get();
 
         return $this;
     }
@@ -487,7 +486,7 @@ class MessengerFaker
      * @throws FeatureDisabledException|Throwable
      * @throws Throwable
      */
-    public function reaction(): self
+    public function reaction(bool $isFinal = false): self
     {
         $this->setProvider($this->participants->random()->owner);
 
@@ -499,6 +498,10 @@ class MessengerFaker
             );
         } catch (ReactionException $e) {
             // continue as it may pick duplicate random emoji
+        }
+
+        if (! $isFinal) {
+            sleep($this->delay);
         }
 
         return $this;

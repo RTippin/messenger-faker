@@ -44,7 +44,7 @@ trait FakerEvents
      *
      * @param bool $isFinal
      */
-    private function endMessage(bool $isFinal = false): void
+    private function endMessage(bool $isFinal): void
     {
         if (! $isFinal) {
             sleep($this->delay);
