@@ -186,6 +186,14 @@ class MessengerFaker
     }
 
     /**
+     * @return Generator
+     */
+    public function getFakerGenerator(): Generator
+    {
+        return $this->faker;
+    }
+
+    /**
      * @param string $threadId
      * @param bool $useAdmins
      * @return $this

@@ -3,6 +3,7 @@
 namespace RTippin\MessengerFaker\Tests;
 
 use Exception;
+use Faker\Generator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -24,6 +25,14 @@ use RTippin\MessengerFaker\MessengerFaker;
 
 class MessengerFakerTest extends MessengerFakerTestCase
 {
+    /** @test */
+    public function it_returns_faker_generator()
+    {
+        $faker = app(MessengerFaker::class);
+
+        $this->assertInstanceOf(Generator::class, $faker->getFakerGenerator());
+    }
+
     /** @test */
     public function it_sets_messenger_configs()
     {
