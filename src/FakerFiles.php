@@ -7,6 +7,7 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 
 /**
  * @property-read ConfigRepository $configRepo
@@ -36,7 +37,12 @@ trait FakerFiles
         } else {
             $name = uniqid();
             $file = '/tmp/'.$name;
-            file_put_contents($file, file_get_contents(is_null($url) ? $this->configRepo->get('messenger-faker.default_image_url') : $url));
+            file_put_contents($file,
+                Http::timeout(30)->get(is_null($url)
+                    ? $this->configRepo->get('messenger-faker.default_image_url')
+                    : $url
+                )->body()
+            );
         }
 
         return [new UploadedFile($file, $name), $file];
@@ -56,7 +62,7 @@ trait FakerFiles
         if (! is_null($url)) {
             $name = uniqid();
             $file = '/tmp/'.$name;
-            file_put_contents($file, file_get_contents($url));
+            file_put_contents($file, Http::timeout(30)->get($url)->body());
         } else {
             $path = $this->configRepo->get('messenger-faker.paths.documents');
             $documents = File::files($path);
@@ -84,7 +90,7 @@ trait FakerFiles
         if (! is_null($url)) {
             $name = uniqid();
             $file = '/tmp/'.$name;
-            file_put_contents($file, file_get_contents($url));
+            file_put_contents($file, Http::timeout(30)->get($url)->body());
         } else {
             $path = $this->configRepo->get('messenger-faker.paths.audio');
             $audio = File::files($path);
