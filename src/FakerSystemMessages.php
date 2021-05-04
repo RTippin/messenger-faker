@@ -167,7 +167,7 @@ trait FakerSystemMessages
      */
     private function makeGroupCreated(): string
     {
-        return "created {$this->thread->subject}";
+        return "created {$this->faker->catchPhrase}";
     }
 
     /**
@@ -175,7 +175,7 @@ trait FakerSystemMessages
      */
     private function makeGroupRenamed(): string
     {
-        return "renamed the group to {$this->thread->subject}";
+        return "renamed the group to {$this->faker->catchPhrase}";
     }
 
     /**
