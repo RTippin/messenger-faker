@@ -5,6 +5,7 @@ namespace RTippin\MessengerFaker;
 use Exception;
 use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
 use RTippin\Messenger\Support\Definitions;
@@ -140,7 +141,7 @@ trait FakerSystemMessages
                 ]);
             });
 
-        return collect(['call_id' => $call->id])->toJson();
+        return (new Collection(['call_id' => $call->id]))->toJson();
     }
 
     /**
@@ -192,10 +193,10 @@ trait FakerSystemMessages
             $this->throwFailedException('No other participants to choose from.');
         }
 
-        return collect([
+        return (new Collection([
             'owner_id' => $demoted->first()->owner_id,
             'owner_type' => $demoted->first()->owner_type,
-        ])->toJson();
+        ]))->toJson();
     }
 
     /**
@@ -213,10 +214,10 @@ trait FakerSystemMessages
             $this->throwFailedException('No other participants to choose from.');
         }
 
-        return collect([
+        return (new Collection([
             'owner_id' => $promoted->first()->owner_id,
             'owner_type' => $promoted->first()->owner_type,
-        ])->toJson();
+        ]))->toJson();
     }
 
     /**
@@ -242,10 +243,10 @@ trait FakerSystemMessages
             $this->throwFailedException('No other participants to choose from.');
         }
 
-        return collect([
+        return (new Collection([
             'owner_id' => $removed->first()->owner_id,
             'owner_type' => $removed->first()->owner_type,
-        ])->toJson();
+        ]))->toJson();
     }
 
     /**
