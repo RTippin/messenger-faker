@@ -5,10 +5,9 @@ namespace RTippin\MessengerFaker;
 use Exception;
 use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
-use RTippin\Messenger\Support\Definitions;
+use RTippin\Messenger\Support\MessageTransformer;
 
 /**
  * @property-read DBCollection $participants;
@@ -41,15 +40,9 @@ trait FakerSystemMessages
     private function generateSystemMessage(?int $type): array
     {
         $type = $this->getType($type);
-        /** @var Participant $participant */
         $participant = $this->participants->random();
 
-        return [
-            $this->thread,
-            $participant->owner,
-            $this->getBody($type, $participant),
-            Definitions::Message[$type],
-        ];
+        return $this->makeBody($type, $participant);
     }
 
     /**
@@ -79,40 +72,40 @@ trait FakerSystemMessages
     /**
      * @param int $type
      * @param Participant $participant
-     * @return string
+     * @return array
      */
-    private function getBody(int $type, Participant $participant): string
+    private function makeBody(int $type, Participant $participant): array
     {
         switch ($type) {
-            case 88: return $this->makeJoinedWithInvite();
+            case 88: return $this->makeJoinedWithInvite($participant);
             case 90: return $this->makeVideoCall($participant);
-            case 91: return $this->makeGroupAvatarChanged();
-            case 92: return $this->makeThreadArchived();
-            case 93: return $this->makeGroupCreated();
-            case 94: return $this->makeGroupRenamed();
+            case 91: return $this->makeGroupAvatarChanged($participant);
+            case 92: return $this->makeThreadArchived($participant);
+            case 93: return $this->makeGroupCreated($participant);
+            case 94: return $this->makeGroupRenamed($participant);
             case 95: return $this->makeParticipantDemoted($participant);
             case 96: return $this->makeParticipantPromoted($participant);
-            case 97: return $this->makeGroupLeft();
+            case 97: return $this->makeGroupLeft($participant);
             case 98: return $this->makeRemovedFromGroup($participant);
             case 99: return $this->makeParticipantsAdded($participant);
+            default: $this->throwFailedException('Invalid system message type for private thread.');
         }
-
-        return '';
-    }
-
-    /**
-     * @return string
-     */
-    private function makeJoinedWithInvite(): string
-    {
-        return 'joined';
     }
 
     /**
      * @param Participant $participant
-     * @return string
+     * @return array
      */
-    private function makeVideoCall(Participant $participant): string
+    private function makeJoinedWithInvite(Participant $participant): array
+    {
+        return MessageTransformer::makeJoinedWithInvite($this->thread, $participant->owner);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return array
+     */
+    private function makeVideoCall(Participant $participant): array
     {
         $call = $this->thread->calls()->create([
             'type' => 1,
@@ -141,48 +134,50 @@ trait FakerSystemMessages
                 ]);
             });
 
-        return (new Collection(['call_id' => $call->id]))->toJson();
-    }
-
-    /**
-     * @return string
-     */
-    private function makeGroupAvatarChanged(): string
-    {
-        return 'updated the avatar';
-    }
-
-    /**
-     * @return string
-     */
-    private function makeThreadArchived(): string
-    {
-        return $this->thread->isGroup()
-            ? 'archived the group'
-            : 'archived the conversation';
-    }
-
-    /**
-     * @return string
-     */
-    private function makeGroupCreated(): string
-    {
-        return "created {$this->faker->catchPhrase}";
-    }
-
-    /**
-     * @return string
-     */
-    private function makeGroupRenamed(): string
-    {
-        return "renamed the group to {$this->faker->catchPhrase}";
+        return MessageTransformer::makeVideoCall($this->thread, $participant->owner, $call);
     }
 
     /**
      * @param Participant $participant
-     * @return string
+     * @return array
      */
-    private function makeParticipantDemoted(Participant $participant): string
+    private function makeGroupAvatarChanged(Participant $participant): array
+    {
+        return MessageTransformer::makeGroupAvatarChanged($this->thread, $participant->owner);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return array
+     */
+    private function makeThreadArchived(Participant $participant): array
+    {
+        return MessageTransformer::makeThreadArchived($this->thread, $participant->owner);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return array
+     */
+    private function makeGroupCreated(Participant $participant): array
+    {
+        return MessageTransformer::makeGroupCreated($this->thread, $participant->owner, $this->faker->catchPhrase);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return array
+     */
+    private function makeGroupRenamed(Participant $participant): array
+    {
+        return MessageTransformer::makeGroupRenamed($this->thread, $participant->owner, $this->faker->catchPhrase);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return array
+     */
+    private function makeParticipantDemoted(Participant $participant): array
     {
         $demoted = $this->participants
             ->reject(fn (Participant $p) => $p->id === $participant->id)
@@ -193,17 +188,14 @@ trait FakerSystemMessages
             $this->throwFailedException('No other participants to choose from.');
         }
 
-        return (new Collection([
-            'owner_id' => $demoted->first()->owner_id,
-            'owner_type' => $demoted->first()->owner_type,
-        ]))->toJson();
+        return MessageTransformer::makeParticipantDemoted($this->thread, $participant->owner, $demoted->first());
     }
 
     /**
      * @param Participant $participant
-     * @return string
+     * @return array
      */
-    private function makeParticipantPromoted(Participant $participant): string
+    private function makeParticipantPromoted(Participant $participant): array
     {
         $promoted = $this->participants
             ->reject(fn (Participant $p) => $p->id === $participant->id)
@@ -214,25 +206,23 @@ trait FakerSystemMessages
             $this->throwFailedException('No other participants to choose from.');
         }
 
-        return (new Collection([
-            'owner_id' => $promoted->first()->owner_id,
-            'owner_type' => $promoted->first()->owner_type,
-        ]))->toJson();
-    }
-
-    /**
-     * @return string
-     */
-    private function makeGroupLeft(): string
-    {
-        return 'left';
+        return MessageTransformer::makeParticipantPromoted($this->thread, $participant->owner, $promoted->first());
     }
 
     /**
      * @param Participant $participant
-     * @return string
+     * @return array
      */
-    private function makeRemovedFromGroup(Participant $participant): string
+    private function makeGroupLeft(Participant $participant): array
+    {
+        return MessageTransformer::makeGroupLeft($this->thread, $participant->owner);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return array
+     */
+    private function makeRemovedFromGroup(Participant $participant): array
     {
         $removed = $this->participants
             ->reject(fn (Participant $p) => $p->id === $participant->id)
@@ -243,17 +233,14 @@ trait FakerSystemMessages
             $this->throwFailedException('No other participants to choose from.');
         }
 
-        return (new Collection([
-            'owner_id' => $removed->first()->owner_id,
-            'owner_type' => $removed->first()->owner_type,
-        ]))->toJson();
+        return MessageTransformer::makeRemovedFromGroup($this->thread, $participant->owner, $removed->first());
     }
 
     /**
      * @param Participant $participant
-     * @return string
+     * @return array
      */
-    private function makeParticipantsAdded(Participant $participant): string
+    private function makeParticipantsAdded(Participant $participant): array
     {
         $added = $this->participants
             ->reject(fn (Participant $p) => $p->id === $participant->id)
@@ -264,9 +251,6 @@ trait FakerSystemMessages
             $this->throwFailedException('No other participants to choose from.');
         }
 
-        return $added->map(fn ($item) => [
-            'owner_id' => $item['owner_id'],
-            'owner_type' => $item['owner_type'],
-        ])->toJson();
+        return MessageTransformer::makeParticipantsAdded($this->thread, $participant->owner, $added);
     }
 }
