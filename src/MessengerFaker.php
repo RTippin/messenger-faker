@@ -267,7 +267,7 @@ class MessengerFaker
     {
         return $this->thread->isGroup()
             ? $this->thread->name()
-            : "{$this->participants->first()->owner->name()} and {$this->participants->last()->owner->name()}";
+            : "{$this->participants->first()->owner->getProviderName()} and {$this->participants->last()->owner->getProviderName()}";
     }
 
     /**

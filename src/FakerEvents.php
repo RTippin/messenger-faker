@@ -82,7 +82,7 @@ trait FakerEvents
             ->with([
                 'provider_id' => $provider->getKey(),
                 'provider_alias' => $this->messenger->findProviderAlias($provider),
-                'name' => $provider->name(),
+                'name' => $provider->getProviderName(),
                 'online_status' => $online,
             ])
             ->broadcast(OnlineStatusBroadcast::class);
@@ -118,7 +118,7 @@ trait FakerEvents
             ->with([
                 'provider_id' => $provider->getKey(),
                 'provider_alias' => $this->messenger->findProviderAlias($provider),
-                'name' => $provider->name(),
+                'name' => $provider->getProviderName(),
                 'typing' => true,
             ])
             ->broadcast(TypingBroadcast::class);
