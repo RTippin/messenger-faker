@@ -122,7 +122,7 @@ class MessengerFaker
     /**
      * @var bool
      */
-    private bool $isTesting;
+    private static bool $isTesting = false;
 
     /**
      * MessengerFaker constructor.
@@ -166,7 +166,6 @@ class MessengerFaker
         $this->storeSystem = $storeSystem;
         $this->addReaction = $addReaction;
         $this->delay = 0;
-        $this->isTesting = false;
         $this->usedParticipants = new Collection([]);
         $this->messenger->setKnockKnock(true);
         $this->messenger->setKnockTimeout(0);
@@ -176,13 +175,11 @@ class MessengerFaker
     }
 
     /**
-     * @return $this
+     * Set testing to true, so we may fake file uploads and remove delays.
      */
-    public function fake(): self
+    public static function testing(): void
     {
-        $this->isTesting = true;
-
-        return $this;
+        static::$isTesting = true;
     }
 
     /**
@@ -245,7 +242,7 @@ class MessengerFaker
      */
     public function setDelay(int $delay): self
     {
-        if (! $this->isTesting) {
+        if (! static::$isTesting) {
             $this->delay = $delay;
         }
 

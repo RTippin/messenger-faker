@@ -3,7 +3,6 @@
 namespace RTippin\MessengerFaker\Tests\Commands;
 
 use RTippin\Messenger\Facades\Messenger;
-use RTippin\MessengerFaker\MessengerFaker;
 use RTippin\MessengerFaker\Tests\MessengerFakerTestCase;
 
 class MessageCommandTest extends MessengerFakerTestCase
@@ -13,7 +12,6 @@ class MessageCommandTest extends MessengerFakerTestCase
         parent::setUp();
 
         Messenger::setBroadcastDriver('null');
-        app(MessengerFaker::class)->fake();
     }
 
     /** @test */

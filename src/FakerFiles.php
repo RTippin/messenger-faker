@@ -22,7 +22,7 @@ trait FakerFiles
      */
     private function getImage(bool $local, ?string $url): array
     {
-        if ($this->isTesting) {
+        if (static::$isTesting) {
             return [UploadedFile::fake()->image('test.jpg'), 'test.jpg'];
         }
 
@@ -55,7 +55,7 @@ trait FakerFiles
      */
     private function getDocument(?string $url): array
     {
-        if ($this->isTesting) {
+        if (static::$isTesting) {
             return [UploadedFile::fake()->create('test.pdf', 500, 'application/pdf'), 'test.pdf'];
         }
 
@@ -83,7 +83,7 @@ trait FakerFiles
      */
     private function getAudio(?string $url): array
     {
-        if ($this->isTesting) {
+        if (static::$isTesting) {
             return [UploadedFile::fake()->create('test.mp3', 500, 'audio/mpeg'), 'test.mp3'];
         }
 
@@ -109,7 +109,7 @@ trait FakerFiles
      */
     private function unlinkFile(string $file): void
     {
-        if (! $this->isTesting) {
+        if (! static::$isTesting) {
             unlink($file);
         }
     }

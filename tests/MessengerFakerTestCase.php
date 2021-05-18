@@ -3,6 +3,7 @@
 namespace RTippin\MessengerFaker\Tests;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Orchestra\Testbench\TestCase;
 use RTippin\Messenger\Contracts\MessengerProvider;
 use RTippin\Messenger\MessengerServiceProvider;
@@ -10,6 +11,7 @@ use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Messenger as MessengerModel;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
+use RTippin\MessengerFaker\MessengerFaker;
 use RTippin\MessengerFaker\MessengerFakerServiceProvider;
 use RTippin\MessengerFaker\Tests\Fixtures\UserModel;
 
@@ -39,6 +41,7 @@ class MessengerFakerTestCase extends TestCase
 
         $config->set('messenger.provider_uuids', false);
         $config->set('messenger.providers', $this->getBaseProvidersConfig());
+        $config->set('messenger.storage.threads.disk', 'messenger');
         $config->set('database.default', 'testbench');
         $config->set('database.connections.testbench', [
             'driver' => 'sqlite',
@@ -46,6 +49,8 @@ class MessengerFakerTestCase extends TestCase
             'prefix' => '',
             'foreign_key_constraints' => true,
         ]);
+        Storage::fake('messenger');
+        MessengerFaker::testing();
     }
 
     protected function setUp(): void
@@ -116,15 +121,13 @@ class MessengerFakerTestCase extends TestCase
         return UserModel::where('email', '=', 'doe@example.net')->first();
     }
 
-    protected function createPrivateThread($one, $two, bool $pending = false): Thread
+    protected function createPrivateThread($one, $two): Thread
     {
         $private = Thread::factory()->create();
         Participant::factory()
             ->for($private)
             ->owner($one)
-            ->create([
-                'pending' => $pending,
-            ]);
+            ->create();
         Participant::factory()
             ->for($private)
             ->owner($two)

@@ -352,7 +352,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
             TypingBroadcast::class,
         ]);
         Storage::fake(Messenger::getThreadStorage('disk'));
-        $faker = app(MessengerFaker::class)->fake();
+        $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin, $this->doe);
         $faker->setThread($group)->image();
 
@@ -375,7 +375,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
             TypingBroadcast::class,
         ]);
         Storage::fake(Messenger::getThreadStorage('disk'));
-        $faker = app(MessengerFaker::class)->fake();
+        $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin, $this->doe);
         $faker->setThread($group)->document();
 
@@ -398,7 +398,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
             TypingBroadcast::class,
         ]);
         Storage::fake(Messenger::getThreadStorage('disk'));
-        $faker = app(MessengerFaker::class)->fake();
+        $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin, $this->doe);
         $faker->setThread($group)->audio();
 

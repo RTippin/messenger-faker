@@ -2,9 +2,7 @@
 
 namespace RTippin\MessengerFaker\Tests\Commands;
 
-use Illuminate\Support\Facades\Storage;
 use RTippin\Messenger\Facades\Messenger;
-use RTippin\MessengerFaker\MessengerFaker;
 use RTippin\MessengerFaker\Tests\MessengerFakerTestCase;
 
 class DocumentCommandTest extends MessengerFakerTestCase
@@ -14,8 +12,6 @@ class DocumentCommandTest extends MessengerFakerTestCase
         parent::setUp();
 
         Messenger::setBroadcastDriver('null');
-        Storage::fake(Messenger::getThreadStorage('disk'));
-        app(MessengerFaker::class)->fake();
     }
 
     /** @test */
