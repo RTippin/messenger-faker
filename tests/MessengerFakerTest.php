@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
+use RTippin\Messenger\Actions\BaseMessengerAction;
 use RTippin\Messenger\Broadcasting\KnockBroadcast;
 use RTippin\Messenger\Broadcasting\NewMessageBroadcast;
 use RTippin\Messenger\Broadcasting\ReactionAddedBroadcast;
@@ -112,6 +113,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     /** @test */
     public function it_knocks_at_group_thread()
     {
+        BaseMessengerAction::enableEvents();
         Event::fake([
             KnockBroadcast::class,
             KnockEvent::class,
@@ -127,6 +129,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     /** @test */
     public function it_knocks_at_private_thread()
     {
+        BaseMessengerAction::enableEvents();
         Event::fake([
             KnockBroadcast::class,
             KnockEvent::class,
@@ -303,6 +306,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     /** @test */
     public function it_messages_using_random_participant_and_calls_typing()
     {
+        BaseMessengerAction::enableEvents();
         Event::fake([
             NewMessageBroadcast::class,
             NewMessageEvent::class,
@@ -323,6 +327,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     /** @test */
     public function it_messages_and_marks_used_participants_read_when_final()
     {
+        BaseMessengerAction::enableEvents();
         Event::fake([
             NewMessageBroadcast::class,
             NewMessageEvent::class,
@@ -345,6 +350,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     /** @test */
     public function it_seeds_image_messages()
     {
+        BaseMessengerAction::enableEvents();
         Event::fake([
             NewMessageBroadcast::class,
             NewMessageEvent::class,
@@ -368,6 +374,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     /** @test */
     public function it_seeds_document_messages()
     {
+        BaseMessengerAction::enableEvents();
         Event::fake([
             NewMessageBroadcast::class,
             NewMessageEvent::class,
@@ -391,6 +398,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     /** @test */
     public function it_seeds_audio_messages()
     {
+        BaseMessengerAction::enableEvents();
         Event::fake([
             NewMessageBroadcast::class,
             NewMessageEvent::class,
@@ -414,6 +422,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     /** @test */
     public function it_seeds_reactions()
     {
+        BaseMessengerAction::enableEvents();
         Event::fake([
             ReactionAddedBroadcast::class,
             ReactionAddedEvent::class,
@@ -435,6 +444,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
      */
     public function it_seeds_system_messages($type)
     {
+        BaseMessengerAction::enableEvents();
         Event::fake([
             NewMessageBroadcast::class,
             NewMessageEvent::class,

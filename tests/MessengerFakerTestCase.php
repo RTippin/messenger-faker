@@ -5,6 +5,7 @@ namespace RTippin\MessengerFaker\Tests;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Orchestra\Testbench\TestCase;
+use RTippin\Messenger\Actions\BaseMessengerAction;
 use RTippin\Messenger\Contracts\MessengerProvider;
 use RTippin\Messenger\MessengerServiceProvider;
 use RTippin\Messenger\Models\Message;
@@ -49,8 +50,6 @@ class MessengerFakerTestCase extends TestCase
             'prefix' => '',
             'foreign_key_constraints' => true,
         ]);
-        Storage::fake('messenger');
-        MessengerFaker::testing();
     }
 
     protected function setUp(): void
@@ -62,11 +61,15 @@ class MessengerFakerTestCase extends TestCase
             '--database' => 'testbench',
         ])->run();
         $this->storeBaseUsers();
+        Storage::fake('messenger');
+        MessengerFaker::testing();
+        BaseMessengerAction::disableEvents();
     }
 
     protected function tearDown(): void
     {
         Cache::flush();
+        BaseMessengerAction::enableEvents();
 
         parent::tearDown();
     }
