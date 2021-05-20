@@ -14,7 +14,7 @@ class UnReadCommand extends Command
      * @var string
      */
     protected $signature = 'messenger:faker:unread 
-                                            {thread : ID of the thread you wish to mark participants unread}
+                                            {thread? : ID of the thread you want to seed. Random if not set}
                                             {--admins : Only mark admins unread if group thread}';
 
     /**

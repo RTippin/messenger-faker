@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use Psr\SimpleCache\InvalidArgumentException;
+use RTippin\Messenger\Actions\BaseMessengerAction;
 use RTippin\Messenger\Actions\Messages\AddReaction;
 use RTippin\Messenger\Actions\Messages\StoreAudioMessage;
 use RTippin\Messenger\Actions\Messages\StoreDocumentMessage;
@@ -117,7 +118,7 @@ class MessengerFaker
     /**
      * @var int
      */
-    private int $delay;
+    private int $delay = 0;
 
     /**
      * @var bool
@@ -165,7 +166,6 @@ class MessengerFaker
         $this->storeAudio = $storeAudio;
         $this->storeSystem = $storeSystem;
         $this->addReaction = $addReaction;
-        $this->delay = 0;
         $this->usedParticipants = new Collection([]);
         $this->messenger->setKnockKnock(true);
         $this->messenger->setKnockTimeout(0);
@@ -180,6 +180,7 @@ class MessengerFaker
     public static function testing(): void
     {
         static::$isTesting = true;
+        BaseMessengerAction::disableEvents();
     }
 
     /**
@@ -191,14 +192,16 @@ class MessengerFaker
     }
 
     /**
-     * @param string $threadId
+     * @param string|null $threadId
      * @param bool $useAdmins
      * @return $this
      * @throws ModelNotFoundException
      */
-    public function setThreadWithId(string $threadId, bool $useAdmins = false): self
+    public function setThreadWithId(?string $threadId = null, bool $useAdmins = false): self
     {
-        $this->thread = Thread::findOrFail($threadId);
+        $this->thread = is_null($threadId)
+            ? Thread::inRandomOrder()->firstOrFail()
+            : Thread::findOrFail($threadId);
 
         $this->setParticipants($useAdmins);
 
@@ -370,19 +373,16 @@ class MessengerFaker
     {
         $this->startMessage();
         if (rand(0, 100) > 80) {
-            $message = $this->faker->emoji;
+            $message = '';
             for ($x = 0; $x < rand(1, 10); $x++) {
                 $message .= $this->faker->emoji;
             }
         } else {
             $message = $this->faker->realText(rand(10, 200), rand(1, 4));
         }
-        $this->storeMessage->execute(
-            $this->thread,
-            [
-                'message' => $message,
-            ]
-        );
+        $this->storeMessage->execute($this->thread, [
+            'message' => $message,
+        ]);
         $this->endMessage($isFinal);
 
         return $this;
@@ -403,12 +403,9 @@ class MessengerFaker
     {
         $this->startMessage();
         $image = $this->getImage($local, $url);
-        $this->storeImage->execute(
-            $this->thread,
-            [
-                'image' => $image[0],
-            ]
-        );
+        $this->storeImage->execute($this->thread, [
+            'image' => $image[0],
+        ]);
         $this->endMessage($isFinal);
 
         if (! $local) {
@@ -430,12 +427,9 @@ class MessengerFaker
     {
         $this->startMessage();
         $document = $this->getDocument($url);
-        $this->storeDocument->execute(
-            $this->thread,
-            [
-                'document' => $document[0],
-            ]
-        );
+        $this->storeDocument->execute($this->thread, [
+            'document' => $document[0],
+        ]);
         $this->endMessage($isFinal);
 
         if (! is_null($url)) {
@@ -457,12 +451,9 @@ class MessengerFaker
     {
         $this->startMessage();
         $audio = $this->getAudio($url);
-        $this->storeAudio->execute(
-            $this->thread,
-            [
-                'audio' => $audio[0],
-            ]
-        );
+        $this->storeAudio->execute($this->thread, [
+            'audio' => $audio[0],
+        ]);
         $this->endMessage($isFinal);
 
         if (! is_null($url)) {

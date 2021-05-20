@@ -16,7 +16,7 @@ class ImageCommand extends Command
      * @var string
      */
     protected $signature = 'messenger:faker:image 
-                                            {thread : ID of the thread you wish to have messaged}
+                                            {thread? : ID of the thread you want to seed. Random if not set}
                                             {--count=1 : Number of image messages to send}
                                             {--delay=3 : Delay between each image message being sent}
                                             {--admins : Only use admins to send image messages if group thread}

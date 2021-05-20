@@ -16,7 +16,7 @@ class ReactCommand extends Command
      * @var string
      */
     protected $signature = 'messenger:faker:react 
-                                            {thread : ID of the thread you wish to have reactions added to messages}
+                                            {thread? : ID of the thread you want to seed. Random if not set}
                                             {--count=5 : Number of reactions to add}
                                             {--messages=5 : Number of latest messages to choose from}
                                             {--delay=1 : Delay between each reaction}

@@ -14,7 +14,7 @@ class OnlineStatusCommand extends Command
      * @var string
      */
     protected $signature = 'messenger:faker:status 
-                                            {thread : ID of the thread you wish to have online status}
+                                            {thread? : ID of the thread you want to seed. Random if not set}
                                             {--status=online : Online status to set participants (online/away/offline)}
                                             {--admins : Only use admins for online status if group thread}';
 

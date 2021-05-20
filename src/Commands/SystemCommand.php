@@ -16,7 +16,7 @@ class SystemCommand extends Command
      * @var string
      */
     protected $signature = 'messenger:faker:system 
-                                            {thread : ID of the thread you wish to have messaged}
+                                            {thread? : ID of the thread you want to seed. Random if not set}
                                             {--type= : Specify system message (INT) type. Random will be chosen if not specified}
                                             {--count=1 : Number of system messages to send}
                                             {--delay=3 : Delay between each system message being sent}

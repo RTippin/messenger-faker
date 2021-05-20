@@ -51,6 +51,7 @@ trait FakerEvents
         } else {
             $this->usedParticipants
                 ->unique('owner_id')
+                ->uniqueStrict(fn (Participant $participant) => $participant->owner_type.$participant->owner_id)
                 ->each(fn (Participant $participant) => $this->read($participant));
         }
     }

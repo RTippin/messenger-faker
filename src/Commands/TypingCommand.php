@@ -14,7 +14,7 @@ class TypingCommand extends Command
      * @var string
      */
     protected $signature = 'messenger:faker:typing 
-                                            {thread : ID of the thread you wish to have typing}
+                                            {thread? : ID of the thread you want to seed. Random if not set}
                                             {--admins : Only use admins for typing if group thread}';
 
     /**

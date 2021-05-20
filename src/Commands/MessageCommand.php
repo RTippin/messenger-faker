@@ -15,7 +15,7 @@ class MessageCommand extends Command
      * @var string
      */
     protected $signature = 'messenger:faker:message 
-                                            {thread : ID of the thread you wish to have messaged}
+                                            {thread? : ID of the thread you want to seed. Random if not set}
                                             {--count=5 : Number of messages to send}
                                             {--delay=3 : Delay between each message being sent}
                                             {--admins : Only use admins to send messages if group thread}';

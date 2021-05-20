@@ -16,7 +16,7 @@ class AudioCommand extends Command
      * @var string
      */
     protected $signature = 'messenger:faker:audio 
-                                            {thread : ID of the thread you wish to have messaged}
+                                            {thread? : ID of the thread you want to seed. Random if not set}
                                             {--count=1 : Number of audio messages to send}
                                             {--delay=3 : Delay between each audio message being sent}
                                             {--admins : Only use admins to send audio messages if group thread}

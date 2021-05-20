@@ -63,7 +63,6 @@ class MessengerFakerTestCase extends TestCase
         $this->storeBaseUsers();
         Storage::fake('messenger');
         MessengerFaker::testing();
-        BaseMessengerAction::disableEvents();
     }
 
     protected function tearDown(): void

@@ -203,7 +203,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function it_mark_read_does_nothing_when_no_last_message()
+    public function it_marks_read_does_nothing_when_no_last_message()
     {
         Event::fake([
             ReadBroadcast::class,
@@ -337,13 +337,13 @@ class MessengerFakerTest extends MessengerFakerTestCase
         ]);
         $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin, $this->doe);
-        $faker->setThread($group)->message()->message(true);
+        $faker->setThread($group)->message()->message()->message()->message(true);
 
-        $this->assertDatabaseCount('messages', 2);
-        Event::assertDispatchedTimes(NewMessageBroadcast::class, 2);
-        Event::assertDispatchedTimes(NewMessageEvent::class, 2);
-        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 2);
-        Event::assertDispatchedTimes(TypingBroadcast::class, 2);
+        $this->assertDatabaseCount('messages', 4);
+        Event::assertDispatchedTimes(NewMessageBroadcast::class, 4);
+        Event::assertDispatchedTimes(NewMessageEvent::class, 4);
+        Event::assertDispatchedTimes(OnlineStatusBroadcast::class, 4);
+        Event::assertDispatchedTimes(TypingBroadcast::class, 4);
         Event::assertDispatched(ReadBroadcast::class);
     }
 

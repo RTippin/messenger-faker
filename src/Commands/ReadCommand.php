@@ -14,7 +14,7 @@ class ReadCommand extends Command
      * @var string
      */
     protected $signature = 'messenger:faker:read 
-                                            {thread : ID of the thread you wish to mark read}
+                                            {thread? : ID of the thread you want to seed. Random if not set}
                                             {--admins : Only mark admins read if group thread}';
 
     /**

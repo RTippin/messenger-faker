@@ -16,7 +16,7 @@ class DocumentCommand extends Command
      * @var string
      */
     protected $signature = 'messenger:faker:document 
-                                            {thread : ID of the thread you wish to have messaged}
+                                            {thread? : ID of the thread you want to seed. Random if not set}
                                             {--count=1 : Number of document messages to send}
                                             {--delay=3 : Delay between each document message being sent}
                                             {--admins : Only use admins to send document messages if group thread}
