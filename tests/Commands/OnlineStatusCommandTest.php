@@ -3,6 +3,8 @@
 namespace RTippin\MessengerFaker\Tests\Commands;
 
 use RTippin\Messenger\Facades\Messenger;
+use RTippin\Messenger\Models\Participant;
+use RTippin\Messenger\Models\Thread;
 use RTippin\MessengerFaker\Tests\MessengerFakerTestCase;
 
 class OnlineStatusCommandTest extends MessengerFakerTestCase
@@ -46,6 +48,14 @@ class OnlineStatusCommandTest extends MessengerFakerTestCase
         ])
             ->expectsOutput('Finished marking participants in Richard Tippin and John Doe to online!')
             ->assertExitCode(0);
+    }
+
+    /** @test */
+    public function it_sets_participants_online_in_random_thread_if_id_not_given()
+    {
+        Participant::factory()->for(Thread::factory()->group()->create())->owner($this->tippin)->count(3)->create();
+
+        $this->artisan('messenger:faker:status')->assertExitCode(0);
     }
 
     /** @test */

@@ -41,11 +41,7 @@ class ReactCommandTest extends MessengerFakerTestCase
     public function it_sends_default_of_5_reactions_to_5_messages_in_group()
     {
         $group = $this->createGroupThread($this->tippin, $this->doe);
-        Message::factory()
-            ->for($group)
-            ->owner($this->tippin)
-            ->count(5)
-            ->create();
+        Message::factory()->for($group)->owner($this->tippin)->count(5)->create();
 
         $this->artisan('messenger:faker:react', [
             'thread' => $group->id,
@@ -59,11 +55,7 @@ class ReactCommandTest extends MessengerFakerTestCase
     public function it_sends_default_of_5_reactions_to_5_messages_in_private()
     {
         $private = $this->createPrivateThread($this->tippin, $this->doe);
-        Message::factory()
-            ->for($private)
-            ->owner($this->tippin)
-            ->count(5)
-            ->create();
+        Message::factory()->for($private)->owner($this->tippin)->count(5)->create();
 
         $this->artisan('messenger:faker:react', [
             'thread' => $private->id,
@@ -74,14 +66,21 @@ class ReactCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
+    public function it_sends_reactions_to_random_thread_if_id_not_given()
+    {
+        $private = $this->createPrivateThread($this->tippin, $this->doe);
+        $group = $this->createGroupThread($this->tippin);
+        Message::factory()->for($private)->owner($this->tippin)->count(5)->create();
+        Message::factory()->for($group)->owner($this->tippin)->count(5)->create();
+
+        $this->artisan('messenger:faker:react')->assertExitCode(0);
+    }
+
+    /** @test */
     public function it_accepts_reactions_and_messages_count()
     {
         $group = $this->createGroupThread($this->tippin, $this->doe);
-        Message::factory()
-            ->for($group)
-            ->owner($this->tippin)
-            ->count(2)
-            ->create();
+        Message::factory()->for($group)->owner($this->tippin)->count(2)->create();
 
         $this->artisan('messenger:faker:react', [
             'thread' => $group->id,

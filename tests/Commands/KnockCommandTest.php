@@ -3,6 +3,8 @@
 namespace RTippin\MessengerFaker\Tests\Commands;
 
 use RTippin\Messenger\Facades\Messenger;
+use RTippin\Messenger\Models\Participant;
+use RTippin\Messenger\Models\Thread;
 use RTippin\MessengerFaker\Tests\MessengerFakerTestCase;
 
 class KnockCommandTest extends MessengerFakerTestCase
@@ -46,5 +48,13 @@ class KnockCommandTest extends MessengerFakerTestCase
         ])
             ->expectsOutput('Finished knocking at Richard Tippin and John Doe!')
             ->assertExitCode(0);
+    }
+
+    /** @test */
+    public function it_knocks_at_random_thread_if_id_not_given()
+    {
+        Participant::factory()->for(Thread::factory()->group()->create())->owner($this->tippin)->count(3)->create();
+
+        $this->artisan('messenger:faker:knock')->assertExitCode(0);
     }
 }

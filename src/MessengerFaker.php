@@ -524,9 +524,9 @@ class MessengerFaker
     private function setParticipants(bool $useAdmins): void
     {
         if ($useAdmins && $this->thread->isGroup()) {
-            $this->participants = $this->thread->participants()->admins()->get();
+            $this->participants = $this->thread->participants()->admins()->with('owner')->get();
         } else {
-            $this->participants = $this->thread->participants()->get();
+            $this->participants = $this->thread->participants()->with('owner')->get();
         }
     }
 

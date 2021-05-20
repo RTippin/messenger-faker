@@ -18,7 +18,9 @@ use RTippin\Messenger\Events\KnockEvent;
 use RTippin\Messenger\Events\NewMessageEvent;
 use RTippin\Messenger\Events\ReactionAddedEvent;
 use RTippin\Messenger\Facades\Messenger;
+use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Participant;
+use RTippin\Messenger\Models\Thread;
 use RTippin\MessengerFaker\Broadcasting\OnlineStatusBroadcast;
 use RTippin\MessengerFaker\Broadcasting\ReadBroadcast;
 use RTippin\MessengerFaker\Broadcasting\TypingBroadcast;
@@ -60,12 +62,12 @@ class MessengerFakerTest extends MessengerFakerTestCase
     public function it_throws_exception_when_not_enough_messages_found()
     {
         $faker = app(MessengerFaker::class);
-        $group = $this->createGroupThread($this->tippin);
-        $this->createMessage($group, $this->tippin);
-        $faker->setThread($group);
+        $thread = Thread::factory()->group()->create(['subject' => 'Test']);
+        Message::factory()->for($thread)->owner($this->tippin)->create();
+        $faker->setThread($thread);
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('First Test Group does not have 2 or more messages to choose from.');
+        $this->expectExceptionMessage('Test does not have 2 or more messages to choose from.');
 
         $faker->setMessages(2);
     }
@@ -74,38 +76,49 @@ class MessengerFakerTest extends MessengerFakerTestCase
     public function it_sets_thread_using_id()
     {
         $faker = app(MessengerFaker::class);
-        $group = $this->createGroupThread($this->tippin);
-        $faker->setThreadWithId($group->id);
+        $thread = Thread::factory()->group()->create();
+        $faker->setThreadWithId($thread->id);
 
-        $this->assertSame($group->id, $faker->getThread()->id);
+        $this->assertSame($thread->id, $faker->getThread()->id);
+    }
+
+    /** @test */
+    public function it_sets_random_thread_when_id_null()
+    {
+        $faker = app(MessengerFaker::class);
+        $thread1 = Thread::factory()->group()->create();
+        $thread2 = Thread::factory()->group()->create();
+        $faker->setThreadWithId();
+
+        $this->assertContains($faker->getThread()->id, [$thread1->id, $thread2->id]);
     }
 
     /** @test */
     public function it_sets_thread_using_thread()
     {
         $faker = app(MessengerFaker::class);
-        $group = $this->createGroupThread($this->tippin);
-        $faker->setThread($group);
+        $thread = Thread::factory()->group()->create();
+        $faker->setThread($thread);
 
-        $this->assertSame($group, $faker->getThread());
+        $this->assertSame($thread, $faker->getThread());
     }
 
     /** @test */
     public function it_shows_group_thread_name()
     {
         $faker = app(MessengerFaker::class);
-        $group = $this->createGroupThread($this->tippin);
-        $faker->setThread($group);
+        $thread = Thread::factory()->group()->create(['subject' => 'Test']);
+        $faker->setThread($thread);
 
-        $this->assertSame('First Test Group', $faker->getThreadName());
+        $this->assertSame('Test', $faker->getThreadName());
     }
 
     /** @test */
     public function it_shows_private_thread_names()
     {
         $faker = app(MessengerFaker::class);
-        $group = $this->createPrivateThread($this->tippin, $this->doe);
-        $faker->setThread($group);
+        $thread = $this->createPrivateThread($this->tippin, $this->doe);
+        $faker->setThread($thread);
 
         $this->assertSame('Richard Tippin and John Doe', $faker->getThreadName());
     }

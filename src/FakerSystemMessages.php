@@ -5,6 +5,8 @@ namespace RTippin\MessengerFaker;
 use Exception;
 use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Support\Arr;
+use RTippin\Messenger\Models\Call;
+use RTippin\Messenger\Models\CallParticipant;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
 use RTippin\Messenger\Support\MessageTransformer;
@@ -52,18 +54,16 @@ trait FakerSystemMessages
      */
     private function getType(?int $type): int
     {
-        if ($this->thread->isGroup()) {
-            if (is_null($type)) {
-                return Arr::random($this->getAllowedTypesGroup(), 1)[0];
-            } elseif (! in_array($type, $this->getAllowedTypesGroup())) {
-                $this->throwFailedException('Invalid system message type.');
-            }
-        } else {
-            if (is_null($type)) {
-                return Arr::random($this->getAllowedTypesPrivate(), 1)[0];
-            } elseif (! in_array($type, $this->getAllowedTypesPrivate())) {
-                $this->throwFailedException('Invalid system message type for private thread.');
-            }
+        if (is_null($type)) {
+            return Arr::random($this->thread->isGroup() ? $this->getAllowedTypesGroup() : $this->getAllowedTypesPrivate(), 1)[0];
+        }
+
+        if ($this->thread->isGroup() && ! in_array($type, $this->getAllowedTypesGroup())) {
+            $this->throwFailedException('Invalid system message type.');
+        }
+
+        if ($this->thread->isPrivate() && ! in_array($type, $this->getAllowedTypesPrivate())) {
+            $this->throwFailedException('Invalid system message type for private thread.');
         }
 
         return $type;
@@ -107,31 +107,15 @@ trait FakerSystemMessages
      */
     private function makeVideoCall(Participant $participant): array
     {
-        $call = $this->thread->calls()->create([
-            'type' => 1,
-            'owner_id' => $participant->owner_id,
-            'owner_type' => $participant->owner_type,
-            'call_ended' => now(),
-            'setup_complete' => true,
-            'teardown_complete' => true,
-        ]);
-
-        $call->participants()->create([
-            'owner_id' => $participant->owner_id,
-            'owner_type' => $participant->owner_type,
-            'left_call' => now(),
-        ]);
+        $call = Call::factory()->for($this->thread)->owner($participant->owner)->ended()->create();
+        CallParticipant::factory()->for($call)->owner($participant->owner)->left()->create();
 
         $this->participants
             ->reject(fn (Participant $p) => $p->id === $participant->id)
             ->shuffle()
             ->take(rand(0, $this->participants->count() - 1))
             ->each(function (Participant $p) use ($call) {
-                $call->participants()->create([
-                    'owner_id' => $p->owner_id,
-                    'owner_type' => $p->owner_type,
-                    'left_call' => now(),
-                ]);
+                CallParticipant::factory()->for($call)->owner($p->owner)->left()->create();
             });
 
         return MessageTransformer::makeVideoCall($this->thread, $participant->owner, $call);

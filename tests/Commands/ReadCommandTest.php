@@ -3,6 +3,8 @@
 namespace RTippin\MessengerFaker\Tests\Commands;
 
 use RTippin\Messenger\Facades\Messenger;
+use RTippin\Messenger\Models\Participant;
+use RTippin\Messenger\Models\Thread;
 use RTippin\MessengerFaker\Tests\MessengerFakerTestCase;
 
 class ReadCommandTest extends MessengerFakerTestCase
@@ -46,5 +48,13 @@ class ReadCommandTest extends MessengerFakerTestCase
         ])
             ->expectsOutput('Finished marking participants in Richard Tippin and John Doe as read!')
             ->assertExitCode(0);
+    }
+
+    /** @test */
+    public function it_marks_random_thread_read_if_id_not_given()
+    {
+        Participant::factory()->for(Thread::factory()->group()->create())->owner($this->tippin)->count(3)->create();
+
+        $this->artisan('messenger:faker:read')->assertExitCode(0);
     }
 }

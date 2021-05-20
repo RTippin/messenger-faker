@@ -3,6 +3,8 @@
 namespace RTippin\MessengerFaker\Tests\Commands;
 
 use RTippin\Messenger\Facades\Messenger;
+use RTippin\Messenger\Models\Participant;
+use RTippin\Messenger\Models\Thread;
 use RTippin\MessengerFaker\Tests\MessengerFakerTestCase;
 
 class AudioCommandTest extends MessengerFakerTestCase
@@ -50,6 +52,14 @@ class AudioCommandTest extends MessengerFakerTestCase
             ->expectsOutput('Using a random audio file from '.config('messenger-faker.paths.audio'))
             ->expectsOutput('Finished sending 1 audio messages to Richard Tippin and John Doe!')
             ->assertExitCode(0);
+    }
+
+    /** @test */
+    public function it_sends_audio_message_to_random_thread_if_id_not_given()
+    {
+        Participant::factory()->for(Thread::factory()->group()->create())->owner($this->tippin)->count(3)->create();
+
+        $this->artisan('messenger:faker:audio')->assertExitCode(0);
     }
 
     /** @test */
