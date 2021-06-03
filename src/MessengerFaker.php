@@ -172,6 +172,7 @@ class MessengerFaker
         $this->messenger->setOnlineStatus(true);
         $this->messenger->setOnlineCacheLifetime(1);
         $this->messenger->setMessageReactions(true);
+        $this->messenger->setSystemMessages(true);
     }
 
     /**
@@ -180,6 +181,7 @@ class MessengerFaker
     public static function testing(): void
     {
         static::$isTesting = true;
+
         BaseMessengerAction::disableEvents();
     }
 

@@ -2,6 +2,7 @@
 
 namespace RTippin\MessengerFaker\Tests\Commands;
 
+use RTippin\Messenger\Brokers\NullBroadcastBroker;
 use RTippin\Messenger\Facades\Messenger;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
@@ -13,7 +14,7 @@ class SystemCommandTest extends MessengerFakerTestCase
     {
         parent::setUp();
 
-        Messenger::setBroadcastDriver('null');
+        Messenger::setBroadcastDriver(NullBroadcastBroker::class);
     }
 
     /** @test */

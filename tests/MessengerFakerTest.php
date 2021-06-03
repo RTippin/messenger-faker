@@ -44,6 +44,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
         $this->assertTrue(Messenger::isKnockKnockEnabled());
         $this->assertTrue(Messenger::isOnlineStatusEnabled());
         $this->assertTrue(Messenger::isMessageReactionsEnabled());
+        $this->assertTrue(Messenger::isSystemMessagesEnabled());
         $this->assertSame(0, Messenger::getKnockTimeout());
         $this->assertSame(1, Messenger::getOnlineCacheLifetime());
     }
