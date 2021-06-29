@@ -30,7 +30,7 @@ trait FakerSystemMessages
      */
     private function getAllowedTypesGroup(): array
     {
-        return [88, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99];
+        return [88, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103];
     }
 
     /**
@@ -88,6 +88,10 @@ trait FakerSystemMessages
             case 97: return $this->makeGroupLeft($participant);
             case 98: return $this->makeRemovedFromGroup($participant);
             case 99: return $this->makeParticipantsAdded($participant);
+            case 100: return $this->makeBotAdded($participant);
+            case 101: return $this->makeBotRenamed($participant);
+            case 102: return $this->makeBotAvatarChanged($participant);
+            case 103: return $this->makeBotRemoved($participant);
             default: $this->throwFailedException('Invalid system message type for private thread.');
         }
     }
@@ -236,5 +240,41 @@ trait FakerSystemMessages
         }
 
         return MessageTransformer::makeParticipantsAdded($this->thread, $participant->owner, $added);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return array
+     */
+    private function makeBotAdded(Participant $participant): array
+    {
+        return MessageTransformer::makeBotAdded($this->thread, $participant->owner, $this->faker->firstName);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return array
+     */
+    private function makeBotRenamed(Participant $participant): array
+    {
+        return MessageTransformer::makeBotRenamed($this->thread, $participant->owner, $this->faker->firstName, $this->faker->firstName);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return array
+     */
+    private function makeBotAvatarChanged(Participant $participant): array
+    {
+        return MessageTransformer::makeBotAvatarChanged($this->thread, $participant->owner, $this->faker->firstName);
+    }
+
+    /**
+     * @param Participant $participant
+     * @return array
+     */
+    private function makeBotRemoved(Participant $participant): array
+    {
+        return MessageTransformer::makeBotRemoved($this->thread, $participant->owner, $this->faker->firstName);
     }
 }

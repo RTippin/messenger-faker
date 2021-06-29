@@ -107,22 +107,6 @@ class MessengerFakerTestCase extends TestCase
         MessengerModel::factory()->owner($this->doe)->create();
     }
 
-    /**
-     * @return MessengerProvider|UserModel
-     */
-    protected function userTippin()
-    {
-        return UserModel::where('email', '=', 'tippindev@gmail.com')->first();
-    }
-
-    /**
-     * @return MessengerProvider|UserModel
-     */
-    protected function userDoe()
-    {
-        return UserModel::where('email', '=', 'doe@example.net')->first();
-    }
-
     protected function createPrivateThread($one, $two): Thread
     {
         $private = Thread::factory()->create();

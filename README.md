@@ -15,6 +15,8 @@
 - Commands to mock realtime events such as knocks, typing, marking read, online status.
 - Command to seed realtime messages with typing included.
 - Commands to send attachment messages (images, documents, audio).
+- Command to send system messages.
+- Command to send message reactions.
 
 ---
 
@@ -73,7 +75,7 @@ ___
     * Make participants send system messages.
     * `{thread?}` ID of the thread you want to seed. Random if not set.
     * `--count=X` flag to set how many system messages are sent.
-    * `--type=X` flag to set the system message type. `88, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99`
+    * `--type=X` flag to set the system message type. `88, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103`
     * `--delay=X` flag to set delay in seconds between each system message.
     * `--admins` flag will only use admin participants if using a group thread.
 - `php artisan messenger:faker:image {thread?}` | `--count=1` | `--delay=3` | `--admins` | `--local` | `--url=`
