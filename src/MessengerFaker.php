@@ -4,40 +4,38 @@ namespace RTippin\MessengerFaker;
 
 use Exception;
 use Faker\Generator;
-use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use RTippin\Messenger\Actions\BaseMessengerAction;
-use RTippin\Messenger\Actions\Messages\AddReaction;
-use RTippin\Messenger\Actions\Messages\StoreAudioMessage;
-use RTippin\Messenger\Actions\Messages\StoreDocumentMessage;
-use RTippin\Messenger\Actions\Messages\StoreImageMessage;
-use RTippin\Messenger\Actions\Messages\StoreMessage;
 use RTippin\Messenger\Actions\Messages\StoreSystemMessage;
-use RTippin\Messenger\Actions\Threads\MarkParticipantRead;
-use RTippin\Messenger\Actions\Threads\SendKnock;
 use RTippin\Messenger\Contracts\BroadcastDriver;
 use RTippin\Messenger\Contracts\MessengerProvider;
 use RTippin\Messenger\Exceptions\FeatureDisabledException;
 use RTippin\Messenger\Exceptions\InvalidProviderException;
-use RTippin\Messenger\Exceptions\KnockException;
+use RTippin\Messenger\Exceptions\MessengerComposerException;
 use RTippin\Messenger\Exceptions\ReactionException;
 use RTippin\Messenger\Messenger;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
+use RTippin\Messenger\Support\MessengerComposer;
 use Throwable;
 
 class MessengerFaker
 {
-    use FakerEvents;
-    use FakerFiles;
-    use FakerSystemMessages;
+    use FakerEvents,
+        FakerFiles,
+        FakerSystemMessages;
 
     /**
      * @var Messenger
      */
     private Messenger $messenger;
+
+    /**
+     * @var MessengerComposer
+     */
+    private MessengerComposer $composer;
 
     /**
      * @var BroadcastDriver
@@ -50,49 +48,9 @@ class MessengerFaker
     private Generator $faker;
 
     /**
-     * @var ConfigRepository
-     */
-    private ConfigRepository $configRepo;
-
-    /**
-     * @var SendKnock
-     */
-    private SendKnock $sendKnock;
-
-    /**
-     * @var MarkParticipantRead
-     */
-    private MarkParticipantRead $markRead;
-
-    /**
-     * @var StoreMessage
-     */
-    private StoreMessage $storeMessage;
-
-    /**
-     * @var StoreImageMessage
-     */
-    private StoreImageMessage $storeImage;
-
-    /**
-     * @var StoreDocumentMessage
-     */
-    private StoreDocumentMessage $storeDocument;
-
-    /**
-     * @var StoreAudioMessage
-     */
-    private StoreAudioMessage $storeAudio;
-
-    /**
      * @var StoreSystemMessage
      */
     private StoreSystemMessage $storeSystem;
-
-    /**
-     * @var AddReaction
-     */
-    private AddReaction $addReaction;
 
     /**
      * @var Thread|null
@@ -128,48 +86,25 @@ class MessengerFaker
      * MessengerFaker constructor.
      *
      * @param Messenger $messenger
+     * @param MessengerComposer $composer
      * @param BroadcastDriver $broadcaster
      * @param Generator $faker
-     * @param ConfigRepository $configRepo
-     * @param SendKnock $sendKnock
-     * @param MarkParticipantRead $markRead
-     * @param StoreMessage $storeMessage
-     * @param StoreImageMessage $storeImage
-     * @param StoreDocumentMessage $storeDocument
-     * @param StoreAudioMessage $storeAudio
      * @param StoreSystemMessage $storeSystem
-     * @param AddReaction $addReaction
      */
     public function __construct(Messenger $messenger,
+                                MessengerComposer $composer,
                                 BroadcastDriver $broadcaster,
                                 Generator $faker,
-                                ConfigRepository $configRepo,
-                                SendKnock $sendKnock,
-                                MarkParticipantRead $markRead,
-                                StoreMessage $storeMessage,
-                                StoreImageMessage $storeImage,
-                                StoreDocumentMessage $storeDocument,
-                                StoreAudioMessage $storeAudio,
-                                StoreSystemMessage $storeSystem,
-                                AddReaction $addReaction)
+                                StoreSystemMessage $storeSystem)
     {
         $this->messenger = $messenger;
+        $this->composer = $composer;
         $this->broadcaster = $broadcaster;
-        $this->sendKnock = $sendKnock;
-        $this->configRepo = $configRepo;
-        $this->markRead = $markRead;
         $this->faker = $faker;
-        $this->storeMessage = $storeMessage;
-        $this->storeImage = $storeImage;
-        $this->storeDocument = $storeDocument;
-        $this->storeAudio = $storeAudio;
         $this->storeSystem = $storeSystem;
-        $this->addReaction = $addReaction;
         $this->usedParticipants = new Collection([]);
         $this->messenger->setKnockKnock(true);
         $this->messenger->setKnockTimeout(0);
-        $this->messenger->setOnlineStatus(true);
-        $this->messenger->setOnlineCacheLifetime(1);
         $this->messenger->setMessageReactions(true);
         $this->messenger->setSystemMessages(true);
     }
@@ -276,16 +211,14 @@ class MessengerFaker
      *
      * @return $this
      * @throws FeatureDisabledException|InvalidProviderException
-     * @throws KnockException
+     * @throws Throwable
      */
     public function knock(): self
     {
-        $this->setProvider($this->participants->first()->owner);
-        $this->sendKnock->execute($this->thread);
+        $this->composer()->from($this->participants->first()->owner)->knock();
 
         if ($this->thread->isPrivate()) {
-            $this->setProvider($this->participants->last()->owner);
-            $this->sendKnock->execute($this->thread);
+            $this->composer()->from($this->participants->last()->owner)->knock();
         }
 
         return $this;
@@ -296,14 +229,23 @@ class MessengerFaker
      *
      * @param Participant|null $participant
      * @return $this
+     * @throws Throwable
      */
     public function read(Participant $participant = null): self
     {
         if (! is_null($message = $this->thread->messages()->latest()->first())) {
             if (! is_null($participant)) {
-                $this->markRead($participant, $message);
+                $this->composer()
+                    ->from($participant->owner)
+                    ->emitRead($message)
+                    ->read($participant);
             } else {
-                $this->participants->each(fn (Participant $participant) => $this->markRead($participant, $message));
+                $this->participants->each(function (Participant $participant) use ($message) {
+                    $this->composer()
+                        ->from($participant->owner)
+                        ->emitRead($message)
+                        ->read($participant);
+                });
             }
         }
 
@@ -327,18 +269,15 @@ class MessengerFaker
      *
      * @param MessengerProvider|null $provider
      * @return $this
+     * @throws Throwable
      */
     public function typing(MessengerProvider $provider = null): self
     {
-        $this->messenger->setOnlineCacheLifetime(0);
-
         if (! is_null($provider)) {
-            $this->sendTyping($provider);
+            $this->composer()->from($provider)->emitTyping();
         } else {
-            $this->participants->each(fn (Participant $participant) => $this->sendTyping($participant->owner));
+            $this->participants->each(fn (Participant $participant) => $this->composer()->from($participant->owner)->emitTyping());
         }
-
-        $this->messenger->setOnlineCacheLifetime(1);
 
         return $this;
     }
@@ -353,6 +292,7 @@ class MessengerFaker
     public function message(bool $isFinal = false): self
     {
         $this->startMessage();
+
         if (rand(0, 100) > 80) {
             $message = '';
             for ($x = 0; $x < rand(1, 10); $x++) {
@@ -361,9 +301,9 @@ class MessengerFaker
         } else {
             $message = $this->faker->realText(rand(10, 200), rand(1, 4));
         }
-        $this->storeMessage->execute($this->thread, [
-            'message' => $message,
-        ]);
+
+        $this->composer()->message($message);
+
         $this->endMessage($isFinal);
 
         return $this;
@@ -376,17 +316,18 @@ class MessengerFaker
      * @param bool $local
      * @param string|null $url
      * @return $this
-     * @throws Throwable|FeatureDisabledException
+     * @throws Throwable
      */
     public function image(bool $isFinal = false,
                           bool $local = false,
                           ?string $url = null): self
     {
         $this->startMessage();
+
         $image = $this->getImage($local, $url);
-        $this->storeImage->execute($this->thread, [
-            'image' => $image[0],
-        ]);
+
+        $this->composer()->image($image[0]);
+
         $this->endMessage($isFinal);
 
         if (! $local) {
@@ -402,15 +343,16 @@ class MessengerFaker
      * @param bool $isFinal
      * @param string|null $url
      * @return $this
-     * @throws Throwable|FeatureDisabledException
+     * @throws Throwable
      */
     public function document(bool $isFinal = false, ?string $url = null): self
     {
         $this->startMessage();
+
         $document = $this->getDocument($url);
-        $this->storeDocument->execute($this->thread, [
-            'document' => $document[0],
-        ]);
+
+        $this->composer()->document($document[0]);
+
         $this->endMessage($isFinal);
 
         if (! is_null($url)) {
@@ -426,15 +368,16 @@ class MessengerFaker
      * @param bool $isFinal
      * @param string|null $url
      * @return $this
-     * @throws Throwable|FeatureDisabledException
+     * @throws Throwable
      */
     public function audio(bool $isFinal = false, ?string $url = null): self
     {
         $this->startMessage();
+
         $audio = $this->getAudio($url);
-        $this->storeAudio->execute($this->thread, [
-            'audio' => $audio[0],
-        ]);
+
+        $this->composer()->audio($audio[0]);
+
         $this->endMessage($isFinal);
 
         if (! is_null($url)) {
@@ -468,14 +411,10 @@ class MessengerFaker
      */
     public function reaction(bool $isFinal = false): self
     {
-        $this->setProvider($this->participants->random()->owner);
-
         try {
-            $this->addReaction->execute(
-                $this->thread,
-                $this->messages->random(),
-                $this->faker->emoji
-            );
+            $this->composer()
+                ->from($this->participants->random()->owner)
+                ->reaction($this->messages->random(), $this->faker->emoji);
         } catch (ReactionException $e) {
             // continue as it may pick duplicate random emoji
         }
@@ -488,15 +427,12 @@ class MessengerFaker
     }
 
     /**
-     * @param MessengerProvider|mixed|null $provider
-     * @return $this
-     * @throws InvalidProviderException
+     * @return MessengerComposer
+     * @throws MessengerComposerException
      */
-    private function setProvider($provider = null): self
+    private function composer(): MessengerComposer
     {
-        $this->messenger->setProvider($provider);
-
-        return $this;
+        return $this->composer->to($this->thread);
     }
 
     /**

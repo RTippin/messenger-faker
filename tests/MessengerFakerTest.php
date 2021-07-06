@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use RTippin\Messenger\Actions\BaseMessengerAction;
+use RTippin\Messenger\Broadcasting\ClientEvents\Read;
+use RTippin\Messenger\Broadcasting\ClientEvents\Typing;
 use RTippin\Messenger\Broadcasting\KnockBroadcast;
 use RTippin\Messenger\Broadcasting\NewMessageBroadcast;
 use RTippin\Messenger\Broadcasting\ReactionAddedBroadcast;
@@ -20,8 +22,6 @@ use RTippin\Messenger\Facades\Messenger;
 use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
-use RTippin\MessengerFaker\Broadcasting\ReadBroadcast;
-use RTippin\MessengerFaker\Broadcasting\TypingBroadcast;
 use RTippin\MessengerFaker\MessengerFaker;
 
 class MessengerFakerTest extends MessengerFakerTestCase
@@ -40,11 +40,9 @@ class MessengerFakerTest extends MessengerFakerTestCase
         app(MessengerFaker::class);
 
         $this->assertTrue(Messenger::isKnockKnockEnabled());
-        $this->assertTrue(Messenger::isOnlineStatusEnabled());
         $this->assertTrue(Messenger::isMessageReactionsEnabled());
         $this->assertTrue(Messenger::isSystemMessagesEnabled());
         $this->assertSame(0, Messenger::getKnockTimeout());
-        $this->assertSame(1, Messenger::getOnlineCacheLifetime());
     }
 
     /** @test */
@@ -158,20 +156,20 @@ class MessengerFakerTest extends MessengerFakerTestCase
     public function it_marks_read_does_nothing_when_no_last_message()
     {
         Event::fake([
-            ReadBroadcast::class,
+            Read::class,
         ]);
         $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin);
         $faker->setThread($group)->read();
 
-        Event::assertNotDispatched(ReadBroadcast::class);
+        Event::assertNotDispatched(Read::class);
     }
 
     /** @test */
-    public function it_mark_read_for_all_participants()
+    public function it_marks_read_for_all_participants()
     {
         Event::fake([
-            ReadBroadcast::class,
+            Read::class,
         ]);
         $read = now()->addMinute();
         Carbon::setTestNow($read);
@@ -180,7 +178,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
         $this->createMessage($group, $this->tippin);
         $faker->setThread($group)->read();
 
-        Event::assertDispatchedTimes(ReadBroadcast::class, 2);
+        Event::assertDispatchedTimes(Read::class, 2);
         $this->assertSame(2, Participant::whereNotNull('last_read')->count());
     }
 
@@ -188,14 +186,14 @@ class MessengerFakerTest extends MessengerFakerTestCase
     public function it_mark_read_for_admin_participants()
     {
         Event::fake([
-            ReadBroadcast::class,
+            Read::class,
         ]);
         $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin, $this->doe);
         $this->createMessage($group, $this->tippin);
         $faker->setThread($group, true)->read();
 
-        Event::assertDispatchedTimes(ReadBroadcast::class, 1);
+        Event::assertDispatchedTimes(Read::class, 1);
         $this->assertSame(1, Participant::whereNotNull('last_read')->count());
     }
 
@@ -229,26 +227,26 @@ class MessengerFakerTest extends MessengerFakerTestCase
     public function it_makes_all_participants_type()
     {
         Event::fake([
-            TypingBroadcast::class,
+            Typing::class,
         ]);
         $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin, $this->doe);
         $faker->setThread($group)->typing();
 
-        Event::assertDispatchedTimes(TypingBroadcast::class, 2);
+        Event::assertDispatchedTimes(Typing::class, 2);
     }
 
     /** @test */
     public function it_makes_admin_participants_type()
     {
         Event::fake([
-            TypingBroadcast::class,
+            Typing::class,
         ]);
         $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin, $this->doe);
         $faker->setThread($group, true)->typing();
 
-        Event::assertDispatchedTimes(TypingBroadcast::class, 1);
+        Event::assertDispatchedTimes(Typing::class, 1);
     }
 
     /** @test */
@@ -258,7 +256,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::fake([
             NewMessageBroadcast::class,
             NewMessageEvent::class,
-            TypingBroadcast::class,
+            Typing::class,
         ]);
         $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin, $this->doe);
@@ -267,7 +265,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
         $this->assertDatabaseCount('messages', 1);
         Event::assertDispatched(NewMessageBroadcast::class);
         Event::assertDispatched(NewMessageEvent::class);
-        Event::assertDispatched(TypingBroadcast::class);
+        Event::assertDispatched(Typing::class);
     }
 
     /** @test */
@@ -277,8 +275,8 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::fake([
             NewMessageBroadcast::class,
             NewMessageEvent::class,
-            TypingBroadcast::class,
-            ReadBroadcast::class,
+            Typing::class,
+            Read::class,
         ]);
         $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin, $this->doe);
@@ -287,8 +285,8 @@ class MessengerFakerTest extends MessengerFakerTestCase
         $this->assertDatabaseCount('messages', 4);
         Event::assertDispatchedTimes(NewMessageBroadcast::class, 4);
         Event::assertDispatchedTimes(NewMessageEvent::class, 4);
-        Event::assertDispatchedTimes(TypingBroadcast::class, 4);
-        Event::assertDispatched(ReadBroadcast::class);
+        Event::assertDispatchedTimes(Typing::class, 4);
+        Event::assertDispatched(Read::class);
     }
 
     /** @test */
@@ -298,7 +296,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::fake([
             NewMessageBroadcast::class,
             NewMessageEvent::class,
-            TypingBroadcast::class,
+            Typing::class,
         ]);
         Storage::fake(Messenger::getThreadStorage('disk'));
         $faker = app(MessengerFaker::class);
@@ -310,7 +308,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
         ]);
         Event::assertDispatched(NewMessageBroadcast::class);
         Event::assertDispatched(NewMessageEvent::class);
-        Event::assertDispatched(TypingBroadcast::class);
+        Event::assertDispatched(Typing::class);
     }
 
     /** @test */
@@ -320,7 +318,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::fake([
             NewMessageBroadcast::class,
             NewMessageEvent::class,
-            TypingBroadcast::class,
+            Typing::class,
         ]);
         Storage::fake(Messenger::getThreadStorage('disk'));
         $faker = app(MessengerFaker::class);
@@ -332,7 +330,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
         ]);
         Event::assertDispatched(NewMessageBroadcast::class);
         Event::assertDispatched(NewMessageEvent::class);
-        Event::assertDispatched(TypingBroadcast::class);
+        Event::assertDispatched(Typing::class);
     }
 
     /** @test */
@@ -342,7 +340,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::fake([
             NewMessageBroadcast::class,
             NewMessageEvent::class,
-            TypingBroadcast::class,
+            Typing::class,
         ]);
         Storage::fake(Messenger::getThreadStorage('disk'));
         $faker = app(MessengerFaker::class);
@@ -354,7 +352,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
         ]);
         Event::assertDispatched(NewMessageBroadcast::class);
         Event::assertDispatched(NewMessageEvent::class);
-        Event::assertDispatched(TypingBroadcast::class);
+        Event::assertDispatched(Typing::class);
     }
 
     /** @test */
