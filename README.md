@@ -100,10 +100,6 @@ ___
     * `--delay=X` flag to set delay in seconds between each audio file.
     * `--admins` flag will only use admin participants if using a group thread.
     * `--url=X` flag lets you directly specify an audio URL to download and emit.
-- `php artisan messenger:faker:status {thread?}` | `--status=online` | `--admins`
-    * Set participants online status. Default of online, May use (online/offline/away).
-    * `{thread?}` ID of the thread you want to seed. Random if not set.
-    * `--admins` flag will only use admin participants if using a group thread.
 - `php artisan messenger:faker:read {thread?}` | `--admins`
     * Mark participants in the thread as read.
     * `{thread?}` ID of the thread you want to seed. Random if not set.

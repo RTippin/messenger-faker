@@ -10,7 +10,6 @@ use RTippin\Messenger\Messenger;
 use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
-use RTippin\MessengerFaker\Broadcasting\OnlineStatusBroadcast;
 use RTippin\MessengerFaker\Broadcasting\ReadBroadcast;
 use RTippin\MessengerFaker\Broadcasting\TypingBroadcast;
 
@@ -57,39 +56,6 @@ trait FakerEvents
     }
 
     /**
-     * @param string $status
-     * @param MessengerProvider $provider
-     */
-    private function setStatus(string $status, MessengerProvider $provider): void
-    {
-        $online = 0;
-
-        switch ($status) {
-            case 'online':
-                $this->messenger->setProviderToOnline($provider);
-                $online = 1;
-            break;
-            case 'away':
-                $this->messenger->setProviderToAway($provider);
-                $online = 2;
-            break;
-            case 'offline':
-                $this->messenger->setProviderToOffline($provider);
-            break;
-        }
-
-        $this->broadcaster
-            ->toPresence($this->thread)
-            ->with([
-                'provider_id' => $provider->getKey(),
-                'provider_alias' => $this->messenger->findProviderAlias($provider),
-                'name' => $provider->getProviderName(),
-                'online_status' => $online,
-            ])
-            ->broadcast(OnlineStatusBroadcast::class);
-    }
-
-    /**
      * @param Participant $participant
      * @param Message $message
      */
@@ -112,8 +78,6 @@ trait FakerEvents
      */
     private function sendTyping(MessengerProvider $provider): void
     {
-        $this->status('online', $provider);
-
         $this->broadcaster
             ->toPresence($this->thread)
             ->with([

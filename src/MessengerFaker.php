@@ -8,7 +8,6 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
-use Psr\SimpleCache\InvalidArgumentException;
 use RTippin\Messenger\Actions\BaseMessengerAction;
 use RTippin\Messenger\Actions\Messages\AddReaction;
 use RTippin\Messenger\Actions\Messages\StoreAudioMessage;
@@ -276,7 +275,7 @@ class MessengerFaker
      * Send a knock to the given thread.
      *
      * @return $this
-     * @throws FeatureDisabledException|InvalidArgumentException|InvalidProviderException
+     * @throws FeatureDisabledException|InvalidProviderException
      * @throws KnockException
      */
     public function knock(): self
@@ -287,26 +286,6 @@ class MessengerFaker
         if ($this->thread->isPrivate()) {
             $this->setProvider($this->participants->last()->owner);
             $this->sendKnock->execute($this->thread);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set and broadcast the given providers online status.
-     *
-     * @param string $status
-     * @param MessengerProvider|null $provider
-     * @return $this
-     */
-    public function status(string $status, MessengerProvider $provider = null): self
-    {
-        if (! is_null($provider)) {
-            $this->setStatus($status, $provider);
-        } else {
-            $this->participants->each(function (Participant $participant) use ($status) {
-                $this->setStatus($status, $participant->owner);
-            });
         }
 
         return $this;
