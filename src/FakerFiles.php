@@ -3,15 +3,11 @@
 namespace RTippin\MessengerFaker;
 
 use Exception;
-use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 
-/**
- * @property-read ConfigRepository $configRepo
- */
 trait FakerFiles
 {
     /**
@@ -27,11 +23,13 @@ trait FakerFiles
         }
 
         if ($local) {
-            $path = $this->configRepo->get('messenger-faker.paths.images');
+            $path = config('messenger-faker.paths.images');
             $images = File::files($path);
+
             if (! count($images)) {
                 $this->throwFailedException("No images found within $path");
             }
+
             $file = Arr::random($images, 1)[0];
             $name = $file->getFilename();
         } else {
@@ -39,7 +37,7 @@ trait FakerFiles
             $file = '/tmp/'.$name;
             file_put_contents($file,
                 Http::timeout(30)->get(is_null($url)
-                    ? $this->configRepo->get('messenger-faker.default_image_url')
+                    ? config('messenger-faker.default_image_url')
                     : $url
                 )->body()
             );
@@ -64,11 +62,13 @@ trait FakerFiles
             $file = '/tmp/'.$name;
             file_put_contents($file, Http::timeout(30)->get($url)->body());
         } else {
-            $path = $this->configRepo->get('messenger-faker.paths.documents');
+            $path = config('messenger-faker.paths.documents');
             $documents = File::files($path);
+
             if (! count($documents)) {
                 $this->throwFailedException("No documents found within $path");
             }
+
             $file = Arr::random($documents, 1)[0];
             $name = $file->getFilename();
         }
@@ -92,11 +92,13 @@ trait FakerFiles
             $file = '/tmp/'.$name;
             file_put_contents($file, Http::timeout(30)->get($url)->body());
         } else {
-            $path = $this->configRepo->get('messenger-faker.paths.audio');
+            $path = config('messenger-faker.paths.audio');
             $audio = File::files($path);
+
             if (! count($audio)) {
                 $this->throwFailedException("No audio found within $path");
             }
+
             $file = Arr::random($audio, 1)[0];
             $name = $file->getFilename();
         }
