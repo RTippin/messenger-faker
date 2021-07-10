@@ -2,6 +2,7 @@
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Total Downloads][ico-downloads]][link-downloads]
+[![Tests][ico-test]][link-test]
 [![StyleCI][ico-styleci]][link-styleci]
 [![License][ico-license]][link-license]
 
@@ -117,6 +118,8 @@ ___
 
 [ico-version]: https://img.shields.io/packagist/v/rtippin/messenger-faker.svg?style=plastic&cacheSeconds=3600
 [ico-downloads]: https://img.shields.io/packagist/dt/rtippin/messenger-faker.svg?style=plastic&cacheSeconds=3600
+[link-test]: https://github.com/RTippin/messenger-faker/actions
+[ico-test]: https://img.shields.io/github/workflow/status/rtippin/messenger-faker/tests?style=plastic
 [ico-styleci]: https://styleci.io/repos/339475680/shield?style=plastic&cacheSeconds=3600
 [ico-license]: https://img.shields.io/github/license/RTippin/messenger-faker?style=plastic
 [link-packagist]: https://packagist.org/packages/rtippin/messenger-faker
