@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Orchestra\Testbench\TestCase;
 use RTippin\Messenger\Actions\BaseMessengerAction;
 use RTippin\Messenger\Contracts\MessengerProvider;
+use RTippin\Messenger\Facades\Messenger;
 use RTippin\Messenger\MessengerServiceProvider;
 use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Messenger as MessengerModel;
@@ -41,7 +42,6 @@ class MessengerFakerTestCase extends TestCase
         $config = $app->get('config');
 
         $config->set('messenger.provider_uuids', false);
-        $config->set('messenger.providers', $this->getBaseProvidersConfig());
         $config->set('messenger.storage.threads.disk', 'messenger');
         $config->set('database.default', 'testbench');
         $config->set('database.connections.testbench', [
@@ -60,6 +60,9 @@ class MessengerFakerTestCase extends TestCase
         $this->artisan('migrate', [
             '--database' => 'testbench',
         ])->run();
+        Messenger::registerProviders([
+            UserModel::class,
+        ]);
         $this->storeBaseUsers();
         Storage::fake('messenger');
         MessengerFaker::testing();
@@ -71,24 +74,6 @@ class MessengerFakerTestCase extends TestCase
         BaseMessengerAction::enableEvents();
 
         parent::tearDown();
-    }
-
-    protected function getBaseProvidersConfig(): array
-    {
-        return [
-            'user' => [
-                'model' => UserModel::class,
-                'searchable' => false,
-                'friendable' => false,
-                'devices' => false,
-                'default_avatar' => '/path/to/user.png',
-                'provider_interactions' => [
-                    'can_message' => true,
-                    'can_search' => true,
-                    'can_friend' => true,
-                ],
-            ],
-        ];
     }
 
     private function storeBaseUsers(): void
