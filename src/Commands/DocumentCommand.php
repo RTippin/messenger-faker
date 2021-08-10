@@ -46,10 +46,10 @@ class DocumentCommand extends BaseFakerCommand
         try {
             for ($x = 1; $x <= $this->option('count'); $x++) {
                 $this->faker->document(
-                    $this->option('count') <= $x, 
+                    $this->option('count') <= $x,
                     $this->option('url')
                 );
-                
+
                 $this->advanceProgressBar();
             }
         } catch (Throwable $e) {
