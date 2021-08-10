@@ -2,13 +2,9 @@
 
 namespace RTippin\MessengerFaker\Commands;
 
-use Exception;
-use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use RTippin\MessengerFaker\MessengerFaker;
 use Throwable;
 
-class ImageCommand extends Command
+class ImageCommand extends BaseFakerCommand
 {
     /**
      * The name and signature of the console command.
@@ -33,54 +29,45 @@ class ImageCommand extends Command
     /**
      * Execute the console command.
      *
-     * @param MessengerFaker $faker
      * @return void
-     * @throws Throwable
      */
-    public function handle(MessengerFaker $faker): void
+    public function handle(): void
     {
-        try {
-            $faker->setThreadWithId($this->argument('thread'), $this->option('admins'))
-                ->setDelay($this->option('delay'));
-        } catch (ModelNotFoundException $e) {
-            $this->error('Thread not found.');
-
+        if (! $this->initiateThread()) {
             return;
         }
 
         if ($this->option('local')) {
             $message = 'a random image from '.config('messenger-faker.paths.images');
         } else {
-            $message = is_null($this->option('url')) ? config('messenger-faker.default_image_url') : $this->option('url');
+            $message = $this->option('url') ?? config('messenger-faker.default_image_url');
         }
+
         $this->line('');
-        $this->info("Found {$faker->getThreadName()}, now messaging images...");
-        $this->info("Using {$message}");
+        $this->info("Found {$this->faker->getThreadName()}, now messaging images...");
+        $this->info("Using $message");
         $this->line('');
-        $bar = $this->output->createProgressBar($this->option('count'));
-        $bar->start();
+
+        $this->startProgressBar();
 
         try {
             for ($x = 1; $x <= $this->option('count'); $x++) {
-                $faker->image(
+                $this->faker->image(
                     $this->option('count') <= $x,
                     $this->option('local'),
                     $this->option('url')
                 );
-                $bar->advance();
+
+                $this->advanceProgressBar();
             }
-        } catch (Exception $e) {
-            $this->line('');
-            $this->line('');
-            $this->error($e->getMessage());
+        } catch (Throwable $e) {
+            $this->exceptionMessageOutput($e);
 
             return;
         }
 
-        $bar->finish();
-        $this->line('');
-        $this->line('');
-        $this->info("Finished sending {$this->option('count')} image messages to {$faker->getThreadName()}!");
-        $this->line('');
+        $this->finishProgressBar();
+
+        $this->outputFinalMessage('image messages', $this->option('count'));
     }
 }

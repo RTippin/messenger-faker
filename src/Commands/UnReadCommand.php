@@ -2,11 +2,9 @@
 
 namespace RTippin\MessengerFaker\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use RTippin\MessengerFaker\MessengerFaker;
+use Throwable;
 
-class UnReadCommand extends Command
+class UnReadCommand extends BaseFakerCommand
 {
     /**
      * The name and signature of the console command.
@@ -27,21 +25,22 @@ class UnReadCommand extends Command
     /**
      * Execute the console command.
      *
-     * @param MessengerFaker $faker
      * @return void
      */
-    public function handle(MessengerFaker $faker): void
+    public function handle(): void
     {
+        if (! $this->initiateThread()) {
+            return;
+        }
+
         try {
-            $faker->setThreadWithId($this->argument('thread'), $this->option('admins'));
-        } catch (ModelNotFoundException $e) {
-            $this->error('Thread not found.');
+            $this->faker->unread();
+        } catch (Throwable $e) {
+            $this->exceptionMessageOutput($e);
 
             return;
         }
 
-        $faker->unread();
-
-        $this->info("Finished marking participants in {$faker->getThreadName()} as unread!");
+        $this->outputFinalMessage('unread');
     }
 }

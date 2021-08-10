@@ -103,10 +103,11 @@ class MessengerFaker
         $this->faker = $faker;
         $this->storeSystem = $storeSystem;
         $this->usedParticipants = new Collection([]);
-        $this->messenger->setKnockKnock(true);
-        $this->messenger->setKnockTimeout(0);
-        $this->messenger->setMessageReactions(true);
-        $this->messenger->setSystemMessages(true);
+        $this->messenger
+            ->setKnockKnock(true)
+            ->setKnockTimeout(0)
+            ->setMessageReactions(true)
+            ->setSystemMessages(true);
     }
 
     /**
@@ -167,10 +168,18 @@ class MessengerFaker
     public function setMessages(int $count = 5): self
     {
         if ($this->thread->messages()->nonSystem()->count() < $count) {
-            $this->throwFailedException("{$this->getThreadName()} does not have $count or more messages to choose from.");
+            $this->throwFailedException(
+                "{$this->getThreadName()} does not have $count or more messages to choose from."
+            );
         }
 
-        $this->messages = $this->thread->messages()->nonSystem()->latest()->with('owner')->limit($count)->get();
+        $this->messages = $this->thread
+            ->messages()
+            ->nonSystem()
+            ->latest()
+            ->with('owner')
+            ->limit($count)
+            ->get();
 
         return $this;
     }

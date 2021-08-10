@@ -2,15 +2,9 @@
 
 namespace RTippin\MessengerFaker\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Psr\SimpleCache\InvalidArgumentException;
-use RTippin\Messenger\Exceptions\FeatureDisabledException;
-use RTippin\Messenger\Exceptions\InvalidProviderException;
-use RTippin\Messenger\Exceptions\KnockException;
-use RTippin\MessengerFaker\MessengerFaker;
+use Throwable;
 
-class KnockCommand extends Command
+class KnockCommand extends BaseFakerCommand
 {
     /**
      * The name and signature of the console command.
@@ -29,24 +23,22 @@ class KnockCommand extends Command
     /**
      * Execute the console command.
      *
-     * @param MessengerFaker $faker
-     * @throws FeatureDisabledException
-     * @throws InvalidArgumentException
-     * @throws InvalidProviderException
-     * @throws KnockException
+     * @return void
      */
-    public function handle(MessengerFaker $faker): void
+    public function handle(): void
     {
+        if (! $this->initiateThread()) {
+            return;
+        }
+
         try {
-            $faker->setThreadWithId($this->argument('thread'));
-        } catch (ModelNotFoundException $e) {
-            $this->error('Thread not found.');
+            $this->faker->knock();
+        } catch (Throwable $e) {
+            $this->exceptionMessageOutput($e);
 
             return;
         }
 
-        $faker->knock();
-
-        $this->info("Finished knocking at {$faker->getThreadName()}!");
+        $this->outputFinalMessage('knocks');
     }
 }
