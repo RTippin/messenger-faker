@@ -383,7 +383,6 @@ class MessengerFakerTest extends MessengerFakerTestCase
         BaseMessengerAction::enableEvents();
         Event::fake([
             NewMessageBroadcast::class,
-            NewMessageEvent::class,
         ]);
         $faker = app(MessengerFaker::class);
         $group = $this->createGroupThread($this->tippin, $this->doe);
@@ -393,7 +392,6 @@ class MessengerFakerTest extends MessengerFakerTestCase
             'type' => $type,
         ]);
         Event::assertDispatched(NewMessageBroadcast::class);
-        Event::assertDispatched(NewMessageEvent::class);
     }
 
     public function systemMessageTypes(): array

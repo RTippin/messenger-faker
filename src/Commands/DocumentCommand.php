@@ -2,13 +2,9 @@
 
 namespace RTippin\MessengerFaker\Commands;
 
-use Exception;
-use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use RTippin\MessengerFaker\MessengerFaker;
 use Throwable;
 
-class DocumentCommand extends Command
+class DocumentCommand extends BaseFakerCommand
 {
     /**
      * The name and signature of the console command.
@@ -32,50 +28,38 @@ class DocumentCommand extends Command
     /**
      * Execute the console command.
      *
-     * @param MessengerFaker $faker
      * @return void
-     * @throws Throwable
      */
-    public function handle(MessengerFaker $faker): void
+    public function handle(): void
     {
-        try {
-            $faker->setThreadWithId($this->argument('thread'), $this->option('admins'))
-                ->setDelay($this->option('delay'));
-        } catch (ModelNotFoundException $e) {
-            $this->error('Thread not found.');
-
+        if (! $this->initiateThread()) {
             return;
         }
 
-        if (! is_null($this->option('url'))) {
-            $message = $this->option('url');
-        } else {
-            $message = 'a random document from '.config('messenger-faker.paths.documents');
-        }
         $this->line('');
-        $this->info("Found {$faker->getThreadName()}, now messaging documents...");
-        $this->info("Using {$message}");
+        $this->info("Found {$this->faker->getThreadName()}, now messaging documents...");
+        $this->info('Using '.($this->option('url') ?? 'a random document from '.config('messenger-faker.paths.documents')));
         $this->line('');
-        $bar = $this->output->createProgressBar($this->option('count'));
-        $bar->start();
+
+        $this->startProgressBar();
 
         try {
             for ($x = 1; $x <= $this->option('count'); $x++) {
-                $faker->document($this->option('count') <= $x, $this->option('url'));
-                $bar->advance();
+                $this->faker->document(
+                    $this->option('count') <= $x,
+                    $this->option('url')
+                );
+
+                $this->advanceProgressBar();
             }
-        } catch (Exception $e) {
-            $this->line('');
-            $this->line('');
-            $this->error($e->getMessage());
+        } catch (Throwable $e) {
+            $this->exceptionMessageOutput($e);
 
             return;
         }
 
-        $bar->finish();
-        $this->line('');
-        $this->line('');
-        $this->info("Finished sending {$this->option('count')} document messages to {$faker->getThreadName()}!");
-        $this->line('');
+        $this->finishProgressBar();
+
+        $this->outputFinalMessage('document messages', $this->option('count'));
     }
 }

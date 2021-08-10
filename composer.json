@@ -18,6 +18,7 @@
     "require": {
         "php": "^7.4||^8.0",
         "fakerphp/faker": "^1.13",
+        "guzzlehttp/guzzle": "^7.3",
         "rtippin/messenger": "~0.43"
     },
     "require-dev": {

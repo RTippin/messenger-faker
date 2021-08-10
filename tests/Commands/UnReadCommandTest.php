@@ -35,7 +35,7 @@ class UnReadCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:unread', [
             'thread' => $group->id,
         ])
-            ->expectsOutput('Finished marking participants in First Test Group as unread!')
+            ->expectsOutput('Finished sending unread to First Test Group!')
             ->assertExitCode(0);
     }
 
@@ -47,7 +47,7 @@ class UnReadCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:unread', [
             'thread' => $private->id,
         ])
-            ->expectsOutput('Finished marking participants in Richard Tippin and John Doe as unread!')
+            ->expectsOutput('Finished sending unread to Richard Tippin and John Doe!')
             ->assertExitCode(0);
     }
 

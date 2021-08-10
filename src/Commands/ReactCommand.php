@@ -2,13 +2,9 @@
 
 namespace RTippin\MessengerFaker\Commands;
 
-use Exception;
-use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use RTippin\MessengerFaker\MessengerFaker;
 use Throwable;
 
-class ReactCommand extends Command
+class ReactCommand extends BaseFakerCommand
 {
     /**
      * The name and signature of the console command.
@@ -32,41 +28,34 @@ class ReactCommand extends Command
     /**
      * Execute the console command.
      *
-     * @param MessengerFaker $faker
      * @return void
-     * @throws Throwable
      */
-    public function handle(MessengerFaker $faker): void
+    public function handle(): void
     {
+        if (! $this->initiateThread($this->option('messages'))) {
+            return;
+        }
+
+        $this->line('');
+        $this->info("Found {$this->faker->getThreadName()}, now adding reactions to the {$this->option('messages')} most recent messages...");
+        $this->line('');
+
+        $this->startProgressBar();
+
         try {
-            $faker->setThreadWithId($this->argument('thread'), $this->option('admins'))
-                ->setMessages($this->option('messages'))
-                ->setDelay($this->option('delay'));
-        } catch (ModelNotFoundException $e) {
-            $this->error('Thread not found.');
+            for ($x = 1; $x <= $this->option('count'); $x++) {
+                $this->faker->reaction($this->option('count') <= $x);
 
-            return;
-        } catch (Exception $e) {
-            $this->error($e->getMessage());
+                $this->advanceProgressBar();
+            }
+        } catch (Throwable $e) {
+            $this->exceptionMessageOutput($e);
 
             return;
         }
 
-        $this->line('');
-        $this->info("Found {$faker->getThreadName()}, now adding reactions to the {$this->option('messages')} most recent messages...");
-        $this->line('');
-        $bar = $this->output->createProgressBar($this->option('count'));
-        $bar->start();
+        $this->finishProgressBar();
 
-        for ($x = 1; $x <= $this->option('count'); $x++) {
-            $faker->reaction($this->option('count') <= $x);
-            $bar->advance();
-        }
-
-        $bar->finish();
-        $this->line('');
-        $this->line('');
-        $this->info("Finished sending {$this->option('count')} reactions to {$faker->getThreadName()}!");
-        $this->line('');
+        $this->outputFinalMessage('reactions', $this->option('count'));
     }
 }

@@ -35,7 +35,7 @@ class KnockCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:knock', [
             'thread' => $group->id,
         ])
-            ->expectsOutput('Finished knocking at First Test Group!')
+            ->expectsOutput('Finished sending knocks to First Test Group!')
             ->assertExitCode(0);
     }
 
@@ -47,7 +47,7 @@ class KnockCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:knock', [
             'thread' => $private->id,
         ])
-            ->expectsOutput('Finished knocking at Richard Tippin and John Doe!')
+            ->expectsOutput('Finished sending knocks to Richard Tippin and John Doe!')
             ->assertExitCode(0);
     }
 
