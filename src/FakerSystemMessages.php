@@ -59,11 +59,11 @@ trait FakerSystemMessages
         }
 
         if ($this->thread->isGroup() && ! in_array($type, $this->getAllowedTypesGroup())) {
-            $this->throwFailedException('Invalid system message type.');
+            throw new Exception('Invalid system message type.');
         }
 
         if ($this->thread->isPrivate() && ! in_array($type, $this->getAllowedTypesPrivate())) {
-            $this->throwFailedException('Invalid system message type for private thread.');
+            throw new Exception('Invalid system message type for private thread.');
         }
 
         return $type;
@@ -73,6 +73,7 @@ trait FakerSystemMessages
      * @param int $type
      * @param Participant $participant
      * @return array
+     * @throws Exception
      */
     private function makeBody(int $type, Participant $participant): array
     {
@@ -92,8 +93,9 @@ trait FakerSystemMessages
             case 101: return $this->makeBotRenamed($participant);
             case 102: return $this->makeBotAvatarChanged($participant);
             case 103: return $this->makeBotRemoved($participant);
-            default: $this->throwFailedException('Invalid system message type for private thread.');
         }
+
+        throw new Exception('Invalid system message type.');
     }
 
     /**
@@ -164,6 +166,7 @@ trait FakerSystemMessages
     /**
      * @param Participant $participant
      * @return array
+     * @throws Exception
      */
     private function makeParticipantDemoted(Participant $participant): array
     {
@@ -173,7 +176,7 @@ trait FakerSystemMessages
             ->take(1);
 
         if (! $demoted->count()) {
-            $this->throwFailedException('No other participants to choose from.');
+            throw new Exception('No other participants to choose from.');
         }
 
         return MessageTransformer::makeParticipantDemoted($this->thread, $participant->owner, $demoted->first());
@@ -182,6 +185,7 @@ trait FakerSystemMessages
     /**
      * @param Participant $participant
      * @return array
+     * @throws Exception
      */
     private function makeParticipantPromoted(Participant $participant): array
     {
@@ -191,7 +195,7 @@ trait FakerSystemMessages
             ->take(1);
 
         if (! $promoted->count()) {
-            $this->throwFailedException('No other participants to choose from.');
+            throw new Exception('No other participants to choose from.');
         }
 
         return MessageTransformer::makeParticipantPromoted($this->thread, $participant->owner, $promoted->first());
@@ -209,6 +213,7 @@ trait FakerSystemMessages
     /**
      * @param Participant $participant
      * @return array
+     * @throws Exception
      */
     private function makeRemovedFromGroup(Participant $participant): array
     {
@@ -218,7 +223,7 @@ trait FakerSystemMessages
             ->take(1);
 
         if (! $removed->count()) {
-            $this->throwFailedException('No other participants to choose from.');
+            throw new Exception('No other participants to choose from.');
         }
 
         return MessageTransformer::makeRemovedFromGroup($this->thread, $participant->owner, $removed->first());
@@ -227,6 +232,7 @@ trait FakerSystemMessages
     /**
      * @param Participant $participant
      * @return array
+     * @throws Exception
      */
     private function makeParticipantsAdded(Participant $participant): array
     {
@@ -236,7 +242,7 @@ trait FakerSystemMessages
             ->take(rand(1, $this->participants->count() - 1));
 
         if (! $added->count()) {
-            $this->throwFailedException('No other participants to choose from.');
+            throw new Exception('No other participants to choose from.');
         }
 
         return MessageTransformer::makeParticipantsAdded($this->thread, $participant->owner, $added);

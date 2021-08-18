@@ -27,7 +27,7 @@ trait FakerFiles
             $images = File::files($path);
 
             if (! count($images)) {
-                $this->throwFailedException("No images found within $path");
+                throw new Exception("No images found within $path");
             }
 
             $file = Arr::random($images, 1)[0];
@@ -66,7 +66,7 @@ trait FakerFiles
             $documents = File::files($path);
 
             if (! count($documents)) {
-                $this->throwFailedException("No documents found within $path");
+                throw new Exception("No documents found within $path");
             }
 
             $file = Arr::random($documents, 1)[0];
@@ -96,7 +96,7 @@ trait FakerFiles
             $audio = File::files($path);
 
             if (! count($audio)) {
-                $this->throwFailedException("No audio found within $path");
+                throw new Exception("No audio found within $path");
             }
 
             $file = Arr::random($audio, 1)[0];

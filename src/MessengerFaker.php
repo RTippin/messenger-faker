@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use RTippin\Messenger\Actions\BaseMessengerAction;
 use RTippin\Messenger\Actions\Messages\StoreSystemMessage;
-use RTippin\Messenger\Contracts\BroadcastDriver;
+use RTippin\Messenger\Brokers\NullBroadcastBroker;
 use RTippin\Messenger\Contracts\MessengerProvider;
 use RTippin\Messenger\Exceptions\FeatureDisabledException;
 use RTippin\Messenger\Exceptions\InvalidProviderException;
@@ -31,16 +31,6 @@ class MessengerFaker
      * @var Messenger
      */
     private Messenger $messenger;
-
-    /**
-     * @var MessengerComposer
-     */
-    private MessengerComposer $composer;
-
-    /**
-     * @var BroadcastDriver
-     */
-    private BroadcastDriver $broadcaster;
 
     /**
      * @var Generator
@@ -86,20 +76,14 @@ class MessengerFaker
      * MessengerFaker constructor.
      *
      * @param Messenger $messenger
-     * @param MessengerComposer $composer
-     * @param BroadcastDriver $broadcaster
      * @param Generator $faker
      * @param StoreSystemMessage $storeSystem
      */
     public function __construct(Messenger $messenger,
-                                MessengerComposer $composer,
-                                BroadcastDriver $broadcaster,
                                 Generator $faker,
                                 StoreSystemMessage $storeSystem)
     {
         $this->messenger = $messenger;
-        $this->composer = $composer;
-        $this->broadcaster = $broadcaster;
         $this->faker = $faker;
         $this->storeSystem = $storeSystem;
         $this->usedParticipants = new Collection([]);
@@ -168,9 +152,7 @@ class MessengerFaker
     public function setMessages(int $count = 5): self
     {
         if ($this->thread->messages()->nonSystem()->count() < $count) {
-            $this->throwFailedException(
-                "{$this->getThreadName()} does not have $count or more messages to choose from."
-            );
+            throw new Exception("{$this->getThreadName()} does not have $count or more messages to choose from.");
         }
 
         $this->messages = $this->thread
@@ -192,6 +174,20 @@ class MessengerFaker
     {
         if (! static::$isTesting) {
             $this->delay = $delay;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param bool $silence
+     * @return $this
+     */
+    public function setSilent(bool $silence = false): self
+    {
+        if ($silence) {
+            BaseMessengerAction::disableEvents();
+            $this->messenger->setBroadcastDriver(NullBroadcastBroker::class);
         }
 
         return $this;
@@ -441,7 +437,7 @@ class MessengerFaker
      */
     private function composer(): MessengerComposer
     {
-        return $this->composer->to($this->thread);
+        return app(MessengerComposer::class)->to($this->thread);
     }
 
     /**
@@ -454,14 +450,5 @@ class MessengerFaker
         } else {
             $this->participants = $this->thread->participants()->with('owner')->get();
         }
-    }
-
-    /**
-     * @param string $message
-     * @throws Exception
-     */
-    private function throwFailedException(string $message): void
-    {
-        throw new Exception($message);
     }
 }

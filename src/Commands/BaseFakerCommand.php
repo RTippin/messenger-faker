@@ -99,11 +99,8 @@ abstract class BaseFakerCommand extends Command
                     $this->argument('thread') ?: null,
                     $this->option('admins')
                 )
-                ->setDelay(
-                    $this->hasOption('delay')
-                        ? $this->option('delay')
-                        : 0
-                );
+                ->setDelay($this->option('delay'))
+                ->setSilent($this->option('silent'));
 
             if (! is_null($loadMessageCount)) {
                 $this->faker->setMessages($loadMessageCount);
