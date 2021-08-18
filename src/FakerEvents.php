@@ -19,6 +19,7 @@ trait FakerEvents
 {
     /**
      * Messages started.
+     *
      * @throws Throwable
      */
     private function startMessage(): void
@@ -47,5 +48,7 @@ trait FakerEvents
             ->unique('owner_id')
             ->uniqueStrict(fn (Participant $participant) => $participant->owner_type.$participant->owner_id)
             ->each(fn (Participant $participant) => $this->read($participant));
+
+        $this->usedParticipants = new Collection;
     }
 }

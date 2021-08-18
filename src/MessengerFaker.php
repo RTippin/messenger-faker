@@ -92,7 +92,7 @@ class MessengerFaker
         $this->messenger = $messenger;
         $this->faker = $faker;
         $this->storeSystem = $storeSystem;
-        $this->usedParticipants = new Collection([]);
+        $this->usedParticipants = new Collection;
         $this->messenger
             ->setKnockKnock(true)
             ->setKnockTimeout(0)
