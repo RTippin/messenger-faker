@@ -35,8 +35,7 @@ class DocumentCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:document', [
             'thread' => $group->id,
         ])
-            ->expectsOutput('Found First Test Group, now messaging documents...')
-            ->expectsOutput('Using a random document from '.config('messenger-faker.paths.documents'))
+            ->expectsOutput('Found First Test Group, now messaging documents using a random document from '.config('messenger-faker.paths.documents'))
             ->expectsOutput('Finished sending 1 document messages to First Test Group!')
             ->assertExitCode(0);
     }
@@ -49,8 +48,7 @@ class DocumentCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:document', [
             'thread' => $private->id,
         ])
-            ->expectsOutput('Found Richard Tippin and John Doe, now messaging documents...')
-            ->expectsOutput('Using a random document from '.config('messenger-faker.paths.documents'))
+            ->expectsOutput('Found Richard Tippin and John Doe, now messaging documents using a random document from '.config('messenger-faker.paths.documents'))
             ->expectsOutput('Finished sending 1 document messages to Richard Tippin and John Doe!')
             ->assertExitCode(0);
     }
@@ -72,8 +70,7 @@ class DocumentCommandTest extends MessengerFakerTestCase
             'thread' => $group->id,
             '--count' => 2,
         ])
-            ->expectsOutput('Found First Test Group, now messaging documents...')
-            ->expectsOutput('Using a random document from '.config('messenger-faker.paths.documents'))
+            ->expectsOutput('Found First Test Group, now messaging documents using a random document from '.config('messenger-faker.paths.documents'))
             ->expectsOutput('Finished sending 2 document messages to First Test Group!')
             ->assertExitCode(0);
     }
@@ -87,8 +84,7 @@ class DocumentCommandTest extends MessengerFakerTestCase
             'thread' => $group->id,
             '--count' => 0,
         ])
-            ->expectsOutput('Found First Test Group, now messaging documents...')
-            ->expectsOutput('Using a random document from '.config('messenger-faker.paths.documents'))
+            ->expectsOutput('Found First Test Group, now messaging documents using a random document from '.config('messenger-faker.paths.documents'))
             ->expectsOutput('Finished sending 0 document messages to First Test Group!')
             ->assertExitCode(0);
     }
@@ -102,8 +98,7 @@ class DocumentCommandTest extends MessengerFakerTestCase
             'thread' => $group->id,
             '--url' => 'https://example.org/test.pdf',
         ])
-            ->expectsOutput('Found First Test Group, now messaging documents...')
-            ->expectsOutput('Using https://example.org/test.pdf')
+            ->expectsOutput('Found First Test Group, now messaging documents using https://example.org/test.pdf')
             ->expectsOutput('Finished sending 1 document messages to First Test Group!')
             ->assertExitCode(0);
     }

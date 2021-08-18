@@ -2,21 +2,17 @@
 
 namespace RTippin\MessengerFaker\Commands;
 
+use Symfony\Component\Console\Input\InputOption;
 use Throwable;
 
 class AudioCommand extends BaseFakerCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'messenger:faker:audio 
-                                            {thread? : ID of the thread you want to seed. Random if not set}
-                                            {--count=1 : Number of audio messages to send}
-                                            {--delay=3 : Delay between each audio message being sent}
-                                            {--admins : Only use admins to send audio messages if group thread}
-                                            {--url= : Set the path/URL we grab a audio from. Default uses local storage}';
+    protected $name = 'messenger:faker:audio';
 
     /**
      * The console command description.
@@ -32,14 +28,11 @@ class AudioCommand extends BaseFakerCommand
      */
     public function handle(): void
     {
-        if (! $this->initiateThread()) {
+        if (! $this->setupFaker()) {
             return;
         }
 
-        $this->line('');
-        $this->info("Found {$this->faker->getThreadName()}, now messaging audio...");
-        $this->info('Using '.($this->option('url') ?? 'a random audio file from '.config('messenger-faker.paths.audio')));
-        $this->line('');
+        $this->outputThreadMessage('now messaging audio using '.($this->option('url') ?: 'a random audio file from '.config('messenger-faker.paths.audio')));
 
         $this->startProgressBar();
 
@@ -53,13 +46,26 @@ class AudioCommand extends BaseFakerCommand
                 $this->advanceProgressBar();
             }
         } catch (Throwable $e) {
-            $this->exceptionMessageOutput($e);
+            $this->outputExceptionMessage($e);
 
             return;
         }
 
         $this->finishProgressBar();
 
-        $this->outputFinalMessage('audio messages', $this->option('count'));
+        $this->outputFinalMessage('audio messages');
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions(): array
+    {
+        return array_merge(parent::getOptions(), [
+            ['count', null, InputOption::VALUE_REQUIRED, 'Number of audio messages to send', 1],
+            ['url', null, InputOption::VALUE_OPTIONAL, 'Set the path/URL we grab a audio from. Default uses local storage'],
+        ]);
     }
 }

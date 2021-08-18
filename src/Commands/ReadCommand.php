@@ -7,13 +7,11 @@ use Throwable;
 class ReadCommand extends BaseFakerCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'messenger:faker:read 
-                                            {thread? : ID of the thread you want to seed. Random if not set}
-                                            {--admins : Only mark admins read if group thread}';
+    protected $name = 'messenger:faker:read';
 
     /**
      * The console command description.
@@ -29,14 +27,16 @@ class ReadCommand extends BaseFakerCommand
      */
     public function handle(): void
     {
-        if (! $this->initiateThread()) {
+        if (! $this->setupFaker()) {
             return;
         }
+
+        $this->outputThreadMessage('now marking participants as read');
 
         try {
             $this->faker->read();
         } catch (Throwable $e) {
-            $this->exceptionMessageOutput($e);
+            $this->outputExceptionMessage($e);
 
             return;
         }

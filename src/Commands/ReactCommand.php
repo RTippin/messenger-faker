@@ -2,21 +2,24 @@
 
 namespace RTippin\MessengerFaker\Commands;
 
+use Symfony\Component\Console\Input\InputOption;
 use Throwable;
 
 class ReactCommand extends BaseFakerCommand
 {
     /**
-     * The name and signature of the console command.
+     * The default delay option value.
+     *
+     * @var int
+     */
+    protected int $delay = 1;
+
+    /**
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'messenger:faker:react 
-                                            {thread? : ID of the thread you want to seed. Random if not set}
-                                            {--count=5 : Number of reactions to add}
-                                            {--messages=5 : Number of latest messages to choose from}
-                                            {--delay=1 : Delay between each reaction}
-                                            {--admins : Only use admins to send audio messages if group thread}';
+    protected $name = 'messenger:faker:react';
 
     /**
      * The console command description.
@@ -32,13 +35,11 @@ class ReactCommand extends BaseFakerCommand
      */
     public function handle(): void
     {
-        if (! $this->initiateThread($this->option('messages'))) {
+        if (! $this->setupFaker($this->option('messages'))) {
             return;
         }
 
-        $this->line('');
-        $this->info("Found {$this->faker->getThreadName()}, now adding reactions to the {$this->option('messages')} most recent messages...");
-        $this->line('');
+        $this->outputThreadMessage("now adding reactions to the {$this->option('messages')} most recent messages...");
 
         $this->startProgressBar();
 
@@ -49,13 +50,26 @@ class ReactCommand extends BaseFakerCommand
                 $this->advanceProgressBar();
             }
         } catch (Throwable $e) {
-            $this->exceptionMessageOutput($e);
+            $this->outputExceptionMessage($e);
 
             return;
         }
 
         $this->finishProgressBar();
 
-        $this->outputFinalMessage('reactions', $this->option('count'));
+        $this->outputFinalMessage('reactions');
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions(): array
+    {
+        return array_merge(parent::getOptions(), [
+            ['count', null, InputOption::VALUE_REQUIRED, 'Number of reactions to send', 5],
+            ['messages', null, InputOption::VALUE_REQUIRED, 'Number of latest messages to choose from for reacting', 5],
+        ]);
     }
 }

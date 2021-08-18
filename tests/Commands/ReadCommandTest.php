@@ -35,6 +35,7 @@ class ReadCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:read', [
             'thread' => $group->id,
         ])
+            ->expectsOutput('Found First Test Group, now marking participants as read')
             ->expectsOutput('Finished sending mark participants read to First Test Group!')
             ->assertExitCode(0);
     }
@@ -47,6 +48,7 @@ class ReadCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:read', [
             'thread' => $private->id,
         ])
+            ->expectsOutput('Found Richard Tippin and John Doe, now marking participants as read')
             ->expectsOutput('Finished sending mark participants read to Richard Tippin and John Doe!')
             ->assertExitCode(0);
     }

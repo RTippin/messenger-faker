@@ -2,22 +2,17 @@
 
 namespace RTippin\MessengerFaker\Commands;
 
+use Symfony\Component\Console\Input\InputOption;
 use Throwable;
 
 class ImageCommand extends BaseFakerCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'messenger:faker:image 
-                                            {thread? : ID of the thread you want to seed. Random if not set}
-                                            {--count=1 : Number of image messages to send}
-                                            {--delay=3 : Delay between each image message being sent}
-                                            {--admins : Only use admins to send image messages if group thread}
-                                            {--local : Pick a random image stored locally under storage/faker/images/}
-                                            {--url= : Set the path/URL we grab an image from. Default uses unsplash}';
+    protected $name = 'messenger:faker:image';
 
     /**
      * The console command description.
@@ -33,20 +28,17 @@ class ImageCommand extends BaseFakerCommand
      */
     public function handle(): void
     {
-        if (! $this->initiateThread()) {
+        if (! $this->setupFaker()) {
             return;
         }
 
+        $message = $this->option('url') ?: config('messenger-faker.default_image_url');
+
         if ($this->option('local')) {
             $message = 'a random image from '.config('messenger-faker.paths.images');
-        } else {
-            $message = $this->option('url') ?? config('messenger-faker.default_image_url');
         }
 
-        $this->line('');
-        $this->info("Found {$this->faker->getThreadName()}, now messaging images...");
-        $this->info("Using $message");
-        $this->line('');
+        $this->outputThreadMessage("now messaging images using $message");
 
         $this->startProgressBar();
 
@@ -61,13 +53,27 @@ class ImageCommand extends BaseFakerCommand
                 $this->advanceProgressBar();
             }
         } catch (Throwable $e) {
-            $this->exceptionMessageOutput($e);
+            $this->outputExceptionMessage($e);
 
             return;
         }
 
         $this->finishProgressBar();
 
-        $this->outputFinalMessage('image messages', $this->option('count'));
+        $this->outputFinalMessage('image messages');
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions(): array
+    {
+        return array_merge(parent::getOptions(), [
+            ['count', null, InputOption::VALUE_REQUIRED, 'Number of image messages to send', 1],
+            ['local', null, InputOption::VALUE_NONE, 'Pick a random image stored locally under storage/faker/images/'],
+            ['url', null, InputOption::VALUE_OPTIONAL, 'Set the path/URL we grab an image from. Default uses unsplash'],
+        ]);
     }
 }
