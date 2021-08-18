@@ -22,6 +22,13 @@ class DocumentCommand extends BaseFakerCommand
     protected $description = 'Make participants send document messages. Will also emit typing and mark read.';
 
     /**
+     * The default count option value for iterations.
+     *
+     * @var int
+     */
+    protected int $count = 1;
+
+    /**
      * Execute the console command.
      *
      * @return void
@@ -64,7 +71,6 @@ class DocumentCommand extends BaseFakerCommand
     protected function getOptions(): array
     {
         return array_merge(parent::getOptions(), [
-            ['count', null, InputOption::VALUE_REQUIRED, 'Number of document messages to send', 1],
             ['url', null, InputOption::VALUE_OPTIONAL, 'Set the path/URL we grab a document from. Default uses local storage'],
         ]);
     }

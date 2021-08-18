@@ -20,6 +20,20 @@ abstract class BaseFakerCommand extends Command
     protected int $delay = 3;
 
     /**
+     * Whether the command has a count / iterates.
+     *
+     * @var bool
+     */
+    protected bool $hasCount = true;
+
+    /**
+     * The default count option value for iterations.
+     *
+     * @var int
+     */
+    protected int $count = 5;
+
+    /**
      * @var MessengerFaker
      */
     protected MessengerFaker $faker;
@@ -58,11 +72,17 @@ abstract class BaseFakerCommand extends Command
      */
     protected function getOptions(): array
     {
-        return [
+        $options = [
             ['admins', null, InputOption::VALUE_NONE, 'Only use admins from the given thread, if any'],
             ['delay', null, InputOption::VALUE_REQUIRED, 'Delay between each iteration', $this->delay],
             ['silent', null, InputOption::VALUE_NONE, 'Silences all broadcast and events'],
         ];
+
+        if ($this->hasCount) {
+            $options[] = ['count', null, InputOption::VALUE_REQUIRED, 'Number of iterations we will run', $this->count];
+        }
+
+        return $options;
     }
 
     /**

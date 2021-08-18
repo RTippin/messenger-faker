@@ -21,6 +21,13 @@ class UnReadCommand extends BaseFakerCommand
     protected $description = 'Mark participants as unread.';
 
     /**
+     * Whether the command has a count / iterates.
+     *
+     * @var bool
+     */
+    protected bool $hasCount = false;
+
+    /**
      * Execute the console command.
      *
      * @return void

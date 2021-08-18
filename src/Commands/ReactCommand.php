@@ -8,13 +8,6 @@ use Throwable;
 class ReactCommand extends BaseFakerCommand
 {
     /**
-     * The default delay option value.
-     *
-     * @var int
-     */
-    protected int $delay = 1;
-
-    /**
      * The console command name.
      *
      * @var string
@@ -27,6 +20,13 @@ class ReactCommand extends BaseFakerCommand
      * @var string
      */
     protected $description = 'Make participants add reactions to the latest messages selected.';
+
+    /**
+     * The default delay option value.
+     *
+     * @var int
+     */
+    protected int $delay = 1;
 
     /**
      * Execute the console command.
@@ -68,7 +68,6 @@ class ReactCommand extends BaseFakerCommand
     protected function getOptions(): array
     {
         return array_merge(parent::getOptions(), [
-            ['count', null, InputOption::VALUE_REQUIRED, 'Number of reactions to send', 5],
             ['messages', null, InputOption::VALUE_REQUIRED, 'Number of latest messages to choose from for reacting', 5],
         ]);
     }

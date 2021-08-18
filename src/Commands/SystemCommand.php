@@ -22,6 +22,13 @@ class SystemCommand extends BaseFakerCommand
     protected $description = 'Make participants send system messages.';
 
     /**
+     * The default count option value for iterations.
+     *
+     * @var int
+     */
+    protected int $count = 1;
+
+    /**
      * Execute the console command.
      *
      * @return void
@@ -65,7 +72,6 @@ class SystemCommand extends BaseFakerCommand
     {
         return array_merge(parent::getOptions(), [
             ['type', null, InputOption::VALUE_OPTIONAL, 'Specify system message (INT) type. Random will be chosen if not specified'],
-            ['count', null, InputOption::VALUE_REQUIRED, 'Number of system messages to send', 1],
         ]);
     }
 }

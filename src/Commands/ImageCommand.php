@@ -22,6 +22,13 @@ class ImageCommand extends BaseFakerCommand
     protected $description = 'Make participants send image messages. Will also emit typing and mark read.';
 
     /**
+     * The default count option value for iterations.
+     *
+     * @var int
+     */
+    protected int $count = 1;
+
+    /**
      * Execute the console command.
      *
      * @return void
@@ -71,7 +78,6 @@ class ImageCommand extends BaseFakerCommand
     protected function getOptions(): array
     {
         return array_merge(parent::getOptions(), [
-            ['count', null, InputOption::VALUE_REQUIRED, 'Number of image messages to send', 1],
             ['local', null, InputOption::VALUE_NONE, 'Pick a random image stored locally under storage/faker/images/'],
             ['url', null, InputOption::VALUE_OPTIONAL, 'Set the path/URL we grab an image from. Default uses unsplash'],
         ]);

@@ -2,7 +2,6 @@
 
 namespace RTippin\MessengerFaker\Commands;
 
-use Symfony\Component\Console\Input\InputOption;
 use Throwable;
 
 class MessageCommand extends BaseFakerCommand
@@ -51,17 +50,5 @@ class MessageCommand extends BaseFakerCommand
         $this->finishProgressBar();
 
         $this->outputFinalMessage('messages');
-    }
-
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
-    protected function getOptions(): array
-    {
-        return array_merge(parent::getOptions(), [
-            ['count', null, InputOption::VALUE_REQUIRED, 'Number of messages to send', 5],
-        ]);
     }
 }

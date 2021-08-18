@@ -21,6 +21,13 @@ class KnockCommand extends BaseFakerCommand
     protected $description = 'Send a knock to the given thread.';
 
     /**
+     * Whether the command has a count / iterates.
+     *
+     * @var bool
+     */
+    protected bool $hasCount = false;
+
+    /**
      * Execute the console command.
      *
      * @return void

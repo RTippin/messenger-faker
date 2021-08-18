@@ -21,6 +21,13 @@ class TypingCommand extends BaseFakerCommand
     protected $description = 'Make participants type.';
 
     /**
+     * Whether the command has a count / iterates.
+     *
+     * @var bool
+     */
+    protected bool $hasCount = false;
+
+    /**
      * Execute the console command.
      *
      * @return void
