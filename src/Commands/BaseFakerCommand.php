@@ -134,16 +134,10 @@ abstract class BaseFakerCommand extends Command
     {
         $this->bar = $this->output->createProgressBar($this->option('count'));
 
+        $this->faker->setProgressBar($this->bar);
+
         $this->newLine();
         $this->bar->start();
-    }
-
-    /**
-     * Advance the progress bar.
-     */
-    protected function advanceProgressBar(): void
-    {
-        $this->bar->advance();
     }
 
     /**
@@ -151,6 +145,8 @@ abstract class BaseFakerCommand extends Command
      */
     protected function finishProgressBar(): void
     {
+        $this->faker->setProgressBar(null);
+
         $this->bar->finish();
         $this->newLine(2);
     }

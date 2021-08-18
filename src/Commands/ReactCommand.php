@@ -46,8 +46,6 @@ class ReactCommand extends BaseFakerCommand
         try {
             for ($x = 1; $x <= $this->option('count'); $x++) {
                 $this->faker->reaction($this->option('count') <= $x);
-
-                $this->advanceProgressBar();
             }
         } catch (Throwable $e) {
             $this->outputExceptionMessage($e);

@@ -49,8 +49,6 @@ class DocumentCommand extends BaseFakerCommand
                     $this->option('count') <= $x,
                     $this->option('url')
                 );
-
-                $this->advanceProgressBar();
             }
         } catch (Throwable $e) {
             $this->outputExceptionMessage($e);

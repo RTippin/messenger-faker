@@ -19,6 +19,7 @@ use RTippin\Messenger\Messenger;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
 use RTippin\Messenger\Support\MessengerComposer;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Throwable;
 
 class MessengerFaker
@@ -61,6 +62,11 @@ class MessengerFaker
      * @var Collection
      */
     private Collection $usedParticipants;
+
+    /**
+     * @var ProgressBar|null
+     */
+    private ?ProgressBar $bar = null;
 
     /**
      * @var int
@@ -189,6 +195,17 @@ class MessengerFaker
             BaseMessengerAction::disableEvents();
             $this->messenger->setBroadcastDriver(NullBroadcastBroker::class);
         }
+
+        return $this;
+    }
+
+    /**
+     * @param ProgressBar|null $bar
+     * @return $this
+     */
+    public function setProgressBar(?ProgressBar $bar): self
+    {
+        $this->bar = $bar;
 
         return $this;
     }
@@ -402,9 +419,7 @@ class MessengerFaker
     {
         $this->storeSystem->execute(...$this->generateSystemMessage($type));
 
-        if (! $isFinal) {
-            sleep($this->delay);
-        }
+        $this->sleepAndAdvance($isFinal);
 
         return $this;
     }
@@ -424,11 +439,23 @@ class MessengerFaker
             // continue as it may pick duplicate random emoji
         }
 
+        $this->sleepAndAdvance($isFinal);
+
+        return $this;
+    }
+
+    /**
+     * @param bool $isFinal
+     */
+    private function sleepAndAdvance(bool $isFinal): void
+    {
+        if (! is_null($this->bar)) {
+            $this->bar->advance();
+        }
+
         if (! $isFinal) {
             sleep($this->delay);
         }
-
-        return $this;
     }
 
     /**
@@ -447,8 +474,10 @@ class MessengerFaker
     {
         if ($useAdmins && $this->thread->isGroup()) {
             $this->participants = $this->thread->participants()->admins()->with('owner')->get();
-        } else {
-            $this->participants = $this->thread->participants()->with('owner')->get();
+
+            return;
         }
+
+        $this->participants = $this->thread->participants()->with('owner')->get();
     }
 }

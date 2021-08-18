@@ -56,8 +56,6 @@ class ImageCommand extends BaseFakerCommand
                     $this->option('local'),
                     $this->option('url')
                 );
-
-                $this->advanceProgressBar();
             }
         } catch (Throwable $e) {
             $this->outputExceptionMessage($e);

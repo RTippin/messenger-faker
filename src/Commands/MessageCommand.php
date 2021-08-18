@@ -38,8 +38,6 @@ class MessageCommand extends BaseFakerCommand
         try {
             for ($x = 1; $x <= $this->option('count'); $x++) {
                 $this->faker->message($this->option('count') <= $x);
-
-                $this->advanceProgressBar();
             }
         } catch (Throwable $e) {
             $this->outputExceptionMessage($e);

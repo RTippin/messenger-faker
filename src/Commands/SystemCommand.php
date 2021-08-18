@@ -49,8 +49,6 @@ class SystemCommand extends BaseFakerCommand
                     $this->option('type'),
                     $this->option('count') <= $x
                 );
-
-                $this->advanceProgressBar();
             }
         } catch (Throwable $e) {
             $this->outputExceptionMessage($e);
