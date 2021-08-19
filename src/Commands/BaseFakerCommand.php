@@ -17,7 +17,7 @@ abstract class BaseFakerCommand extends Command
      *
      * @var int
      */
-    protected int $delay = 3;
+    protected int $delay = 2;
 
     /**
      * Whether the command has a count / iterates.

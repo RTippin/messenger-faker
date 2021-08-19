@@ -9,6 +9,7 @@ use RTippin\MessengerFaker\Commands\DocumentCommand;
 use RTippin\MessengerFaker\Commands\ImageCommand;
 use RTippin\MessengerFaker\Commands\KnockCommand;
 use RTippin\MessengerFaker\Commands\MessageCommand;
+use RTippin\MessengerFaker\Commands\RandomCommand;
 use RTippin\MessengerFaker\Commands\ReactCommand;
 use RTippin\MessengerFaker\Commands\ReadCommand;
 use RTippin\MessengerFaker\Commands\SystemCommand;
@@ -47,6 +48,7 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
                 ImageCommand::class,
                 KnockCommand::class,
                 MessageCommand::class,
+                RandomCommand::class,
                 ReactCommand::class,
                 ReadCommand::class,
                 SystemCommand::class,
@@ -70,6 +72,7 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
             KnockCommand::class,
             MessageCommand::class,
             MessengerFaker::class,
+            RandomCommand::class,
             ReactCommand::class,
             ReadCommand::class,
             SystemCommand::class,
