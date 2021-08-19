@@ -35,8 +35,7 @@ class AudioCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:audio', [
             'thread' => $group->id,
         ])
-            ->expectsOutput('Found First Test Group, now messaging audio...')
-            ->expectsOutput('Using a random audio file from '.config('messenger-faker.paths.audio'))
+            ->expectsOutput('Found First Test Group, now messaging audio using a random audio file from '.config('messenger-faker.paths.audio'))
             ->expectsOutput('Finished sending 1 audio messages to First Test Group!')
             ->assertExitCode(0);
     }
@@ -49,8 +48,7 @@ class AudioCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:audio', [
             'thread' => $private->id,
         ])
-            ->expectsOutput('Found Richard Tippin and John Doe, now messaging audio...')
-            ->expectsOutput('Using a random audio file from '.config('messenger-faker.paths.audio'))
+            ->expectsOutput('Found Richard Tippin and John Doe, now messaging audio using a random audio file from '.config('messenger-faker.paths.audio'))
             ->expectsOutput('Finished sending 1 audio messages to Richard Tippin and John Doe!')
             ->assertExitCode(0);
     }
@@ -72,8 +70,7 @@ class AudioCommandTest extends MessengerFakerTestCase
             'thread' => $group->id,
             '--count' => 2,
         ])
-            ->expectsOutput('Found First Test Group, now messaging audio...')
-            ->expectsOutput('Using a random audio file from '.config('messenger-faker.paths.audio'))
+            ->expectsOutput('Found First Test Group, now messaging audio using a random audio file from '.config('messenger-faker.paths.audio'))
             ->expectsOutput('Finished sending 2 audio messages to First Test Group!')
             ->assertExitCode(0);
     }
@@ -87,8 +84,7 @@ class AudioCommandTest extends MessengerFakerTestCase
             'thread' => $group->id,
             '--count' => 0,
         ])
-            ->expectsOutput('Found First Test Group, now messaging audio...')
-            ->expectsOutput('Using a random audio file from '.config('messenger-faker.paths.audio'))
+            ->expectsOutput('Found First Test Group, now messaging audio using a random audio file from '.config('messenger-faker.paths.audio'))
             ->expectsOutput('Finished sending 0 audio messages to First Test Group!')
             ->assertExitCode(0);
     }
@@ -102,8 +98,7 @@ class AudioCommandTest extends MessengerFakerTestCase
             'thread' => $group->id,
             '--url' => 'https://example.org/test.mp3',
         ])
-            ->expectsOutput('Found First Test Group, now messaging audio...')
-            ->expectsOutput('Using https://example.org/test.mp3')
+            ->expectsOutput('Found First Test Group, now messaging audio using https://example.org/test.mp3')
             ->expectsOutput('Finished sending 1 audio messages to First Test Group!')
             ->assertExitCode(0);
     }

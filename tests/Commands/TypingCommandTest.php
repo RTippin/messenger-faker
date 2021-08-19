@@ -35,6 +35,7 @@ class TypingCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:typing', [
             'thread' => $group->id,
         ])
+            ->expectsOutput('Found First Test Group, now making participants type...')
             ->expectsOutput('Finished sending typing to First Test Group!')
             ->assertExitCode(0);
     }
@@ -47,6 +48,7 @@ class TypingCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:typing', [
             'thread' => $private->id,
         ])
+            ->expectsOutput('Found Richard Tippin and John Doe, now making participants type...')
             ->expectsOutput('Finished sending typing to Richard Tippin and John Doe!')
             ->assertExitCode(0);
     }

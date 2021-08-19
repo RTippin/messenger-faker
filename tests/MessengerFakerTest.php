@@ -15,6 +15,8 @@ use RTippin\Messenger\Broadcasting\ClientEvents\Typing;
 use RTippin\Messenger\Broadcasting\KnockBroadcast;
 use RTippin\Messenger\Broadcasting\NewMessageBroadcast;
 use RTippin\Messenger\Broadcasting\ReactionAddedBroadcast;
+use RTippin\Messenger\Brokers\NullBroadcastBroker;
+use RTippin\Messenger\Contracts\BroadcastDriver;
 use RTippin\Messenger\Events\KnockEvent;
 use RTippin\Messenger\Events\NewMessageEvent;
 use RTippin\Messenger\Events\ReactionAddedEvent;
@@ -98,6 +100,15 @@ class MessengerFakerTest extends MessengerFakerTestCase
         $faker->setThread($thread);
 
         $this->assertSame($thread, $faker->getThread());
+    }
+
+    /** @test */
+    public function it_silences_events_and_swaps_to_null_broadcaster()
+    {
+        $faker = app(MessengerFaker::class);
+        $faker->setSilent(true);
+
+        $this->assertInstanceOf(NullBroadcastBroker::class, app(BroadcastDriver::class));
     }
 
     /** @test */

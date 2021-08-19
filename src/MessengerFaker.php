@@ -6,10 +6,11 @@ use Exception;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use RTippin\Messenger\Actions\BaseMessengerAction;
 use RTippin\Messenger\Actions\Messages\StoreSystemMessage;
-use RTippin\Messenger\Contracts\BroadcastDriver;
+use RTippin\Messenger\Brokers\NullBroadcastBroker;
 use RTippin\Messenger\Contracts\MessengerProvider;
 use RTippin\Messenger\Exceptions\FeatureDisabledException;
 use RTippin\Messenger\Exceptions\InvalidProviderException;
@@ -19,6 +20,8 @@ use RTippin\Messenger\Messenger;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
 use RTippin\Messenger\Support\MessengerComposer;
+use RTippin\MessengerFaker\Commands\RandomCommand;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Throwable;
 
 class MessengerFaker
@@ -31,16 +34,6 @@ class MessengerFaker
      * @var Messenger
      */
     private Messenger $messenger;
-
-    /**
-     * @var MessengerComposer
-     */
-    private MessengerComposer $composer;
-
-    /**
-     * @var BroadcastDriver
-     */
-    private BroadcastDriver $broadcaster;
 
     /**
      * @var Generator
@@ -73,9 +66,19 @@ class MessengerFaker
     private Collection $usedParticipants;
 
     /**
+     * @var ProgressBar|null
+     */
+    private ?ProgressBar $bar = null;
+
+    /**
      * @var int
      */
     private int $delay = 0;
+
+    /**
+     * @var bool
+     */
+    private bool $suppressSleepAndAdvance = false;
 
     /**
      * @var bool
@@ -86,23 +89,17 @@ class MessengerFaker
      * MessengerFaker constructor.
      *
      * @param Messenger $messenger
-     * @param MessengerComposer $composer
-     * @param BroadcastDriver $broadcaster
      * @param Generator $faker
      * @param StoreSystemMessage $storeSystem
      */
     public function __construct(Messenger $messenger,
-                                MessengerComposer $composer,
-                                BroadcastDriver $broadcaster,
                                 Generator $faker,
                                 StoreSystemMessage $storeSystem)
     {
         $this->messenger = $messenger;
-        $this->composer = $composer;
-        $this->broadcaster = $broadcaster;
         $this->faker = $faker;
         $this->storeSystem = $storeSystem;
-        $this->usedParticipants = new Collection([]);
+        $this->usedParticipants = new Collection;
         $this->messenger
             ->setKnockKnock(true)
             ->setKnockTimeout(0)
@@ -168,9 +165,7 @@ class MessengerFaker
     public function setMessages(int $count = 5): self
     {
         if ($this->thread->messages()->nonSystem()->count() < $count) {
-            $this->throwFailedException(
-                "{$this->getThreadName()} does not have $count or more messages to choose from."
-            );
+            throw new Exception("{$this->getThreadName()} does not have $count or more messages to choose from.");
         }
 
         $this->messages = $this->thread
@@ -193,6 +188,31 @@ class MessengerFaker
         if (! static::$isTesting) {
             $this->delay = $delay;
         }
+
+        return $this;
+    }
+
+    /**
+     * @param bool $silence
+     * @return $this
+     */
+    public function setSilent(bool $silence = false): self
+    {
+        if ($silence) {
+            BaseMessengerAction::disableEvents();
+            $this->messenger->setBroadcastDriver(NullBroadcastBroker::class);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ProgressBar|null $bar
+     * @return $this
+     */
+    public function setProgressBar(?ProgressBar $bar): self
+    {
+        $this->bar = $bar;
 
         return $this;
     }
@@ -406,9 +426,7 @@ class MessengerFaker
     {
         $this->storeSystem->execute(...$this->generateSystemMessage($type));
 
-        if (! $isFinal) {
-            sleep($this->delay);
-        }
+        $this->sleepAndAdvance($isFinal);
 
         return $this;
     }
@@ -428,11 +446,71 @@ class MessengerFaker
             // continue as it may pick duplicate random emoji
         }
 
+        $this->sleepAndAdvance($isFinal);
+
+        return $this;
+    }
+
+    /**
+     * @param bool $isFinal
+     * @param bool $disableFiles
+     * @param RandomCommand|null $command
+     * @return $this
+     */
+    public function random(bool $isFinal = false,
+                           bool $disableFiles = false,
+                           ?RandomCommand $command = null): self
+    {
+        $this->suppressSleepAndAdvance = true;
+        $actions = ['knock', 'message', 'reaction', 'system', 'typing'];
+        $files = ['audio', 'document', 'image'];
+
+        if (! $disableFiles) {
+            $actions = array_merge($actions, $files);
+        }
+
+        try {
+            $action = Arr::random($actions, 1)[0];
+
+            if ($action === 'reaction') {
+                $this->setMessages();
+            }
+
+            $this->$action();
+
+            $this->endMessage($isFinal);
+
+            if (! is_null($command)) {
+                $command->info("Used { $action } action");
+            }
+        } catch (Throwable $e) {
+            // Continue on
+        }
+
+        $this->sleepAndAdvance($isFinal, true);
+
+        return $this;
+    }
+
+    /**
+     * @param bool $isFinal
+     * @param bool $force
+     */
+    private function sleepAndAdvance(bool $isFinal, bool $force = false): void
+    {
+        if ($this->suppressSleepAndAdvance && ! $force) {
+            return;
+        }
+
+        $this->suppressSleepAndAdvance = false;
+
+        if (! is_null($this->bar)) {
+            $this->bar->advance();
+        }
+
         if (! $isFinal) {
             sleep($this->delay);
         }
-
-        return $this;
     }
 
     /**
@@ -441,7 +519,7 @@ class MessengerFaker
      */
     private function composer(): MessengerComposer
     {
-        return $this->composer->to($this->thread);
+        return app(MessengerComposer::class)->to($this->thread);
     }
 
     /**
@@ -451,17 +529,10 @@ class MessengerFaker
     {
         if ($useAdmins && $this->thread->isGroup()) {
             $this->participants = $this->thread->participants()->admins()->with('owner')->get();
-        } else {
-            $this->participants = $this->thread->participants()->with('owner')->get();
-        }
-    }
 
-    /**
-     * @param string $message
-     * @throws Exception
-     */
-    private function throwFailedException(string $message): void
-    {
-        throw new Exception($message);
+            return;
+        }
+
+        $this->participants = $this->thread->participants()->with('owner')->get();
     }
 }

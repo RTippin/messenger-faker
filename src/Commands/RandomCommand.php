@@ -5,28 +5,21 @@ namespace RTippin\MessengerFaker\Commands;
 use Symfony\Component\Console\Input\InputOption;
 use Throwable;
 
-class ReactCommand extends BaseFakerCommand
+class RandomCommand extends BaseFakerCommand
 {
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $name = 'messenger:faker:react';
+    protected $name = 'messenger:faker:random';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Make participants add reactions to the latest messages selected.';
-
-    /**
-     * The default delay option value.
-     *
-     * @var int
-     */
-    protected int $delay = 1;
+    protected $description = 'Random';
 
     /**
      * Execute the console command.
@@ -35,17 +28,20 @@ class ReactCommand extends BaseFakerCommand
      */
     public function handle(): void
     {
-        if (! $this->setupFaker($this->option('messages'))) {
+        if (! $this->setupFaker()) {
             return;
         }
 
-        $this->outputThreadMessage("now adding reactions to the {$this->option('messages')} most recent messages...");
-
-        $this->startProgressBar();
+        $this->outputThreadMessage('now sending random actions'.($this->option('no-files') ? ' without files...' : '...'));
+        $this->newLine();
 
         try {
             for ($x = 1; $x <= $this->option('count'); $x++) {
-                $this->faker->reaction($this->option('count') <= $x);
+                $this->faker->random(
+                    $this->option('count') <= $x,
+                    $this->option('no-files'),
+                    $this
+                );
             }
         } catch (Throwable $e) {
             $this->outputExceptionMessage($e);
@@ -53,9 +49,8 @@ class ReactCommand extends BaseFakerCommand
             return;
         }
 
-        $this->finishProgressBar();
-
-        $this->outputFinalMessage('reactions');
+        $this->newLine();
+        $this->outputFinalMessage('random actions');
     }
 
     /**
@@ -66,7 +61,7 @@ class ReactCommand extends BaseFakerCommand
     protected function getOptions(): array
     {
         return array_merge(parent::getOptions(), [
-            ['messages', null, InputOption::VALUE_REQUIRED, 'Number of latest messages to choose from for reacting', 5],
+            ['no-files', null, InputOption::VALUE_NONE, 'Disables using images, documents, and audio files'],
         ]);
     }
 }

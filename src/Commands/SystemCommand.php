@@ -2,21 +2,17 @@
 
 namespace RTippin\MessengerFaker\Commands;
 
+use Symfony\Component\Console\Input\InputOption;
 use Throwable;
 
 class SystemCommand extends BaseFakerCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'messenger:faker:system 
-                                            {thread? : ID of the thread you want to seed. Random if not set}
-                                            {--type= : Specify system message (INT) type. Random will be chosen if not specified}
-                                            {--count=1 : Number of system messages to send}
-                                            {--delay=3 : Delay between each system message being sent}
-                                            {--admins : Only use admins to send system messages if group thread}';
+    protected $name = 'messenger:faker:system';
 
     /**
      * The console command description.
@@ -26,19 +22,24 @@ class SystemCommand extends BaseFakerCommand
     protected $description = 'Make participants send system messages.';
 
     /**
+     * The default count option value for iterations.
+     *
+     * @var int
+     */
+    protected int $count = 1;
+
+    /**
      * Execute the console command.
      *
      * @return void
      */
     public function handle(): void
     {
-        if (! $this->initiateThread()) {
+        if (! $this->setupFaker()) {
             return;
         }
 
-        $this->line('');
-        $this->info("Found {$this->faker->getThreadName()}, now sending system messages...");
-        $this->line('');
+        $this->outputThreadMessage('now sending system messages...');
 
         $this->startProgressBar();
 
@@ -48,17 +49,27 @@ class SystemCommand extends BaseFakerCommand
                     $this->option('type'),
                     $this->option('count') <= $x
                 );
-
-                $this->advanceProgressBar();
             }
         } catch (Throwable $e) {
-            $this->exceptionMessageOutput($e);
+            $this->outputExceptionMessage($e);
 
             return;
         }
 
         $this->finishProgressBar();
 
-        $this->outputFinalMessage('system messages', $this->option('count'));
+        $this->outputFinalMessage('system messages');
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions(): array
+    {
+        return array_merge(parent::getOptions(), [
+            ['type', null, InputOption::VALUE_OPTIONAL, 'Specify system message (INT) type. Random will be chosen if not specified'],
+        ]);
     }
 }

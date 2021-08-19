@@ -7,13 +7,11 @@ use Throwable;
 class UnReadCommand extends BaseFakerCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'messenger:faker:unread 
-                                            {thread? : ID of the thread you want to seed. Random if not set}
-                                            {--admins : Only mark admins unread if group thread}';
+    protected $name = 'messenger:faker:unread';
 
     /**
      * The console command description.
@@ -23,20 +21,29 @@ class UnReadCommand extends BaseFakerCommand
     protected $description = 'Mark participants as unread.';
 
     /**
+     * Whether the command has a count / iterates.
+     *
+     * @var bool
+     */
+    protected bool $hasCount = false;
+
+    /**
      * Execute the console command.
      *
      * @return void
      */
     public function handle(): void
     {
-        if (! $this->initiateThread()) {
+        if (! $this->setupFaker()) {
             return;
         }
+
+        $this->outputThreadMessage('now marking participants as unread...');
 
         try {
             $this->faker->unread();
         } catch (Throwable $e) {
-            $this->exceptionMessageOutput($e);
+            $this->outputExceptionMessage($e);
 
             return;
         }

@@ -35,8 +35,7 @@ class ImageCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:image', [
             'thread' => $group->id,
         ])
-            ->expectsOutput('Found First Test Group, now messaging images...')
-            ->expectsOutput('Using '.config('messenger-faker.default_image_url'))
+            ->expectsOutput('Found First Test Group, now messaging images using '.config('messenger-faker.default_image_url'))
             ->expectsOutput('Finished sending 1 image messages to First Test Group!')
             ->assertExitCode(0);
     }
@@ -49,8 +48,7 @@ class ImageCommandTest extends MessengerFakerTestCase
         $this->artisan('messenger:faker:image', [
             'thread' => $private->id,
         ])
-            ->expectsOutput('Found Richard Tippin and John Doe, now messaging images...')
-            ->expectsOutput('Using '.config('messenger-faker.default_image_url'))
+            ->expectsOutput('Found Richard Tippin and John Doe, now messaging images using '.config('messenger-faker.default_image_url'))
             ->expectsOutput('Finished sending 1 image messages to Richard Tippin and John Doe!')
             ->assertExitCode(0);
     }
@@ -72,8 +70,7 @@ class ImageCommandTest extends MessengerFakerTestCase
             'thread' => $group->id,
             '--count' => 2,
         ])
-            ->expectsOutput('Found First Test Group, now messaging images...')
-            ->expectsOutput('Using '.config('messenger-faker.default_image_url'))
+            ->expectsOutput('Found First Test Group, now messaging images using '.config('messenger-faker.default_image_url'))
             ->expectsOutput('Finished sending 2 image messages to First Test Group!')
             ->assertExitCode(0);
     }
@@ -87,8 +84,7 @@ class ImageCommandTest extends MessengerFakerTestCase
             'thread' => $group->id,
             '--count' => 0,
         ])
-            ->expectsOutput('Found First Test Group, now messaging images...')
-            ->expectsOutput('Using '.config('messenger-faker.default_image_url'))
+            ->expectsOutput('Found First Test Group, now messaging images using '.config('messenger-faker.default_image_url'))
             ->expectsOutput('Finished sending 0 image messages to First Test Group!')
             ->assertExitCode(0);
     }
@@ -102,8 +98,7 @@ class ImageCommandTest extends MessengerFakerTestCase
             'thread' => $group->id,
             '--url' => 'https://example.org/test.png',
         ])
-            ->expectsOutput('Found First Test Group, now messaging images...')
-            ->expectsOutput('Using https://example.org/test.png')
+            ->expectsOutput('Found First Test Group, now messaging images using https://example.org/test.png')
             ->expectsOutput('Finished sending 1 image messages to First Test Group!')
             ->assertExitCode(0);
     }
@@ -117,8 +112,7 @@ class ImageCommandTest extends MessengerFakerTestCase
             'thread' => $group->id,
             '--local' => true,
         ])
-            ->expectsOutput('Found First Test Group, now messaging images...')
-            ->expectsOutput('Using a random image from '.config('messenger-faker.paths.images'))
+            ->expectsOutput('Found First Test Group, now messaging images using a random image from '.config('messenger-faker.paths.images'))
             ->expectsOutput('Finished sending 1 image messages to First Test Group!')
             ->assertExitCode(0);
     }

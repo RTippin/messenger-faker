@@ -7,11 +7,11 @@ use Throwable;
 class KnockCommand extends BaseFakerCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'messenger:faker:knock {thread? : ID of the thread you want to seed. Random if not set}';
+    protected $name = 'messenger:faker:knock';
 
     /**
      * The console command description.
@@ -21,20 +21,29 @@ class KnockCommand extends BaseFakerCommand
     protected $description = 'Send a knock to the given thread.';
 
     /**
+     * Whether the command has a count / iterates.
+     *
+     * @var bool
+     */
+    protected bool $hasCount = false;
+
+    /**
      * Execute the console command.
      *
      * @return void
      */
     public function handle(): void
     {
-        if (! $this->initiateThread()) {
+        if (! $this->setupFaker()) {
             return;
         }
+
+        $this->outputThreadMessage('now knocking...');
 
         try {
             $this->faker->knock();
         } catch (Throwable $e) {
-            $this->exceptionMessageOutput($e);
+            $this->outputExceptionMessage($e);
 
             return;
         }
