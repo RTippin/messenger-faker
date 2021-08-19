@@ -74,7 +74,7 @@ ___
 
 ---
 
-###`php artisan messenger:faker:react {thread?}` | `--count=5` | `--messages=5` | `--delay=1` | `--admins` | `--silent`
+### `php artisan messenger:faker:react {thread?}` | `--count=5` | `--messages=5` | `--delay=1` | `--admins` | `--silent`
 - Make participants add reactions to the latest messages.
 - `{thread?}` ID of the thread you want to seed. Random if not set.
 - `--count=X` flag to set how many reactions are added.
@@ -85,7 +85,7 @@ ___
 
 ---
 
-###`php artisan messenger:faker:system {thread?}` | `--type=` | `--count=1` | `--delay=2` | `--admins` | `--silent`
+### `php artisan messenger:faker:system {thread?}` | `--type=` | `--count=1` | `--delay=2` | `--admins` | `--silent`
 - Make participants send system messages.
 - `{thread?}` ID of the thread you want to seed. Random if not set.
 - `--count=X` flag to set how many system messages are sent.
