@@ -8,6 +8,8 @@
 
 ---
 
+![Preview](https://i.imgur.com/NTjc1Pm.png)
+
 ## This package is an addon for [rtippin/messenger][link-messenger]
 
 ### It is NOT advised to install this in a production app.
