@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Support\Arr;
 use RTippin\Messenger\Models\Call;
 use RTippin\Messenger\Models\CallParticipant;
+use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
 use RTippin\Messenger\Support\MessageTransformer;
@@ -22,7 +23,10 @@ trait FakerSystemMessages
      */
     private function getAllowedTypesPrivate(): array
     {
-        return [90, 92];
+        return [
+            Message::VIDEO_CALL,
+            Message::THREAD_ARCHIVED,
+        ];
     }
 
     /**
@@ -30,7 +34,23 @@ trait FakerSystemMessages
      */
     private function getAllowedTypesGroup(): array
     {
-        return [88, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103];
+        return [
+            Message::PARTICIPANT_JOINED_WITH_INVITE,
+            Message::VIDEO_CALL,
+            Message::GROUP_AVATAR_CHANGED,
+            Message::THREAD_ARCHIVED,
+            Message::GROUP_CREATED,
+            Message::GROUP_RENAMED,
+            Message::DEMOTED_ADMIN,
+            Message::PROMOTED_ADMIN,
+            Message::PARTICIPANT_LEFT_GROUP,
+            Message::PARTICIPANT_REMOVED,
+            Message::PARTICIPANTS_ADDED,
+            Message::BOT_ADDED,
+            Message::BOT_RENAMED,
+            Message::BOT_AVATAR_CHANGED,
+            Message::BOT_REMOVED,
+        ];
     }
 
     /**
@@ -78,21 +98,21 @@ trait FakerSystemMessages
     private function makeBody(int $type, Participant $participant): array
     {
         switch ($type) {
-            case 88: return $this->makeJoinedWithInvite($participant);
-            case 90: return $this->makeVideoCall($participant);
-            case 91: return $this->makeGroupAvatarChanged($participant);
-            case 92: return $this->makeThreadArchived($participant);
-            case 93: return $this->makeGroupCreated($participant);
-            case 94: return $this->makeGroupRenamed($participant);
-            case 95: return $this->makeParticipantDemoted($participant);
-            case 96: return $this->makeParticipantPromoted($participant);
-            case 97: return $this->makeGroupLeft($participant);
-            case 98: return $this->makeRemovedFromGroup($participant);
-            case 99: return $this->makeParticipantsAdded($participant);
-            case 100: return $this->makeBotAdded($participant);
-            case 101: return $this->makeBotRenamed($participant);
-            case 102: return $this->makeBotAvatarChanged($participant);
-            case 103: return $this->makeBotRemoved($participant);
+            case Message::PARTICIPANT_JOINED_WITH_INVITE: return $this->makeJoinedWithInvite($participant);
+            case Message::VIDEO_CALL: return $this->makeVideoCall($participant);
+            case Message::GROUP_AVATAR_CHANGED: return $this->makeGroupAvatarChanged($participant);
+            case Message::THREAD_ARCHIVED: return $this->makeThreadArchived($participant);
+            case Message::GROUP_CREATED: return $this->makeGroupCreated($participant);
+            case Message::GROUP_RENAMED: return $this->makeGroupRenamed($participant);
+            case Message::DEMOTED_ADMIN: return $this->makeParticipantDemoted($participant);
+            case Message::PROMOTED_ADMIN: return $this->makeParticipantPromoted($participant);
+            case Message::PARTICIPANT_LEFT_GROUP: return $this->makeGroupLeft($participant);
+            case Message::PARTICIPANT_REMOVED: return $this->makeRemovedFromGroup($participant);
+            case Message::PARTICIPANTS_ADDED: return $this->makeParticipantsAdded($participant);
+            case Message::BOT_ADDED: return $this->makeBotAdded($participant);
+            case Message::BOT_RENAMED: return $this->makeBotRenamed($participant);
+            case Message::BOT_AVATAR_CHANGED: return $this->makeBotAvatarChanged($participant);
+            case Message::BOT_REMOVED: return $this->makeBotRemoved($participant);
         }
 
         throw new Exception('Invalid system message type.');
