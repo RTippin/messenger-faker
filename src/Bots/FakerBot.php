@@ -51,11 +51,13 @@ class FakerBot extends BotActionHandler
         if (! is_null($options[0])) {
             $this->composer()->emitTyping()->message("Faker initiating. Sending $options[1] $options[0] actions with a $options[2] second delay.");
 
-            sleep(1);
+            if (! self::isTesting()) {
+                sleep(3);
 
-            $this->handleCommand($options[0], $options[1], $options[2]);
+                $this->handleCommand($options[0], $options[1], $options[2]);
 
-            sleep(1);
+                sleep(1);
+            }
 
             $this->composer()->emitTyping()->message('Faker actions completed!');
 
