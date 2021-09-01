@@ -57,7 +57,7 @@ class FakerBot extends BotActionHandler
 
             sleep(1);
 
-            $this->composer()->emitTyping()->message("Faker actions completed!");
+            $this->composer()->emitTyping()->message('Faker actions completed!');
 
             return;
         }
