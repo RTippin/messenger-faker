@@ -74,12 +74,12 @@ abstract class BaseFakerCommand extends Command
     {
         $options = [
             ['admins', null, InputOption::VALUE_NONE, 'Only use admins from the given thread, if any'],
-            ['delay', null, InputOption::VALUE_REQUIRED, 'Delay between each iteration', $this->delay],
             ['silent', null, InputOption::VALUE_NONE, 'Silences all broadcast and events'],
         ];
 
         if ($this->hasCount) {
             $options[] = ['count', null, InputOption::VALUE_REQUIRED, 'Number of iterations we will run', $this->count];
+            $options[] = ['delay', null, InputOption::VALUE_REQUIRED, 'Delay between each iteration', $this->delay];
         }
 
         return $options;
@@ -99,7 +99,11 @@ abstract class BaseFakerCommand extends Command
                     $this->argument('thread') ?: null,
                     $this->option('admins')
                 )
-                ->setDelay($this->option('delay'))
+                ->setDelay(
+                    $this->hasOption('delay')
+                        ? $this->option('delay')
+                        : 0
+                )
                 ->setSilent($this->option('silent'));
 
             if (! is_null($loadMessageCount)) {

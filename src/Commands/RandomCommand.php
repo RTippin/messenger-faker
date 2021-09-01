@@ -8,17 +8,17 @@ use Throwable;
 class RandomCommand extends BaseFakerCommand
 {
     /**
-     * Faker commands we allow.
+     * Faker commands we allow and if they have counts.
      */
     const FakerCommands = [
-        'audio',
-        'document',
-        'image',
-        'knock',
-        'message',
-        'react',
-        'system',
-        'typing',
+        'audio' => true,
+        'document' => true,
+        'image' => true,
+        'knock' => false,
+        'message' => true,
+        'react' => true,
+        'system' => true,
+        'typing' => false,
     ];
 
     /**
@@ -33,7 +33,7 @@ class RandomCommand extends BaseFakerCommand
      *
      * @var string
      */
-    protected $description = 'Send random actions, cycling through our existing commands.';
+    protected $description = 'Send random actions, cycling through our existing commands and using their default counts.';
 
     /**
      * Execute the console command.
@@ -53,12 +53,9 @@ class RandomCommand extends BaseFakerCommand
 
         try {
             for ($x = 1; $x <= $this->option('count'); $x++) {
-                $this->callSilent('messenger:faker:'.Arr::random(self::FakerCommands, 1)[0], [
-                    'thread' => $this->faker->getThread()->id,
-                    '--admins' => $this->option('admins'),
-                    '--delay' => $this->option('delay'),
-                    '--silent' => $this->option('silent'),
-                ]);
+                $command = $this->getRandomCommand();
+
+                $this->callSilent('messenger:faker:'.$command, $this->getCommandOptions($command));
 
                 $this->bar->advance();
             }
@@ -71,5 +68,34 @@ class RandomCommand extends BaseFakerCommand
         $this->finishProgressBar(false);
 
         $this->outputFinalMessage('random actions');
+    }
+
+    /**
+     * @return string
+     */
+    private function getRandomCommand(): string
+    {
+        return array_key_first(
+            Arr::random(self::FakerCommands, 1, true)
+        );
+    }
+
+    /**
+     * @param string $command
+     * @return array
+     */
+    private function getCommandOptions(string $command): array
+    {
+        $options = [
+            'thread' => $this->faker->getThread()->id,
+            '--admins' => $this->option('admins'),
+            '--silent' => $this->option('silent'),
+        ];
+
+        if (self::FakerCommands[$command] === true) {
+            $options['--delay'] = $this->option('delay');
+        }
+
+        return $options;
     }
 }

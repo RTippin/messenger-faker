@@ -3,6 +3,8 @@
 namespace RTippin\MessengerFaker;
 
 use Illuminate\Support\ServiceProvider;
+use RTippin\Messenger\Facades\MessengerBots;
+use RTippin\MessengerFaker\Bots\FakerBot;
 use RTippin\MessengerFaker\Commands\AudioCommand;
 use RTippin\MessengerFaker\Commands\DocumentCommand;
 use RTippin\MessengerFaker\Commands\ImageCommand;
@@ -36,6 +38,10 @@ class MessengerFakerServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        MessengerBots::registerHandlers([
+            FakerBot::class,
+        ]);
+
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__.'/../config/messenger-faker.php' => config_path('messenger-faker.php'),
