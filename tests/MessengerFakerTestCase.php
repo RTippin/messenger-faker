@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Orchestra\Testbench\TestCase;
 use RTippin\Messenger\Actions\BaseMessengerAction;
+use RTippin\Messenger\Actions\Bots\BotActionHandler;
 use RTippin\Messenger\Contracts\MessengerProvider;
 use RTippin\Messenger\Facades\Messenger;
 use RTippin\Messenger\MessengerServiceProvider;
@@ -42,6 +43,7 @@ class MessengerFakerTestCase extends TestCase
         $config = $app->get('config');
 
         $config->set('messenger.provider_uuids', false);
+        $config->set('messenger.bots.enabled', true);
         $config->set('messenger.storage.threads.disk', 'messenger');
         $config->set('database.default', 'testbench');
         $config->set('database.connections.testbench', [
@@ -66,6 +68,7 @@ class MessengerFakerTestCase extends TestCase
         $this->storeBaseUsers();
         Storage::fake('messenger');
         MessengerFaker::testing();
+        BotActionHandler::isTesting(true);
     }
 
     protected function tearDown(): void

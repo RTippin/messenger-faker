@@ -41,7 +41,7 @@ abstract class BaseFakerCommand extends Command
     /**
      * @var ProgressBar
      */
-    private ProgressBar $bar;
+    protected ProgressBar $bar;
 
     /**
      * @param MessengerFaker $faker
@@ -74,12 +74,12 @@ abstract class BaseFakerCommand extends Command
     {
         $options = [
             ['admins', null, InputOption::VALUE_NONE, 'Only use admins from the given thread, if any'],
-            ['delay', null, InputOption::VALUE_REQUIRED, 'Delay between each iteration', $this->delay],
             ['silent', null, InputOption::VALUE_NONE, 'Silences all broadcast and events'],
         ];
 
         if ($this->hasCount) {
             $options[] = ['count', null, InputOption::VALUE_REQUIRED, 'Number of iterations we will run', $this->count];
+            $options[] = ['delay', null, InputOption::VALUE_REQUIRED, 'Delay between each iteration', $this->delay];
         }
 
         return $options;
@@ -99,7 +99,11 @@ abstract class BaseFakerCommand extends Command
                     $this->argument('thread') ?: null,
                     $this->option('admins')
                 )
-                ->setDelay($this->option('delay'))
+                ->setDelay(
+                    $this->hasOption('delay')
+                        ? $this->option('delay')
+                        : 0
+                )
                 ->setSilent($this->option('silent'));
 
             if (! is_null($loadMessageCount)) {
@@ -129,12 +133,16 @@ abstract class BaseFakerCommand extends Command
 
     /**
      * Start the progress bar for this command.
+     *
+     * @param bool $useFaker
      */
-    protected function startProgressBar(): void
+    protected function startProgressBar(bool $useFaker = true): void
     {
         $this->bar = $this->output->createProgressBar($this->option('count'));
 
-        $this->faker->setProgressBar($this->bar);
+        if ($useFaker) {
+            $this->faker->setProgressBar($this->bar);
+        }
 
         $this->newLine();
         $this->bar->start();
@@ -142,10 +150,14 @@ abstract class BaseFakerCommand extends Command
 
     /**
      * Finish the progress bar.
+     *
+     * @param bool $useFaker
      */
-    protected function finishProgressBar(): void
+    protected function finishProgressBar(bool $useFaker = true): void
     {
-        $this->faker->setProgressBar(null);
+        if ($useFaker) {
+            $this->faker->setProgressBar(null);
+        }
 
         $this->bar->finish();
         $this->newLine(2);

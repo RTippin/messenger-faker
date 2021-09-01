@@ -408,21 +408,21 @@ class MessengerFakerTest extends MessengerFakerTestCase
     public function systemMessageTypes(): array
     {
         return [
-            'PARTICIPANT_JOINED_WITH_INVITE' => [88],
-            'VIDEO_CALL' => [90],
-            'GROUP_AVATAR_CHANGED' => [91],
-            'THREAD_ARCHIVED' => [92],
-            'GROUP_CREATED' => [93],
-            'GROUP_RENAMED' => [94],
-            'DEMOTED_ADMIN' => [95],
-            'PROMOTED_ADMIN' => [96],
-            'PARTICIPANT_LEFT_GROUP' => [97],
-            'PARTICIPANT_REMOVED' => [98],
-            'PARTICIPANTS_ADDED' => [99],
-            'BOT_ADDED' => [100],
-            'BOT_RENAMED' => [101],
-            'BOT_AVATAR_CHANGED' => [102],
-            'BOT_REMOVED' => [103],
+            'PARTICIPANT_JOINED_WITH_INVITE' => [Message::PARTICIPANT_JOINED_WITH_INVITE],
+            'VIDEO_CALL' => [Message::VIDEO_CALL],
+            'GROUP_AVATAR_CHANGED' => [Message::GROUP_AVATAR_CHANGED],
+            'THREAD_ARCHIVED' => [Message::THREAD_ARCHIVED],
+            'GROUP_CREATED' => [Message::GROUP_CREATED],
+            'GROUP_RENAMED' => [Message::GROUP_RENAMED],
+            'DEMOTED_ADMIN' => [Message::DEMOTED_ADMIN],
+            'PROMOTED_ADMIN' => [Message::PROMOTED_ADMIN],
+            'PARTICIPANT_LEFT_GROUP' => [Message::PARTICIPANT_LEFT_GROUP],
+            'PARTICIPANT_REMOVED' => [Message::PARTICIPANT_REMOVED],
+            'PARTICIPANTS_ADDED' => [Message::PARTICIPANTS_ADDED],
+            'BOT_ADDED' => [Message::BOT_ADDED],
+            'BOT_RENAMED' => [Message::BOT_RENAMED],
+            'BOT_AVATAR_CHANGED' => [Message::BOT_AVATAR_CHANGED],
+            'BOT_REMOVED' => [Message::BOT_REMOVED],
         ];
     }
 }

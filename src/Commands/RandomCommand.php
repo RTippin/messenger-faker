@@ -2,11 +2,25 @@
 
 namespace RTippin\MessengerFaker\Commands;
 
-use Symfony\Component\Console\Input\InputOption;
+use Illuminate\Support\Arr;
 use Throwable;
 
 class RandomCommand extends BaseFakerCommand
 {
+    /**
+     * Faker commands we allow and if they have counts.
+     */
+    const FakerCommands = [
+        'audio' => true,
+        'document' => true,
+        'image' => true,
+        'knock' => false,
+        'message' => true,
+        'react' => true,
+        'system' => true,
+        'typing' => false,
+    ];
+
     /**
      * The console command name.
      *
@@ -19,7 +33,7 @@ class RandomCommand extends BaseFakerCommand
      *
      * @var string
      */
-    protected $description = 'Random';
+    protected $description = 'Send random actions, cycling through our existing commands and using their default counts.';
 
     /**
      * Execute the console command.
@@ -32,16 +46,18 @@ class RandomCommand extends BaseFakerCommand
             return;
         }
 
-        $this->outputThreadMessage('now sending random actions'.($this->option('no-files') ? ' without files...' : '...'));
+        $this->outputThreadMessage('now sending random actions...');
         $this->newLine();
+
+        $this->startProgressBar(false);
 
         try {
             for ($x = 1; $x <= $this->option('count'); $x++) {
-                $this->faker->random(
-                    $this->option('count') <= $x,
-                    $this->option('no-files'),
-                    $this
-                );
+                $command = $this->getRandomCommand();
+
+                $this->callSilent('messenger:faker:'.$command, $this->getCommandOptions($command));
+
+                $this->bar->advance();
             }
         } catch (Throwable $e) {
             $this->outputExceptionMessage($e);
@@ -49,19 +65,37 @@ class RandomCommand extends BaseFakerCommand
             return;
         }
 
-        $this->newLine();
+        $this->finishProgressBar(false);
+
         $this->outputFinalMessage('random actions');
     }
 
     /**
-     * Get the console command options.
-     *
+     * @return string
+     */
+    private function getRandomCommand(): string
+    {
+        return array_key_first(
+            Arr::random(self::FakerCommands, 1, true)
+        );
+    }
+
+    /**
+     * @param string $command
      * @return array
      */
-    protected function getOptions(): array
+    private function getCommandOptions(string $command): array
     {
-        return array_merge(parent::getOptions(), [
-            ['no-files', null, InputOption::VALUE_NONE, 'Disables using images, documents, and audio files'],
-        ]);
+        $options = [
+            'thread' => $this->faker->getThread()->id,
+            '--admins' => $this->option('admins'),
+            '--silent' => $this->option('silent'),
+        ];
+
+        if (self::FakerCommands[$command] === true) {
+            $options['--delay'] = $this->option('delay');
+        }
+
+        return $options;
     }
 }

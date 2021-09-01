@@ -41,7 +41,7 @@ class RandomCommandTest extends MessengerFakerTestCase
     }
 
     /** @test */
-    public function it_sends_default_of_5_reactions_to_5_messages_in_private()
+    public function it_sends_default_of_5_reactions_to_private()
     {
         $private = $this->createPrivateThread($this->tippin, $this->doe);
         Message::factory()->for($private)->owner($this->tippin)->count(5)->create();
@@ -91,20 +91,6 @@ class RandomCommandTest extends MessengerFakerTestCase
         ])
             ->expectsOutput('Found First Test Group, now sending random actions...')
             ->expectsOutput('Finished sending 0 random actions to First Test Group!')
-            ->assertExitCode(0);
-    }
-
-    /** @test */
-    public function it_accepts_no_files_flag()
-    {
-        $group = $this->createGroupThread($this->tippin, $this->doe);
-
-        $this->artisan('messenger:faker:random', [
-            'thread' => $group->id,
-            '--no-files' => true,
-        ])
-            ->expectsOutput('Found First Test Group, now sending random actions without files...')
-            ->expectsOutput('Finished sending 5 random actions to First Test Group!')
             ->assertExitCode(0);
     }
 }

@@ -16,10 +16,10 @@
 
 ### Features:
 - Commands to mock realtime events such as knocks, typing, and marking read.
-- Command to seed realtime messages with typing included.
+- Command to seed realtime messages with typing.
 - Commands to seed attachment messages (images, documents, audio).
-- Command to seed system messages.
-- Command to seed message reactions.
+- Commands to seed system messages and message reactions.
+- `FakerBot` pre-registered with `Messenger` that allows you to trigger our commands through chat-bots.
 
 ---
 
@@ -38,7 +38,9 @@ $ composer require rtippin/messenger-faker --dev
 - Default values for local storage location of the files we use when seeding.
   - When seeding using local files, a random file from the message types specified folder will be used.
   - When seeding image files with no url/local flag specified, it will use the default image url from the config.
+- Flag to enable or disable registering our `FakerBot`.
 
+***Defaults***
 ```php
 'paths' => [
     'images' => storage_path('faker/images'),
@@ -47,6 +49,8 @@ $ composer require rtippin/messenger-faker --dev
 ],
 
 'default_image_url' => 'https://source.unsplash.com/random',
+
+'enable_bot' => true,
 ```
 
 ### To override the file paths, please publish our config and edit accordingly
@@ -132,12 +136,11 @@ ___
 
 ---
 
-### `php artisan messenger:faker:random {thread?}` | `--count=5` | `--delay=2` | `--no-files` | `--admins` | `--silent`
-- Send random commands using `['knock', 'message', 'reaction', 'system', 'typing', 'audio', 'document', 'image']`
+### `php artisan messenger:faker:random {thread?}` | `--count=5` | `--delay=2` | `--admins` | `--silent`
+- Send random commands using `['audio', 'document', 'image', 'knock', 'message', 'react', 'system', 'typing']`
 - `{thread?}` ID of the thread you want to seed. Random if not set.
 - `--count=X` flag to set how many messages are sent.
 - `--delay=X` flag to set delay in seconds between each message.
-- `--no-files` flag to disable selecting from the `['audio', 'document', 'image']` commands.
 - `--admins` flag will only use admin participants if using a group thread.
 - `--silent` flag that will suppress all broadcast and event dispatches.
 
@@ -163,6 +166,18 @@ ___
 - `--admins` flag will only use admin participants if using a group thread.
 
 ---
+
+# FakerBot
+
+---
+
+- Our service provider will have already registered `FakerBot` for you if enabled in our config.
+- You should ensure your main `messenger.php` config has the bots feature enabled.
+- When you use the messenger API to add handlers onto a bot, you will see our bot listed.
+- Once our `FakerBot` is attached to a thread's bot, you can trigger it by sending a message using the following syntax:
+  - `!faker {action} {count?} {delay?}`
+- Available actions: `audio`, `document`, `image`, `knock`, `message`, `random`, `react`, `system`, `typing`
+
 
 [ico-version]: https://img.shields.io/packagist/v/rtippin/messenger-faker.svg?style=plastic&cacheSeconds=3600
 [ico-downloads]: https://img.shields.io/packagist/dt/rtippin/messenger-faker.svg?style=plastic&cacheSeconds=3600

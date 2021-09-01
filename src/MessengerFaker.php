@@ -6,7 +6,6 @@ use Exception;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Collection as DBCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use RTippin\Messenger\Actions\BaseMessengerAction;
 use RTippin\Messenger\Actions\Messages\StoreSystemMessage;
@@ -20,7 +19,6 @@ use RTippin\Messenger\Messenger;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
 use RTippin\Messenger\Support\MessengerComposer;
-use RTippin\MessengerFaker\Commands\RandomCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Throwable;
 
@@ -74,11 +72,6 @@ class MessengerFaker
      * @var int
      */
     private int $delay = 0;
-
-    /**
-     * @var bool
-     */
-    private bool $suppressSleepAndAdvance = false;
 
     /**
      * @var bool
@@ -453,57 +446,9 @@ class MessengerFaker
 
     /**
      * @param bool $isFinal
-     * @param bool $disableFiles
-     * @param RandomCommand|null $command
-     * @return $this
      */
-    public function random(bool $isFinal = false,
-                           bool $disableFiles = false,
-                           ?RandomCommand $command = null): self
+    private function sleepAndAdvance(bool $isFinal): void
     {
-        $this->suppressSleepAndAdvance = true;
-        $actions = ['knock', 'message', 'reaction', 'system', 'typing'];
-        $files = ['audio', 'document', 'image'];
-
-        if (! $disableFiles) {
-            $actions = array_merge($actions, $files);
-        }
-
-        try {
-            $action = Arr::random($actions, 1)[0];
-
-            if ($action === 'reaction') {
-                $this->setMessages();
-            }
-
-            $this->$action();
-
-            $this->endMessage($isFinal);
-
-            if (! is_null($command)) {
-                $command->info("Used { $action } action");
-            }
-        } catch (Throwable $e) {
-            // Continue on
-        }
-
-        $this->sleepAndAdvance($isFinal, true);
-
-        return $this;
-    }
-
-    /**
-     * @param bool $isFinal
-     * @param bool $force
-     */
-    private function sleepAndAdvance(bool $isFinal, bool $force = false): void
-    {
-        if ($this->suppressSleepAndAdvance && ! $force) {
-            return;
-        }
-
-        $this->suppressSleepAndAdvance = false;
-
         if (! is_null($this->bar)) {
             $this->bar->advance();
         }

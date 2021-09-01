@@ -2,8 +2,9 @@
 
 namespace RTippin\MessengerFaker;
 
-use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
+use RTippin\Messenger\Facades\MessengerBots;
+use RTippin\MessengerFaker\Bots\FakerBot;
 use RTippin\MessengerFaker\Commands\AudioCommand;
 use RTippin\MessengerFaker\Commands\DocumentCommand;
 use RTippin\MessengerFaker\Commands\ImageCommand;
@@ -16,7 +17,7 @@ use RTippin\MessengerFaker\Commands\SystemCommand;
 use RTippin\MessengerFaker\Commands\TypingCommand;
 use RTippin\MessengerFaker\Commands\UnReadCommand;
 
-class MessengerFakerServiceProvider extends ServiceProvider implements DeferrableProvider
+class MessengerFakerServiceProvider extends ServiceProvider
 {
     /**
      * Register any package services.
@@ -37,6 +38,12 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
      */
     public function boot(): void
     {
+        if (config('messenger-faker.enable_bot')) {
+            MessengerBots::registerHandlers([
+                FakerBot::class,
+            ]);
+        }
+
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__.'/../config/messenger-faker.php' => config_path('messenger-faker.php'),
@@ -56,28 +63,5 @@ class MessengerFakerServiceProvider extends ServiceProvider implements Deferrabl
                 UnReadCommand::class,
             ]);
         }
-    }
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides(): array
-    {
-        return [
-            AudioCommand::class,
-            DocumentCommand::class,
-            ImageCommand::class,
-            KnockCommand::class,
-            MessageCommand::class,
-            MessengerFaker::class,
-            RandomCommand::class,
-            ReactCommand::class,
-            ReadCommand::class,
-            SystemCommand::class,
-            TypingCommand::class,
-            UnReadCommand::class,
-        ];
     }
 }
