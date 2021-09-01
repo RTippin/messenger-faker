@@ -38,9 +38,11 @@ class MessengerFakerServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        MessengerBots::registerHandlers([
-            FakerBot::class,
-        ]);
+        if (config('messenger-faker.enable_bot')) {
+            MessengerBots::registerHandlers([
+                FakerBot::class,
+            ]);
+        }
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
