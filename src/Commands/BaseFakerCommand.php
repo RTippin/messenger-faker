@@ -127,7 +127,6 @@ abstract class BaseFakerCommand extends Command
         $this->info("Found {$this->faker->getThreadName()}, ".$message);
     }
 
-
     /**
      * Start the progress bar for this command.
      *
@@ -144,7 +143,6 @@ abstract class BaseFakerCommand extends Command
         $this->newLine();
         $this->bar->start();
     }
-
 
     /**
      * Finish the progress bar.

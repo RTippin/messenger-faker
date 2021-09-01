@@ -57,7 +57,7 @@ class RandomCommand extends BaseFakerCommand
                     'thread' => $this->faker->getThread()->id,
                     '--admins' => $this->option('admins'),
                     '--delay' => $this->option('delay'),
-                    '--silent' => $this->option('silent')
+                    '--silent' => $this->option('silent'),
                 ]);
 
                 $this->bar->advance();
