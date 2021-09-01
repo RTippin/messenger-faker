@@ -2,11 +2,25 @@
 
 namespace RTippin\MessengerFaker\Commands;
 
-use Symfony\Component\Console\Input\InputOption;
+use Illuminate\Support\Arr;
 use Throwable;
 
 class RandomCommand extends BaseFakerCommand
 {
+    /**
+     * Faker commands we allow.
+     */
+    const FakerCommands = [
+        'audio',
+        'document',
+        'image',
+        'knock',
+        'message',
+        'react',
+        'system',
+        'typing',
+    ];
+
     /**
      * The console command name.
      *
@@ -19,7 +33,7 @@ class RandomCommand extends BaseFakerCommand
      *
      * @var string
      */
-    protected $description = 'Random';
+    protected $description = 'Send random actions, cycling through our existing commands.';
 
     /**
      * Execute the console command.
@@ -32,16 +46,21 @@ class RandomCommand extends BaseFakerCommand
             return;
         }
 
-        $this->outputThreadMessage('now sending random actions'.($this->option('no-files') ? ' without files...' : '...'));
+        $this->outputThreadMessage('now sending random actions...');
         $this->newLine();
+
+        $this->startProgressBar(false);
 
         try {
             for ($x = 1; $x <= $this->option('count'); $x++) {
-                $this->faker->random(
-                    $this->option('count') <= $x,
-                    $this->option('no-files'),
-                    $this
-                );
+                $this->callSilent('messenger:faker:'.Arr::random(self::FakerCommands, 1)[0], [
+                    'thread' => $this->faker->getThread()->id,
+                    '--admins' => $this->option('admins'),
+                    '--delay' => $this->option('delay'),
+                    '--silent' => $this->option('silent')
+                ]);
+
+                $this->bar->advance();
             }
         } catch (Throwable $e) {
             $this->outputExceptionMessage($e);
@@ -49,19 +68,8 @@ class RandomCommand extends BaseFakerCommand
             return;
         }
 
-        $this->newLine();
-        $this->outputFinalMessage('random actions');
-    }
+        $this->finishProgressBar(false);
 
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
-    protected function getOptions(): array
-    {
-        return array_merge(parent::getOptions(), [
-            ['no-files', null, InputOption::VALUE_NONE, 'Disables using images, documents, and audio files'],
-        ]);
+        $this->outputFinalMessage('random actions');
     }
 }

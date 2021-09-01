@@ -132,12 +132,11 @@ ___
 
 ---
 
-### `php artisan messenger:faker:random {thread?}` | `--count=5` | `--delay=2` | `--no-files` | `--admins` | `--silent`
-- Send random commands using `['knock', 'message', 'reaction', 'system', 'typing', 'audio', 'document', 'image']`
+### `php artisan messenger:faker:random {thread?}` | `--count=5` | `--delay=2` | `--admins` | `--silent`
+- Send random commands using `['audio', 'document', 'image', 'knock', 'message', 'react', 'system', 'typing']`
 - `{thread?}` ID of the thread you want to seed. Random if not set.
 - `--count=X` flag to set how many messages are sent.
 - `--delay=X` flag to set delay in seconds between each message.
-- `--no-files` flag to disable selecting from the `['audio', 'document', 'image']` commands.
 - `--admins` flag will only use admin participants if using a group thread.
 - `--silent` flag that will suppress all broadcast and event dispatches.
 

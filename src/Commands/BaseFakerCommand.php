@@ -41,7 +41,7 @@ abstract class BaseFakerCommand extends Command
     /**
      * @var ProgressBar
      */
-    private ProgressBar $bar;
+    protected ProgressBar $bar;
 
     /**
      * @param MessengerFaker $faker
@@ -127,25 +127,35 @@ abstract class BaseFakerCommand extends Command
         $this->info("Found {$this->faker->getThreadName()}, ".$message);
     }
 
+
     /**
      * Start the progress bar for this command.
+     *
+     * @param bool $useFaker
      */
-    protected function startProgressBar(): void
+    protected function startProgressBar(bool $useFaker = true): void
     {
         $this->bar = $this->output->createProgressBar($this->option('count'));
 
-        $this->faker->setProgressBar($this->bar);
+        if ($useFaker) {
+            $this->faker->setProgressBar($this->bar);
+        }
 
         $this->newLine();
         $this->bar->start();
     }
 
+
     /**
      * Finish the progress bar.
+     *
+     * @param bool $useFaker
      */
-    protected function finishProgressBar(): void
+    protected function finishProgressBar(bool $useFaker = true): void
     {
-        $this->faker->setProgressBar(null);
+        if ($useFaker) {
+            $this->faker->setProgressBar(null);
+        }
 
         $this->bar->finish();
         $this->newLine(2);
