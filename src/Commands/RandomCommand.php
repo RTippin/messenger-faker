@@ -81,7 +81,7 @@ class RandomCommand extends BaseFakerCommand
     }
 
     /**
-     * @param string $command
+     * @param  string  $command
      * @return array
      */
     private function getCommandOptions(string $command): array
