@@ -11,9 +11,10 @@ use Illuminate\Support\Facades\Http;
 trait FakerFiles
 {
     /**
-     * @param bool $local
-     * @param string|null $url
+     * @param  bool  $local
+     * @param  string|null  $url
      * @return array
+     *
      * @throws Exception
      */
     private function getImage(bool $local, ?string $url): array
@@ -34,12 +35,10 @@ trait FakerFiles
             $name = $file->getFilename();
         } else {
             $name = uniqid();
-            $file = '/tmp/'.$name;
-            file_put_contents($file,
-                Http::timeout(30)->get(is_null($url)
-                    ? config('messenger-faker.default_image_url')
-                    : $url
-                )->body()
+            $file = sys_get_temp_dir().DIRECTORY_SEPARATOR.$name;
+            file_put_contents(
+                $file,
+                Http::timeout(30)->get($url ?: config('messenger-faker.default_image_url'))->body()
             );
         }
 
@@ -47,8 +46,9 @@ trait FakerFiles
     }
 
     /**
-     * @param string|null $url
+     * @param  string|null  $url
      * @return array
+     *
      * @throws Exception
      */
     private function getDocument(?string $url): array
@@ -59,7 +59,7 @@ trait FakerFiles
 
         if (! is_null($url)) {
             $name = uniqid();
-            $file = '/tmp/'.$name;
+            $file = sys_get_temp_dir().DIRECTORY_SEPARATOR.$name;
             file_put_contents($file, Http::timeout(30)->get($url)->body());
         } else {
             $path = config('messenger-faker.paths.documents');
@@ -77,8 +77,9 @@ trait FakerFiles
     }
 
     /**
-     * @param string|null $url
+     * @param  string|null  $url
      * @return array
+     *
      * @throws Exception
      */
     private function getAudio(?string $url): array
@@ -89,7 +90,7 @@ trait FakerFiles
 
         if (! is_null($url)) {
             $name = uniqid();
-            $file = '/tmp/'.$name;
+            $file = sys_get_temp_dir().DIRECTORY_SEPARATOR.$name;
             file_put_contents($file, Http::timeout(30)->get($url)->body());
         } else {
             $path = config('messenger-faker.paths.audio');
@@ -107,7 +108,7 @@ trait FakerFiles
     }
 
     /**
-     * @param string $file
+     * @param  string  $file
      */
     private function unlinkFile(string $file): void
     {

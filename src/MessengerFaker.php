@@ -81,9 +81,9 @@ class MessengerFaker
     /**
      * MessengerFaker constructor.
      *
-     * @param Messenger $messenger
-     * @param Generator $faker
-     * @param StoreSystemMessage $storeSystem
+     * @param  Messenger  $messenger
+     * @param  Generator  $faker
+     * @param  StoreSystemMessage  $storeSystem
      */
     public function __construct(Messenger $messenger,
                                 Generator $faker,
@@ -119,9 +119,10 @@ class MessengerFaker
     }
 
     /**
-     * @param string|null $threadId
-     * @param bool $useAdmins
+     * @param  string|null  $threadId
+     * @param  bool  $useAdmins
      * @return $this
+     *
      * @throws ModelNotFoundException
      */
     public function setThreadWithId(?string $threadId = null, bool $useAdmins = false): self
@@ -136,9 +137,10 @@ class MessengerFaker
     }
 
     /**
-     * @param Thread $thread
-     * @param bool $useAdmins
+     * @param  Thread  $thread
+     * @param  bool  $useAdmins
      * @return $this
+     *
      * @throws ModelNotFoundException
      */
     public function setThread(Thread $thread, bool $useAdmins = false): self
@@ -151,8 +153,9 @@ class MessengerFaker
     }
 
     /**
-     * @param int $count
+     * @param  int  $count
      * @return $this
+     *
      * @throws Exception
      */
     public function setMessages(int $count = 5): self
@@ -173,7 +176,7 @@ class MessengerFaker
     }
 
     /**
-     * @param int $delay
+     * @param  int  $delay
      * @return $this
      */
     public function setDelay(int $delay): self
@@ -186,7 +189,7 @@ class MessengerFaker
     }
 
     /**
-     * @param bool $silence
+     * @param  bool  $silence
      * @return $this
      */
     public function setSilent(bool $silence = false): self
@@ -200,7 +203,7 @@ class MessengerFaker
     }
 
     /**
-     * @param ProgressBar|null $bar
+     * @param  ProgressBar|null  $bar
      * @return $this
      */
     public function setProgressBar(?ProgressBar $bar): self
@@ -232,6 +235,7 @@ class MessengerFaker
      * Send a knock to the given thread.
      *
      * @return $this
+     *
      * @throws FeatureDisabledException|InvalidProviderException
      * @throws Throwable
      */
@@ -249,8 +253,9 @@ class MessengerFaker
     /**
      * Mark the given providers as read and send broadcast.
      *
-     * @param Participant|null $participant
+     * @param  Participant|null  $participant
      * @return $this
+     *
      * @throws Throwable
      */
     public function read(Participant $participant = null): self
@@ -289,8 +294,9 @@ class MessengerFaker
     /**
      * Make the given providers send typing broadcast.
      *
-     * @param MessengerProvider|null $provider
+     * @param  MessengerProvider|null  $provider
      * @return $this
+     *
      * @throws Throwable
      */
     public function typing(MessengerProvider $provider = null): self
@@ -307,8 +313,9 @@ class MessengerFaker
     /**
      * Send messages using the given providers and show typing and mark read.
      *
-     * @param bool $isFinal
+     * @param  bool  $isFinal
      * @return $this
+     *
      * @throws Throwable
      */
     public function message(bool $isFinal = false): self
@@ -334,10 +341,11 @@ class MessengerFaker
     /**
      * Send image messages using the given providers and show typing and mark read.
      *
-     * @param bool $isFinal
-     * @param bool $local
-     * @param string|null $url
+     * @param  bool  $isFinal
+     * @param  bool  $local
+     * @param  string|null  $url
      * @return $this
+     *
      * @throws Throwable
      */
     public function image(bool $isFinal = false,
@@ -362,9 +370,10 @@ class MessengerFaker
     /**
      * Send document messages using the given providers and show typing and mark read.
      *
-     * @param bool $isFinal
-     * @param string|null $url
+     * @param  bool  $isFinal
+     * @param  string|null  $url
      * @return $this
+     *
      * @throws Throwable
      */
     public function document(bool $isFinal = false, ?string $url = null): self
@@ -387,9 +396,10 @@ class MessengerFaker
     /**
      * Send audio messages using the given providers and show typing and mark read.
      *
-     * @param bool $isFinal
-     * @param string|null $url
+     * @param  bool  $isFinal
+     * @param  string|null  $url
      * @return $this
+     *
      * @throws Throwable
      */
     public function audio(bool $isFinal = false, ?string $url = null): self
@@ -410,9 +420,10 @@ class MessengerFaker
     }
 
     /**
-     * @param int|null $type
-     * @param bool $isFinal
+     * @param  int|null  $type
+     * @param  bool  $isFinal
      * @return $this
+     *
      * @throws Throwable
      */
     public function system(?int $type = null, bool $isFinal = false): self
@@ -426,6 +437,7 @@ class MessengerFaker
 
     /**
      * @return $this
+     *
      * @throws FeatureDisabledException|Throwable
      * @throws Throwable
      */
@@ -445,7 +457,7 @@ class MessengerFaker
     }
 
     /**
-     * @param bool $isFinal
+     * @param  bool  $isFinal
      */
     private function sleepAndAdvance(bool $isFinal): void
     {
@@ -460,6 +472,7 @@ class MessengerFaker
 
     /**
      * @return MessengerComposer
+     *
      * @throws MessengerComposerException
      */
     private function composer(): MessengerComposer
@@ -468,7 +481,7 @@ class MessengerFaker
     }
 
     /**
-     * @param bool $useAdmins
+     * @param  bool  $useAdmins
      */
     private function setParticipants(bool $useAdmins): void
     {

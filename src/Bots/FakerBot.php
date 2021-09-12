@@ -79,9 +79,9 @@ class FakerBot extends BotActionHandler
     }
 
     /**
-     * @param string $command
-     * @param int $count
-     * @param int $delay
+     * @param  string  $command
+     * @param  int  $count
+     * @param  int  $delay
      */
     private function handleCommand(string $command, int $count, int $delay): void
     {

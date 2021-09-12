@@ -387,6 +387,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
     /**
      * @test
      * @dataProvider systemMessageTypes
+     *
      * @param $type
      */
     public function it_seeds_system_messages($type)
