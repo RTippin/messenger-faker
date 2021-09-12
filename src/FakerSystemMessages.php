@@ -55,8 +55,10 @@ trait FakerSystemMessages
 
     /**
      * Messages started.
-     * @param int|null $type
+     *
+     * @param  int|null  $type
      * @return array
+     *
      * @throws Exception
      */
     private function generateSystemMessage(?int $type): array
@@ -68,8 +70,9 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param int|null $type
+     * @param  int|null  $type
      * @return int
+     *
      * @throws Exception
      */
     private function getType(?int $type): int
@@ -90,9 +93,10 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param int $type
-     * @param Participant $participant
+     * @param  int  $type
+     * @param  Participant  $participant
      * @return array
+     *
      * @throws Exception
      */
     private function makeBody(int $type, Participant $participant): array
@@ -119,7 +123,7 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
      */
     private function makeJoinedWithInvite(Participant $participant): array
@@ -128,7 +132,7 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
      */
     private function makeVideoCall(Participant $participant): array
@@ -148,7 +152,7 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
      */
     private function makeGroupAvatarChanged(Participant $participant): array
@@ -157,7 +161,7 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
      */
     private function makeThreadArchived(Participant $participant): array
@@ -166,7 +170,7 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
      */
     private function makeGroupCreated(Participant $participant): array
@@ -175,7 +179,7 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
      */
     private function makeGroupRenamed(Participant $participant): array
@@ -184,8 +188,9 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
+     *
      * @throws Exception
      */
     private function makeParticipantDemoted(Participant $participant): array
@@ -203,8 +208,9 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
+     *
      * @throws Exception
      */
     private function makeParticipantPromoted(Participant $participant): array
@@ -222,7 +228,7 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
      */
     private function makeGroupLeft(Participant $participant): array
@@ -231,8 +237,9 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
+     *
      * @throws Exception
      */
     private function makeRemovedFromGroup(Participant $participant): array
@@ -250,8 +257,9 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
+     *
      * @throws Exception
      */
     private function makeParticipantsAdded(Participant $participant): array
@@ -269,7 +277,7 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
      */
     private function makeBotAdded(Participant $participant): array
@@ -278,7 +286,7 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
      */
     private function makeBotRenamed(Participant $participant): array
@@ -287,7 +295,7 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
      */
     private function makeBotAvatarChanged(Participant $participant): array
@@ -296,7 +304,7 @@ trait FakerSystemMessages
     }
 
     /**
-     * @param Participant $participant
+     * @param  Participant  $participant
      * @return array
      */
     private function makeBotRemoved(Participant $participant): array

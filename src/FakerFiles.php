@@ -11,9 +11,10 @@ use Illuminate\Support\Facades\Http;
 trait FakerFiles
 {
     /**
-     * @param bool $local
-     * @param string|null $url
+     * @param  bool  $local
+     * @param  string|null  $url
      * @return array
+     *
      * @throws Exception
      */
     private function getImage(bool $local, ?string $url): array
@@ -45,8 +46,9 @@ trait FakerFiles
     }
 
     /**
-     * @param string|null $url
+     * @param  string|null  $url
      * @return array
+     *
      * @throws Exception
      */
     private function getDocument(?string $url): array
@@ -75,8 +77,9 @@ trait FakerFiles
     }
 
     /**
-     * @param string|null $url
+     * @param  string|null  $url
      * @return array
+     *
      * @throws Exception
      */
     private function getAudio(?string $url): array
@@ -105,7 +108,7 @@ trait FakerFiles
     }
 
     /**
-     * @param string $file
+     * @param  string  $file
      */
     private function unlinkFile(string $file): void
     {

@@ -44,7 +44,7 @@ abstract class BaseFakerCommand extends Command
     protected ProgressBar $bar;
 
     /**
-     * @param MessengerFaker $faker
+     * @param  MessengerFaker  $faker
      */
     public function __construct(MessengerFaker $faker)
     {
@@ -88,7 +88,7 @@ abstract class BaseFakerCommand extends Command
     /**
      * Set the thread on our faker instance when the command is loaded.
      *
-     * @param int|null $loadMessageCount
+     * @param  int|null  $loadMessageCount
      * @return bool
      */
     protected function setupFaker(?int $loadMessageCount = null): bool
@@ -123,7 +123,7 @@ abstract class BaseFakerCommand extends Command
     /**
      * Output the thread found action message.
      *
-     * @param string $message
+     * @param  string  $message
      */
     protected function outputThreadMessage(string $message): void
     {
@@ -134,7 +134,7 @@ abstract class BaseFakerCommand extends Command
     /**
      * Start the progress bar for this command.
      *
-     * @param bool $useFaker
+     * @param  bool  $useFaker
      */
     protected function startProgressBar(bool $useFaker = true): void
     {
@@ -151,7 +151,7 @@ abstract class BaseFakerCommand extends Command
     /**
      * Finish the progress bar.
      *
-     * @param bool $useFaker
+     * @param  bool  $useFaker
      */
     protected function finishProgressBar(bool $useFaker = true): void
     {
@@ -166,7 +166,7 @@ abstract class BaseFakerCommand extends Command
     /**
      * Out put the final message.
      *
-     * @param string $message
+     * @param  string  $message
      */
     protected function outputFinalMessage(string $message): void
     {
@@ -177,7 +177,7 @@ abstract class BaseFakerCommand extends Command
     /**
      * Output our exception message.
      *
-     * @param Throwable $e
+     * @param  Throwable  $e
      */
     protected function outputExceptionMessage(Throwable $e): void
     {

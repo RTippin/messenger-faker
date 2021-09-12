@@ -33,7 +33,8 @@ trait FakerEvents
     /**
      * Messages ended.
      *
-     * @param bool $isFinal
+     * @param  bool  $isFinal
+     *
      * @throws Throwable
      */
     private function endMessage(bool $isFinal): void
