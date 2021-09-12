@@ -34,12 +34,10 @@ trait FakerFiles
             $name = $file->getFilename();
         } else {
             $name = uniqid();
-            $file = '/tmp/'.$name;
-            file_put_contents($file,
-                Http::timeout(30)->get(is_null($url)
-                    ? config('messenger-faker.default_image_url')
-                    : $url
-                )->body()
+            $file = sys_get_temp_dir().DIRECTORY_SEPARATOR.$name;
+            file_put_contents(
+                $file,
+                Http::timeout(30)->get($url ?: config('messenger-faker.default_image_url'))->body()
             );
         }
 
@@ -59,7 +57,7 @@ trait FakerFiles
 
         if (! is_null($url)) {
             $name = uniqid();
-            $file = '/tmp/'.$name;
+            $file = sys_get_temp_dir().DIRECTORY_SEPARATOR.$name;
             file_put_contents($file, Http::timeout(30)->get($url)->body());
         } else {
             $path = config('messenger-faker.paths.documents');
@@ -89,7 +87,7 @@ trait FakerFiles
 
         if (! is_null($url)) {
             $name = uniqid();
-            $file = '/tmp/'.$name;
+            $file = sys_get_temp_dir().DIRECTORY_SEPARATOR.$name;
             file_put_contents($file, Http::timeout(30)->get($url)->body());
         } else {
             $path = config('messenger-faker.paths.audio');
