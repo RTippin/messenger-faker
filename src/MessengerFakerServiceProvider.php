@@ -16,6 +16,7 @@ use RTippin\MessengerFaker\Commands\ReadCommand;
 use RTippin\MessengerFaker\Commands\SystemCommand;
 use RTippin\MessengerFaker\Commands\TypingCommand;
 use RTippin\MessengerFaker\Commands\UnReadCommand;
+use RTippin\MessengerFaker\Commands\VideoCommand;
 
 class MessengerFakerServiceProvider extends ServiceProvider
 {
@@ -35,12 +36,21 @@ class MessengerFakerServiceProvider extends ServiceProvider
      * Bootstrap any package services.
      *
      * @return void
+     * @TODO v2 remove check for videos path.
      */
     public function boot(): void
     {
         if (config('messenger-faker.enable_bot')) {
             MessengerBots::registerHandlers([
                 FakerBot::class,
+            ]);
+        }
+
+        $videos = config('messenger-faker.paths.videos') ?? false;
+
+        if (! $videos) {
+            config([
+                'messenger-faker.paths.videos' => storage_path('faker/videos'),
             ]);
         }
 
@@ -61,6 +71,7 @@ class MessengerFakerServiceProvider extends ServiceProvider
                 SystemCommand::class,
                 TypingCommand::class,
                 UnReadCommand::class,
+                VideoCommand::class,
             ]);
         }
     }

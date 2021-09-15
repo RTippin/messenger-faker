@@ -108,7 +108,6 @@ trait FakerFiles
     }
 
     /**
-     * @TODO v2 remove check for videos path.
      * @param  string|null  $url
      * @return array
      *
@@ -125,7 +124,7 @@ trait FakerFiles
             $file = sys_get_temp_dir().DIRECTORY_SEPARATOR.$name;
             file_put_contents($file, Http::timeout(60)->get($url)->body());
         } else {
-            $path = config('messenger-faker.paths.videos') ?? storage_path('faker/videos');
+            $path = config('messenger-faker.paths.videos');
             $videos = File::files($path);
 
             if (! count($videos)) {
