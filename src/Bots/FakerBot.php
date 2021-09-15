@@ -22,6 +22,7 @@ class FakerBot extends BotActionHandler
         'react' => true,
         'system' => true,
         'typing' => false,
+        'video' => true,
     ];
 
     /**
@@ -75,7 +76,7 @@ class FakerBot extends BotActionHandler
     private function sendInvalidSelectionMessage(): void
     {
         $this->composer()->emitTyping()->message('Please select a valid choice, eg: ( !faker {action} {count?} {delay?} )');
-        $this->composer()->message('Available actions: [audio, document, image, knock, message, random, react, system, typing]');
+        $this->composer()->message('Available actions: [audio, document, image, knock, message, random, react, system, typing, video]');
     }
 
     /**

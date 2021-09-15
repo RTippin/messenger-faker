@@ -420,6 +420,32 @@ class MessengerFaker
     }
 
     /**
+     * Send video messages using the given providers and show typing and mark read.
+     *
+     * @param  bool  $isFinal
+     * @param  string|null  $url
+     * @return $this
+     *
+     * @throws Throwable
+     */
+    public function video(bool $isFinal = false, ?string $url = null): self
+    {
+        $this->startMessage();
+
+        $video = $this->getVideo($url);
+
+        $this->composer()->video($video[0]);
+
+        $this->endMessage($isFinal);
+
+        if (! is_null($url)) {
+            $this->unlinkFile($video[1]);
+        }
+
+        return $this;
+    }
+
+    /**
      * @param  int|null  $type
      * @param  bool  $isFinal
      * @return $this

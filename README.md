@@ -17,7 +17,7 @@
 ### Features:
 - Commands to mock realtime events such as knocks, typing, and marking read.
 - Command to seed realtime messages with typing.
-- Commands to seed attachment messages (images, documents, audio).
+- Commands to seed attachment messages (images, documents, audio, videos).
 - Commands to seed system messages and message reactions.
 - `FakerBot` pre-registered with `Messenger` that allows you to trigger our commands through chat-bots.
 
@@ -46,6 +46,7 @@ $ composer require rtippin/messenger-faker --dev
     'images' => storage_path('faker/images'),
     'documents' => storage_path('faker/documents'),
     'audio' => storage_path('faker/audio'),
+    'videos' => storage_path('faker/videos'),
 ],
 
 'default_image_url' => 'https://source.unsplash.com/random',
@@ -136,6 +137,17 @@ ___
 
 ---
 
+### `php artisan messenger:faker:video {thread?}` | `--count=1` | `--delay=2` | `--admins` | `--url=` | `--silent`
+- Make participants send video messages. Will also emit typing and mark read. If `--url` is not set, will choose a random video file from the directory specified for videos in the config file.
+- `{thread?}` ID of the thread you want to seed. Random if not set.
+- `--count=X` flag to set how many video files are sent.
+- `--delay=X` flag to set delay in seconds between each video file.
+- `--admins` flag will only use admin participants if using a group thread.
+- `--url=X` flag lets you directly specify a video URL to download and emit.
+- `--silent` flag that will suppress all broadcast and event dispatches.
+
+---
+
 ### `php artisan messenger:faker:random {thread?}` | `--count=5` | `--delay=2` | `--admins` | `--silent`
 - Send random commands using `['audio', 'document', 'image', 'knock', 'message', 'react', 'system', 'typing']`
 - `{thread?}` ID of the thread you want to seed. Random if not set.
@@ -176,7 +188,7 @@ ___
 - When you use the messenger API to add handlers onto a bot, you will see our bot listed.
 - Once our `FakerBot` is attached to a thread's bot, you can trigger it by sending a message using the following syntax:
   - `!faker {action} {count?} {delay?}`
-- Available actions: `audio`, `document`, `image`, `knock`, `message`, `random`, `react`, `system`, `typing`
+- Available actions: `audio`, `document`, `image`, `knock`, `message`, `random`, `react`, `system`, `typing`, `video`
 
 
 [ico-version]: https://img.shields.io/packagist/v/rtippin/messenger-faker.svg?style=plastic&cacheSeconds=3600

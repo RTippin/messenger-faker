@@ -19,6 +19,7 @@ class RandomCommand extends BaseFakerCommand
         'react' => true,
         'system' => true,
         'typing' => false,
+        'video' => true,
     ];
 
     /**
