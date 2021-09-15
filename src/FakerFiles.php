@@ -108,6 +108,38 @@ trait FakerFiles
     }
 
     /**
+     * @TODO v2 remove check for videos path.
+     * @param  string|null  $url
+     * @return array
+     *
+     * @throws Exception
+     */
+    private function getVideo(?string $url): array
+    {
+        if (static::$isTesting) {
+            return [UploadedFile::fake()->create('test.mov', 500, 'video/quicktime'), 'test.mov'];
+        }
+
+        if (! is_null($url)) {
+            $name = uniqid();
+            $file = sys_get_temp_dir().DIRECTORY_SEPARATOR.$name;
+            file_put_contents($file, Http::timeout(60)->get($url)->body());
+        } else {
+            $path = config('messenger-faker.paths.videos') ?? storage_path('faker/videos');
+            $videos = File::files($path);
+
+            if (! count($videos)) {
+                throw new Exception("No videos found within $path");
+            }
+
+            $file = Arr::random($videos, 1)[0];
+            $name = $file->getFilename();
+        }
+
+        return [new UploadedFile($file, $name), $file];
+    }
+
+    /**
      * @param  string  $file
      */
     private function unlinkFile(string $file): void

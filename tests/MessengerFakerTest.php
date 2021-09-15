@@ -315,7 +315,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
         $faker->setThread($group)->image();
 
         $this->assertDatabaseHas('messages', [
-            'type' => 1,
+            'type' => Message::IMAGE_MESSAGE,
         ]);
         Event::assertDispatched(NewMessageBroadcast::class);
         Event::assertDispatched(NewMessageEvent::class);
@@ -337,7 +337,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
         $faker->setThread($group)->document();
 
         $this->assertDatabaseHas('messages', [
-            'type' => 2,
+            'type' => Message::DOCUMENT_MESSAGE,
         ]);
         Event::assertDispatched(NewMessageBroadcast::class);
         Event::assertDispatched(NewMessageEvent::class);
@@ -359,7 +359,29 @@ class MessengerFakerTest extends MessengerFakerTestCase
         $faker->setThread($group)->audio();
 
         $this->assertDatabaseHas('messages', [
-            'type' => 3,
+            'type' => Message::AUDIO_MESSAGE,
+        ]);
+        Event::assertDispatched(NewMessageBroadcast::class);
+        Event::assertDispatched(NewMessageEvent::class);
+        Event::assertDispatched(Typing::class);
+    }
+
+    /** @test */
+    public function it_seeds_video_messages()
+    {
+        BaseMessengerAction::enableEvents();
+        Event::fake([
+            NewMessageBroadcast::class,
+            NewMessageEvent::class,
+            Typing::class,
+        ]);
+        Storage::fake(Messenger::getThreadStorage('disk'));
+        $faker = app(MessengerFaker::class);
+        $group = $this->createGroupThread($this->tippin, $this->doe);
+        $faker->setThread($group)->video();
+
+        $this->assertDatabaseHas('messages', [
+            'type' => Message::VIDEO_MESSAGE,
         ]);
         Event::assertDispatched(NewMessageBroadcast::class);
         Event::assertDispatched(NewMessageEvent::class);
