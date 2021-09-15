@@ -6,7 +6,7 @@ return [
     | Local file locations
     |--------------------------------------------------------------------------
     |
-    | When seeding image/document/audio messages, we will choose a random file
+    | When seeding attachment messages, we will choose a random file
     | from the directory you specify below for each message type.
     |
     | * Default image seeder command pulls images from unsplash API.

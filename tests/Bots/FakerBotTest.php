@@ -72,7 +72,7 @@ class FakerBotTest extends MessengerFakerTestCase
             'body' => 'Please select a valid choice, eg: ( !faker {action} {count?} {delay?} )',
         ]);
         $this->assertDatabaseHas('messages', [
-            'body' => 'Available actions: [audio, document, image, knock, message, random, react, system, typing]',
+            'body' => 'Available actions: [audio, document, image, knock, message, random, react, system, typing, video]',
         ]);
         $this->assertTrue($faker->shouldReleaseCooldown());
     }
