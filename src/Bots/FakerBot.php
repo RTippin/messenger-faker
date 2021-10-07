@@ -3,7 +3,6 @@
 namespace RTippin\MessengerFaker\Bots;
 
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Str;
 use RTippin\Messenger\Actions\Bots\BotActionHandler;
 use Throwable;
 
@@ -47,15 +46,13 @@ class FakerBot extends BotActionHandler
      */
     public function handle(): void
     {
-        $options = $this->parseOptions();
-
-        if (! is_null($options[0])) {
+        if (! is_null($options = $this->parseOptions())) {
             $this->composer()->emitTyping()->message("Faker initiating. Sending $options[1] $options[0] actions with a $options[2] second delay.");
 
             if (! self::isTesting()) {
                 sleep(3);
 
-                $this->handleCommand($options[0], $options[1], $options[2]);
+                $this->handleCommand(...$options);
 
                 sleep(1);
             }
@@ -99,34 +96,51 @@ class FakerBot extends BotActionHandler
     }
 
     /**
-     * @return array
+     * @return array|null
      */
-    private function parseOptions(): array
+    private function parseOptions(): ?array
     {
-        //['command', 'count', 'delay']
-        $options = [null, 5, 1];
-        $choices = explode(' ', Str::lower(
-            trim(
-                Str::remove($this->matchingTrigger, $this->message->body, false)
-            )
-        ));
+        $choices = $this->getParsedWords(true);
 
-        if (array_key_exists($choices[0] ?? 'invalid', self::FakerCommands)) {
-            $options[0] = $choices[0];
+        if (is_null($choices)
+            || ! array_key_exists($choices[0], self::FakerCommands)) {
+            return null;
         }
 
+        return [
+            $choices[0],
+            $this->setCount($choices),
+            $this->setDelay($choices),
+        ];
+    }
+
+    /**
+     * @param  array  $choices
+     * @return int
+     */
+    private function setCount(array $choices): int
+    {
         if (is_numeric($choices[1] ?? false)
             && $choices[1] >= 1
             && $choices[1] <= 50) {
-            $options[1] = (int) $choices[1];
+            return (int) $choices[1];
         }
 
+        return 5;
+    }
+
+    /**
+     * @param  array  $choices
+     * @return int
+     */
+    private function setDelay(array $choices): int
+    {
         if (is_numeric($choices[2] ?? false)
             && $choices[2] >= 0
             && $choices[2] <= 5) {
-            $options[2] = (int) $choices[2];
+            return (int) $choices[2];
         }
 
-        return $options;
+        return 1;
     }
 }
