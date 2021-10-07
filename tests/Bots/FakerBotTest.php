@@ -61,10 +61,10 @@ class FakerBotTest extends MessengerFakerTestCase
     public function it_doesnt_find_valid_command()
     {
         $thread = $this->createGroupThread($this->tippin);
-        $message = Message::factory()->for($thread)->owner($this->tippin)->create(['body' => '!faker unknown']);
+        $message = Message::factory()->for($thread)->owner($this->tippin)->body('!faker unknown')->create();
         $action = BotAction::factory()->for(Bot::factory()->for($thread)->owner($this->tippin)->create())->owner($this->tippin)->create();
         $faker = MessengerBots::initializeHandler(FakerBot::class)
-            ->setDataForMessage($thread, $action, $message, '!faker');
+            ->setDataForHandler($thread, $action, $message, '!faker');
 
         $faker->handle();
 
@@ -81,10 +81,10 @@ class FakerBotTest extends MessengerFakerTestCase
     public function it_uses_default_count_and_delay()
     {
         $thread = $this->createGroupThread($this->tippin);
-        $message = Message::factory()->for($thread)->owner($this->tippin)->create(['body' => '!faker message']);
+        $message = Message::factory()->for($thread)->owner($this->tippin)->body('!faker message')->create();
         $action = BotAction::factory()->for(Bot::factory()->for($thread)->owner($this->tippin)->create())->owner($this->tippin)->create();
         $faker = MessengerBots::initializeHandler(FakerBot::class)
-            ->setDataForMessage($thread, $action, $message, '!faker');
+            ->setDataForHandler($thread, $action, $message, '!faker');
 
         $faker->handle();
 
@@ -101,10 +101,10 @@ class FakerBotTest extends MessengerFakerTestCase
     public function it_accepts_count_and_delay()
     {
         $thread = $this->createGroupThread($this->tippin);
-        $message = Message::factory()->for($thread)->owner($this->tippin)->create(['body' => '!faker message 25 5']);
+        $message = Message::factory()->for($thread)->owner($this->tippin)->body('!faker message 25 5')->create();
         $action = BotAction::factory()->for(Bot::factory()->for($thread)->owner($this->tippin)->create())->owner($this->tippin)->create();
         $faker = MessengerBots::initializeHandler(FakerBot::class)
-            ->setDataForMessage($thread, $action, $message, '!faker');
+            ->setDataForHandler($thread, $action, $message, '!faker');
 
         $faker->handle();
 
@@ -122,7 +122,7 @@ class FakerBotTest extends MessengerFakerTestCase
     {
         BaseMessengerAction::enableEvents();
         $thread = $this->createGroupThread($this->tippin);
-        $message = Message::factory()->for($thread)->owner($this->tippin)->create(['body' => '!faker message']);
+        $message = Message::factory()->for($thread)->owner($this->tippin)->body('!faker message')->create();
         $action = BotAction::factory()->for(Bot::factory()->for($thread)->owner($this->tippin)->create())->owner($this->tippin)->create();
         Event::fake([
             NewMessageBroadcast::class,
@@ -131,7 +131,7 @@ class FakerBotTest extends MessengerFakerTestCase
         ]);
 
         MessengerBots::initializeHandler(FakerBot::class)
-            ->setDataForMessage($thread, $action, $message, '!faker')
+            ->setDataForHandler($thread, $action, $message, '!faker')
             ->handle();
 
         Event::assertDispatched(NewMessageBroadcast::class);
