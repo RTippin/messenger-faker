@@ -32,7 +32,7 @@ class FakerBotTest extends MessengerFakerTestCase
             'unique' => true,
             'authorize' => false,
             'triggers' => ['!faker'],
-            'match' => 'starts:with:caseless',
+            'match' => \RTippin\Messenger\MessengerBots::MATCH_STARTS_WITH_CASELESS,
         ];
 
         $this->assertSame($expected, MessengerBots::getHandlerSettings(FakerBot::class));

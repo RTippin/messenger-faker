@@ -4,6 +4,7 @@ namespace RTippin\MessengerFaker\Bots;
 
 use Illuminate\Support\Facades\Artisan;
 use RTippin\Messenger\Actions\Bots\BotActionHandler;
+use RTippin\Messenger\MessengerBots;
 use Throwable;
 
 class FakerBot extends BotActionHandler
@@ -37,7 +38,7 @@ class FakerBot extends BotActionHandler
             'name' => 'Messenger Faker Commands',
             'unique' => true,
             'triggers' => ['!faker'],
-            'match' => 'starts:with:caseless',
+            'match' => MessengerBots::MATCH_STARTS_WITH_CASELESS,
         ];
     }
 
@@ -46,25 +47,29 @@ class FakerBot extends BotActionHandler
      */
     public function handle(): void
     {
-        if (! is_null($options = $this->parseOptions())) {
-            $this->composer()->emitTyping()->message("Faker initiating. Sending $options[1] $options[0] actions with a $options[2] second delay.");
+        $options = $this->parseOptions();
 
-            if (! self::isTesting()) {
-                sleep(3);
+        if (is_null($options)) {
+            $this->sendInvalidSelectionMessage();
 
-                $this->handleCommand(...$options);
-
-                sleep(1);
-            }
-
-            $this->composer()->emitTyping()->message('Faker actions completed!');
+            $this->releaseCooldown();
 
             return;
         }
 
-        $this->sendInvalidSelectionMessage();
+        $this->composer()->emitTyping()->message(
+            "Faker initiating. Sending $options[1] $options[0] actions with a $options[2] second delay."
+        );
 
-        $this->releaseCooldown();
+        if (! self::isTesting()) {
+            sleep(3);
+
+            $this->handleCommand(...$options);
+
+            sleep(1);
+        }
+
+        $this->composer()->emitTyping()->message('Faker actions completed!');
     }
 
     /**
@@ -72,8 +77,12 @@ class FakerBot extends BotActionHandler
      */
     private function sendInvalidSelectionMessage(): void
     {
-        $this->composer()->emitTyping()->message('Please select a valid choice, eg: ( !faker {action} {count?} {delay?} )');
-        $this->composer()->message('Available actions: [audio, document, image, knock, message, random, react, system, typing, video]');
+        $this->composer()->emitTyping()->message(
+            'Please select a valid choice, eg: ( !faker {action} {count?} {delay?} )'
+        );
+        $this->composer()->message(
+            'Available actions: [audio, document, image, knock, message, random, react, system, typing, video]'
+        );
     }
 
     /**
