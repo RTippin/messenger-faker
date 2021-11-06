@@ -78,7 +78,12 @@ trait FakerSystemMessages
     private function getType(?int $type): int
     {
         if (is_null($type)) {
-            return Arr::random($this->thread->isGroup() ? $this->getAllowedTypesGroup() : $this->getAllowedTypesPrivate(), 1)[0];
+            return Arr::random(
+                $this->thread->isGroup()
+                    ? $this->getAllowedTypesGroup()
+                    : $this->getAllowedTypesPrivate(),
+                1
+            )[0];
         }
 
         if ($this->thread->isGroup() && ! in_array($type, $this->getAllowedTypesGroup())) {
@@ -144,9 +149,13 @@ trait FakerSystemMessages
             ->reject(fn (Participant $p) => $p->id === $participant->id)
             ->shuffle()
             ->take(rand(0, $this->participants->count() - 1))
-            ->each(function (Participant $p) use ($call) {
-                CallParticipant::factory()->for($call)->owner($p->owner)->left()->create();
-            });
+            ->each(
+                fn (Participant $p) => CallParticipant::factory()
+                    ->for($call)
+                    ->owner($p->owner)
+                    ->left()
+                    ->create()
+            );
 
         return MessageTransformer::makeVideoCall($this->thread, $participant->owner, $call);
     }
