@@ -24,8 +24,7 @@ use Throwable;
 
 class MessengerFaker
 {
-    use FakerEvents,
-        FakerFiles,
+    use FakerFiles,
         FakerSystemMessages;
 
     /**
@@ -260,19 +259,21 @@ class MessengerFaker
      */
     public function read(Participant $participant = null): self
     {
-        if (! is_null($message = $this->thread->messages()->latest()->first())) {
+        $message = $this->thread->messages()->latest()->first();
+
+        if (! is_null($message)) {
             if (! is_null($participant)) {
                 $this->composer()
                     ->from($participant->owner)
                     ->emitRead($message)
                     ->read($participant);
             } else {
-                $this->participants->each(function (Participant $participant) use ($message) {
-                    $this->composer()
+                $this->participants->each(
+                    fn (Participant $participant) => $this->composer()
                         ->from($participant->owner)
                         ->emitRead($message)
-                        ->read($participant);
-                });
+                        ->read($participant)
+                );
             }
         }
 
@@ -286,7 +287,9 @@ class MessengerFaker
      */
     public function unread(): self
     {
-        $this->participants->each(fn (Participant $participant) => $participant->update(['last_read' => null]));
+        $this->participants->each(
+            fn (Participant $participant) => $participant->update(['last_read' => null])
+        );
 
         return $this;
     }
@@ -304,7 +307,11 @@ class MessengerFaker
         if (! is_null($provider)) {
             $this->composer()->from($provider)->emitTyping();
         } else {
-            $this->participants->each(fn (Participant $participant) => $this->composer()->from($participant->owner)->emitTyping());
+            $this->participants->each(
+                fn (Participant $participant) => $this->composer()
+                    ->from($participant->owner)
+                    ->emitTyping()
+            );
         }
 
         return $this;
@@ -480,6 +487,41 @@ class MessengerFaker
         $this->sleepAndAdvance($isFinal);
 
         return $this;
+    }
+
+    /**
+     * Messages started.
+     *
+     * @throws Throwable
+     */
+    private function startMessage(): void
+    {
+        /** @var Participant $participant */
+        $participant = $this->participants->random();
+        $this->usedParticipants->push($participant);
+        $this->composer()->from($participant->owner)->emitTyping();
+    }
+
+    /**
+     * Messages ended.
+     *
+     * @param  bool  $isFinal
+     *
+     * @throws Throwable
+     */
+    private function endMessage(bool $isFinal): void
+    {
+        if (! $isFinal) {
+            $this->sleepAndAdvance($isFinal);
+
+            return;
+        }
+
+        $this->usedParticipants
+            ->unique('id')
+            ->each(fn (Participant $participant) => $this->read($participant));
+
+        $this->usedParticipants = new Collection;
     }
 
     /**
