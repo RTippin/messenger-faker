@@ -26,6 +26,7 @@ class FakerBotTest extends MessengerFakerTestCase
     public function it_returns_formatted_settings()
     {
         $expected = [
+            'class' => FakerBot::class,
             'alias' => 'faker',
             'description' => 'Access our underlying messenger faker commands. Eg: [ !faker {action} {count?} {delay?}]',
             'name' => 'Messenger Faker Commands',
@@ -35,7 +36,7 @@ class FakerBotTest extends MessengerFakerTestCase
             'match' => \RTippin\Messenger\MessengerBots::MATCH_STARTS_WITH_CASELESS,
         ];
 
-        $this->assertSame($expected, MessengerBots::getHandlerSettings(FakerBot::class));
+        $this->assertSame($expected, MessengerBots::getHandlersDTO(FakerBot::class)->toArray());
     }
 
     /** @test */
