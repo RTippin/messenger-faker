@@ -26,7 +26,6 @@ class FakerBotTest extends MessengerFakerTestCase
     public function it_returns_formatted_settings()
     {
         $expected = [
-            'class' => FakerBot::class,
             'alias' => 'faker',
             'description' => 'Access our underlying messenger faker commands. Eg: [ !faker {action} {count?} {delay?}]',
             'name' => 'Messenger Faker Commands',
