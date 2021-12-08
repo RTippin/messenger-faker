@@ -3,8 +3,8 @@
 namespace RTippin\MessengerFaker\Bots;
 
 use Illuminate\Support\Facades\Artisan;
-use RTippin\Messenger\Actions\Bots\BotActionHandler;
 use RTippin\Messenger\MessengerBots;
+use RTippin\Messenger\Support\BotActionHandler;
 use Throwable;
 
 class FakerBot extends BotActionHandler
