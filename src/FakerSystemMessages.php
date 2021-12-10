@@ -50,6 +50,7 @@ trait FakerSystemMessages
             Message::BOT_RENAMED,
             Message::BOT_AVATAR_CHANGED,
             Message::BOT_REMOVED,
+            Message::BOT_PACKAGE_INSTALLED,
         ];
     }
 
@@ -122,6 +123,7 @@ trait FakerSystemMessages
             case Message::BOT_RENAMED: return $this->makeBotRenamed($participant);
             case Message::BOT_AVATAR_CHANGED: return $this->makeBotAvatarChanged($participant);
             case Message::BOT_REMOVED: return $this->makeBotRemoved($participant);
+            case Message::BOT_PACKAGE_INSTALLED: return $this->makeBotPackageInstalled($participant);
         }
 
         throw new Exception('Invalid system message type.');
@@ -319,5 +321,14 @@ trait FakerSystemMessages
     private function makeBotRemoved(Participant $participant): array
     {
         return MessageTransformer::makeBotRemoved($this->thread, $participant->owner, $this->faker->firstName);
+    }
+
+    /**
+     * @param  Participant  $participant
+     * @return array
+     */
+    private function makeBotPackageInstalled(Participant $participant): array
+    {
+        return MessageTransformer::makeBotPackageInstalled($this->thread, $participant->owner, $this->faker->firstName);
     }
 }

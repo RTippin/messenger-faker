@@ -35,7 +35,7 @@ class FakerBotTest extends MessengerFakerTestCase
             'match' => \RTippin\Messenger\MessengerBots::MATCH_STARTS_WITH_CASELESS,
         ];
 
-        $this->assertSame($expected, MessengerBots::getHandlersDTO(FakerBot::class)->toArray());
+        $this->assertSame($expected, MessengerBots::getHandlers(FakerBot::class)->toArray());
     }
 
     /** @test */

@@ -446,6 +446,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
             'BOT_RENAMED' => [Message::BOT_RENAMED],
             'BOT_AVATAR_CHANGED' => [Message::BOT_AVATAR_CHANGED],
             'BOT_REMOVED' => [Message::BOT_REMOVED],
+            'BOT_PACKAGE_INSTALLED' => [Message::BOT_PACKAGE_INSTALLED],
         ];
     }
 }
