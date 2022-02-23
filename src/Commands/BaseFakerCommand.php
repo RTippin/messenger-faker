@@ -74,6 +74,7 @@ abstract class BaseFakerCommand extends Command
     {
         $options = [
             ['admins', null, InputOption::VALUE_NONE, 'Only use admins from the given thread, if any'],
+            ['bots', null, InputOption::VALUE_NONE, 'Only use bots from the given thread, if any'],
             ['silent', null, InputOption::VALUE_NONE, 'Silences all broadcast and events'],
         ];
 
@@ -97,7 +98,8 @@ abstract class BaseFakerCommand extends Command
             $this->faker
                 ->setThreadWithId(
                     $this->argument('thread') ?: null,
-                    $this->option('admins')
+                    $this->option('admins'),
+                    $this->option('bots')
                 )
                 ->setDelay(
                     $this->hasOption('delay')

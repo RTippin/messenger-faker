@@ -16,6 +16,8 @@ use RTippin\Messenger\Exceptions\InvalidProviderException;
 use RTippin\Messenger\Exceptions\MessengerComposerException;
 use RTippin\Messenger\Exceptions\ReactionException;
 use RTippin\Messenger\Messenger;
+use RTippin\Messenger\Models\Bot;
+use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
 use RTippin\Messenger\Support\MessengerComposer;
@@ -48,9 +50,9 @@ class MessengerFaker
     private ?Thread $thread = null;
 
     /**
-     * @var DBCollection
+     * @var DBCollection|null
      */
-    private DBCollection $participants;
+    private ?DBCollection $participants = null;
 
     /**
      * @var DBCollection|null
@@ -71,6 +73,16 @@ class MessengerFaker
      * @var int
      */
     private int $delay = 0;
+
+    /**
+     * @var bool
+     */
+    private bool $useAdmins = false;
+
+    /**
+     * @var bool
+     */
+    private bool $useBots = false;
 
     /**
      * @var bool
@@ -120,17 +132,22 @@ class MessengerFaker
     /**
      * @param  string|null  $threadId
      * @param  bool  $useAdmins
+     * @param  bool  $useBots
      * @return $this
      *
      * @throws ModelNotFoundException
      */
-    public function setThreadWithId(?string $threadId = null, bool $useAdmins = false): self
+    public function setThreadWithId(?string $threadId = null,
+                                    bool $useAdmins = false,
+                                    bool $useBots = false): self
     {
+        $this->useAdmins = $useAdmins;
+        $this->useBots = $useBots;
         $this->thread = is_null($threadId)
             ? Thread::inRandomOrder()->firstOrFail()
             : Thread::findOrFail($threadId);
 
-        $this->setParticipants($useAdmins);
+        $this->setParticipants();
 
         return $this;
     }
@@ -138,15 +155,20 @@ class MessengerFaker
     /**
      * @param  Thread  $thread
      * @param  bool  $useAdmins
+     * @param  bool  $useBots
      * @return $this
      *
      * @throws ModelNotFoundException
      */
-    public function setThread(Thread $thread, bool $useAdmins = false): self
+    public function setThread(Thread $thread,
+                              bool $useAdmins = false,
+                              bool $useBots = false): self
     {
+        $this->useAdmins = $useAdmins;
+        $this->useBots = $useBots;
         $this->thread = $thread;
 
-        $this->setParticipants($useAdmins);
+        $this->setParticipants();
 
         return $this;
     }
@@ -221,6 +243,14 @@ class MessengerFaker
     }
 
     /**
+     * @return DBCollection|null
+     */
+    public function getParticipants(): ?DBCollection
+    {
+        return $this->participants;
+    }
+
+    /**
      * @return Thread
      */
     public function getThreadName(): string
@@ -253,13 +283,14 @@ class MessengerFaker
      * Mark the given providers as read and send broadcast.
      *
      * @param  Participant|null  $participant
+     * @param  Message|null  $message
      * @return $this
      *
      * @throws Throwable
      */
-    public function read(Participant $participant = null): self
+    public function read(Participant $participant = null, ?Message $message = null): self
     {
-        $message = $this->thread->messages()->latest()->first();
+        $message = $message ?? $this->thread->messages()->latest()->first();
 
         if (! is_null($message)) {
             if (! is_null($participant)) {
@@ -517,9 +548,13 @@ class MessengerFaker
             return;
         }
 
-        $this->usedParticipants
-            ->unique('id')
-            ->each(fn (Participant $participant) => $this->read($participant));
+        if (! $this->useBots) {
+            $message = $this->thread->messages()->latest()->first();
+
+            $this->usedParticipants
+                ->unique('id')
+                ->each(fn (Participant $participant) => $this->read($participant, $message));
+        }
 
         $this->usedParticipants = new Collection;
     }
@@ -549,16 +584,36 @@ class MessengerFaker
     }
 
     /**
-     * @param  bool  $useAdmins
+     * @return void
      */
-    private function setParticipants(bool $useAdmins): void
+    private function setParticipants(): void
     {
-        if ($useAdmins && $this->thread->isGroup()) {
-            $this->participants = $this->thread->participants()->admins()->with('owner')->get();
+        if ($this->thread->isGroup()) {
+            if ($this->useAdmins) {
+                $this->participants = $this->thread
+                    ->participants()
+                    ->admins()
+                    ->with('owner')
+                    ->get();
 
-            return;
+                return;
+            }
+
+            if ($this->useBots) {
+                $this->participants = $this->thread
+                    ->bots()
+                    ->get()
+                    ->map(
+                        fn (Bot $bot) => (new Participant)->setRelation('owner', $bot)
+                    );
+
+                return;
+            }
         }
 
-        $this->participants = $this->thread->participants()->with('owner')->get();
+        $this->participants = $this->thread
+            ->participants()
+            ->with('owner')
+            ->get();
     }
 }

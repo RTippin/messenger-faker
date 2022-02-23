@@ -21,6 +21,7 @@ use RTippin\Messenger\Events\KnockEvent;
 use RTippin\Messenger\Events\NewMessageEvent;
 use RTippin\Messenger\Events\ReactionAddedEvent;
 use RTippin\Messenger\Facades\Messenger;
+use RTippin\Messenger\Models\Bot;
 use RTippin\Messenger\Models\Message;
 use RTippin\Messenger\Models\Participant;
 use RTippin\Messenger\Models\Thread;
@@ -90,6 +91,38 @@ class MessengerFakerTest extends MessengerFakerTestCase
         $faker->setThreadWithId();
 
         $this->assertContains($faker->getThread()->id, [$thread1->id, $thread2->id]);
+    }
+
+    /** @test */
+    public function it_sets_thread_participants()
+    {
+        $faker = app(MessengerFaker::class);
+        $thread = $this->createGroupThread($this->tippin, $this->doe);
+        $faker->setThreadWithId($thread->id);
+
+        $this->assertSame(2, $faker->getParticipants()->count());
+    }
+
+    /** @test */
+    public function it_sets_thread_admin_participants()
+    {
+        $faker = app(MessengerFaker::class);
+        $thread = $this->createGroupThread($this->tippin, $this->doe);
+        $faker->setThreadWithId($thread->id, true);
+
+        $this->assertSame(1, $faker->getParticipants()->count());
+    }
+
+    /** @test */
+    public function it_sets_thread_bots_as_participants()
+    {
+        $faker = app(MessengerFaker::class);
+        $thread = $this->createGroupThread($this->tippin, $this->doe);
+        $bot = Bot::factory()->for($thread)->owner($this->tippin)->create();
+        $faker->setThreadWithId($thread->id, false, true);
+
+        $this->assertSame(1, $faker->getParticipants()->count());
+        $this->assertSame($bot->id, $faker->getParticipants()->first()->owner->id);
     }
 
     /** @test */

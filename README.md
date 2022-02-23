@@ -77,6 +77,7 @@ ___
 - `--count=X` flag to set how many messages are sent.
 - `--delay=X` flag to set delay in seconds between each message.
 - `--admins` flag will only use admin participants if using a group thread.
+- `--bots` flag will only use bots if using a group thread.
 - `--silent` flag that will suppress all broadcast and event dispatches.
 
 ---
@@ -88,6 +89,7 @@ ___
 - `--messages=X` flag to set how many latest messages are chosen at random to be reacted to.
 - `--delay=X` flag to set delay in seconds between each reaction.
 - `--admins` flag will only use admin participants if using a group thread.
+- `--bots` flag will only use bots if using a group thread.
 - `--silent` flag that will suppress all broadcast and event dispatches.
 
 ---
@@ -99,6 +101,7 @@ ___
 - `--type=X` flag to set the system message type. `88, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103`
 - `--delay=X` flag to set delay in seconds between each system message.
 - `--admins` flag will only use admin participants if using a group thread.
+- `--bots` flag will only use bots if using a group thread.
 - `--silent` flag that will suppress all broadcast and event dispatches.
 
 ---
@@ -109,6 +112,7 @@ ___
 - `--count=X` flag to set how many images are sent.
 - `--delay=X` flag to set delay in seconds between each image.
 - `--admins` flag will only use admin participants if using a group thread.
+- `--bots` flag will only use bots if using a group thread.
 - `--local` flag will choose a random image from the directory specified for images in the config file.
 - `--url=X` flag lets you directly specify an image URL to download and emit.
 - `--silent` flag that will suppress all broadcast and event dispatches.
@@ -121,6 +125,7 @@ ___
 - `--count=X` flag to set how many documents are sent.
 - `--delay=X` flag to set delay in seconds between each document.
 - `--admins` flag will only use admin participants if using a group thread.
+- `--bots` flag will only use bots if using a group thread.
 - `--url=X` flag lets you directly specify a document URL to download and emit.
 - `--silent` flag that will suppress all broadcast and event dispatches.
 
@@ -132,6 +137,7 @@ ___
 - `--count=X` flag to set how many audio files are sent.
 - `--delay=X` flag to set delay in seconds between each audio file.
 - `--admins` flag will only use admin participants if using a group thread.
+- `--bots` flag will only use bots if using a group thread.
 - `--url=X` flag lets you directly specify an audio URL to download and emit.
 - `--silent` flag that will suppress all broadcast and event dispatches.
 
@@ -143,6 +149,7 @@ ___
 - `--count=X` flag to set how many video files are sent.
 - `--delay=X` flag to set delay in seconds between each video file.
 - `--admins` flag will only use admin participants if using a group thread.
+- `--bots` flag will only use bots if using a group thread.
 - `--url=X` flag lets you directly specify a video URL to download and emit.
 - `--silent` flag that will suppress all broadcast and event dispatches.
 
@@ -154,6 +161,7 @@ ___
 - `--count=X` flag to set how many messages are sent.
 - `--delay=X` flag to set delay in seconds between each message.
 - `--admins` flag will only use admin participants if using a group thread.
+- `--bots` flag will only use bots if using a group thread.
 - `--silent` flag that will suppress all broadcast and event dispatches.
 
 ---
@@ -169,6 +177,7 @@ ___
 - Make participants in the thread type.
 - `{thread?}` ID of the thread you want to seed. Random if not set.
 - `--admins` flag will only use admin participants if using a group thread.
+- `--bots` flag will only use bots if using a group thread.
 
 ---
 
