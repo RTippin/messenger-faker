@@ -155,7 +155,7 @@ class SystemCommandTest extends MessengerFakerTestCase
             ->assertExitCode(0);
     }
 
-    public function systemMessageTypes(): array
+    public static function systemMessageTypes(): array
     {
         return [
             'PARTICIPANT_JOINED_WITH_INVITE' => [88],
@@ -172,7 +172,7 @@ class SystemCommandTest extends MessengerFakerTestCase
         ];
     }
 
-    public function notEnoughParticipants(): array
+    public static function notEnoughParticipants(): array
     {
         return [
             'DEMOTED_ADMIN' => [95],
