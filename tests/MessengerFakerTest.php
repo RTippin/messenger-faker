@@ -461,7 +461,7 @@ class MessengerFakerTest extends MessengerFakerTestCase
         Event::assertDispatched(NewMessageBroadcast::class);
     }
 
-    public function systemMessageTypes(): array
+    public static function systemMessageTypes(): array
     {
         return [
             'PARTICIPANT_JOINED_WITH_INVITE' => [Message::PARTICIPANT_JOINED_WITH_INVITE],
