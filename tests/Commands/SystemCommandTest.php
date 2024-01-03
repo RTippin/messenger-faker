@@ -119,9 +119,10 @@ class SystemCommandTest extends MessengerFakerTestCase
 
     /**
      * @test
+     *
      * @dataProvider systemMessageTypes
      *
-     * @param $type
+     * @param  $type
      */
     public function it_accepts_type($type)
     {
@@ -138,9 +139,10 @@ class SystemCommandTest extends MessengerFakerTestCase
 
     /**
      * @test
+     *
      * @dataProvider notEnoughParticipants
      *
-     * @param $type
+     * @param  $type
      */
     public function it_doesnt_have_enough_participants($type)
     {
