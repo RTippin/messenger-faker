@@ -36,6 +36,7 @@ class MessengerFakerServiceProvider extends ServiceProvider
      * Bootstrap any package services.
      *
      * @return void
+     *
      * @TODO v2 remove check for videos path.
      */
     public function boot(): void
